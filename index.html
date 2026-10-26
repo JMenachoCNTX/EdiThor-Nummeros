@@ -67,6 +67,8 @@ button{cursor:pointer}
 .menu button{border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:6px}
 .menu button:hover{background:var(--hover)}
 .menu button small{display:block;color:var(--muted);font-size:11.5px}
+.menu button[aria-checked="true"]{color:var(--acc);font-weight:700}
+.menu button[aria-checked="true"]::after{content:" ✓"}
 
 /* main grid */
 .main{display:grid;grid-template-columns:68px 300px minmax(0,1fr) 290px;min-height:0}
@@ -120,7 +122,15 @@ button{cursor:pointer}
 .stagebar{position:absolute;right:12px;bottom:12px;display:flex;gap:4px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
 .stagebar .btn{border:0;height:28px;padding:4px 8px}
 .stagebar output{min-width:44px;text-align:center;font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted)}
-.sizetag{position:absolute;left:12px;bottom:12px;font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
+.pagebar{position:absolute;left:12px;bottom:12px;display:flex;gap:4px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.12);max-width:calc(100% - 24px);flex-wrap:wrap}
+.pagebar .btn{border:0;height:28px;padding:4px 9px}
+.pagebar #pg-lbl{font-size:12px;font-weight:600;padding:0 4px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pagebar .sizetag{position:static;border:0;background:transparent;padding:0 6px}
+.pages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}
+.pg{border:1px solid var(--line);background:var(--stage);border-radius:6px;padding:4px;display:grid;gap:3px;justify-items:center;font-size:11px;color:var(--muted);min-width:0}
+.pg canvas{max-width:100%;height:auto;display:block;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.pg[aria-current="true"]{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc);color:var(--acc);font-weight:700}
+.sizetag-old{font-size:11.5px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
 #editor-txt{position:absolute;margin:0;border:0;outline:1.5px dashed #2E90FA;background:transparent;resize:none;overflow:hidden;white-space:pre-wrap;word-break:normal;overflow-wrap:break-word;z-index:5;padding:0}
 .dropveil{position:absolute;inset:0;background:rgba(46,144,250,.12);border:2px dashed #2E90FA;display:grid;place-items:center;font-weight:700;font-size:15px;color:#2E90FA;z-index:6}
 
@@ -202,6 +212,7 @@ button{cursor:pointer}
 
 /* phones and narrow windows */
 @media (max-width:900px){
+  .stagebar{top:12px;bottom:auto}
   body{overflow:auto}
   .app{height:auto;min-height:100%}
   .top{flex-wrap:wrap}
@@ -234,6 +245,14 @@ button{cursor:pointer}
     <input id="nombre" type="text" aria-label="Nombre del diseño" value="Diseño sin nombre">
     <div class="spacer"></div>
     <span class="status" id="status" aria-live="polite"></span>
+    <div class="menuwrap">
+      <button class="btn icon" id="btn-theme" type="button" title="Modo claro u oscuro" aria-label="Modo claro u oscuro" aria-haspopup="true" aria-expanded="false"></button>
+      <div class="menu" id="menu-theme" hidden>
+        <button type="button" data-th="system">Según el sistema<small>Sigue la configuración de tu computadora</small></button>
+        <button type="button" data-th="light">Claro</button>
+        <button type="button" data-th="dark">Oscuro</button>
+      </div>
+    </div>
     <button class="btn icon" id="undo" type="button" title="Deshacer (Ctrl/⌘ + Z)" aria-label="Deshacer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
     <button class="btn icon" id="redo" type="button" title="Rehacer (Ctrl/⌘ + Shift + Z)" aria-label="Rehacer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
     <button class="btn" id="btn-disenos" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span class="hide-narrow">Mis diseños</span></button>
@@ -242,6 +261,7 @@ button{cursor:pointer}
       <div class="menu" id="menu-descargar" hidden>
         <button type="button" data-fmt="png">PNG<small>Máxima calidad · para redes y estados</small></button>
         <button type="button" data-fmt="jpg">JPG<small>Archivo más liviano · para WhatsApp</small></button>
+        <button type="button" data-fmt="pdf">PDF<small>Todas las páginas · para imprimir o enviar</small></button>
       </div>
     </div>
   </header>
@@ -260,7 +280,13 @@ button{cursor:pointer}
     <aside class="lib" id="lib"></aside>
     <section class="stage" id="stage" aria-label="Lienzo">
       <canvas id="cv" tabindex="0" aria-label="Diseño. Haz clic en un elemento para seleccionarlo y arrástralo para moverlo."></canvas>
-      <span class="sizetag" id="sizetag"></span>
+      <div class="pagebar" id="pagebar">
+        <button class="btn" type="button" id="pg-prev" aria-label="Página anterior">‹</button>
+        <span id="pg-lbl">Página 1 de 1</span>
+        <button class="btn" type="button" id="pg-next" aria-label="Página siguiente">›</button>
+        <button class="btn" type="button" id="pg-add">+ Página</button>
+        <span class="sizetag" id="sizetag"></span>
+      </div>
       <div class="stagebar">
         <button class="btn" id="zout" type="button" aria-label="Alejar">−</button>
         <output id="zval">100%</output>
@@ -326,7 +352,8 @@ function photoGroups(brand){
     {t:"Objetos 3D",contain:true,items:[{src:"objetos-web/contax-objeto-escudo.png",name:"Escudo"},{src:"objetos-web/contax-objeto-nube.png",name:"Nube"}]},
     {t:"Colaboración CONTAX × NUMMEROS",items:COL.map(([k,d])=>({src:"colaboracion/"+k+".jpg",th:"mini/"+k+".jpg",name:d}))}];
 }
-const SIZES=[["estado","Estado de WhatsApp",1080,1920],["post45","Publicación 4:5",1080,1350],["post11","Publicación cuadrada",1080,1080],["portada","Portada de Facebook",1640,624],["slide","Presentación 16:9",1920,1080],["a4","Hoja A4 (pantalla)",1240,1754]];
+const SIZES=[["estado","Estado de WhatsApp",1080,1920],["post45","Publicación 4:5",1080,1350],["post11","Publicación cuadrada",1080,1080],["perfil","Foto de perfil",1080,1080],["portada","Portada de Facebook",1640,624],["bannerweb","Banner web",1920,600],["slide","Presentación 16:9",1920,1080],
+  ["a4","Hoja o folleto A4",1240,1754,[210,297]],["triptico","Tríptico A4 (horizontal)",1754,1240,[297,210]],["rollup","Banner roll-up 85 × 200 cm",1020,2400,[850,2000]]];
 
 /* ================== small helpers ================== */
 const $=s=>document.querySelector(s);
@@ -410,6 +437,13 @@ function drawDesign(ctx,d,editingId){
 /* ================== state ================== */
 const S={brand:lsGet("ed.brand","nummeros"),style:"claro",tab:"plantillas",doc:null,sel:null,multi:[],crop:null,zoom:1,editing:null,dirty:false,saveTimer:0,hist:[],hi:-1};
 function newDoc(w,h,bg,brand,name){return{id:"d-"+Date.now().toString(36)+uid().slice(0,4),name:name||"Diseño sin nombre",brand:brand||S.brand,w,h,bg:bg||"#FFFFFF",layers:[]}}
+/* A design has pages; S.doc.bg / S.doc.layers always point at the page being edited */
+function normDoc(d){if(!d.pages||!d.pages.length)d.pages=[{id:"p"+uid(),bg:d.bg||"#FFFFFF",layers:d.layers||[]}];
+  d.pi=clamp(d.pi||0,0,d.pages.length-1);const P=d.pages[d.pi];d.bg=P.bg;d.layers=P.layers;return d}
+function syncPage(){const d=S.doc;if(!d||!d.pages)return;const P=d.pages[d.pi||0];if(P){P.bg=d.bg;P.layers=d.layers}}
+const pagesOut=d=>(syncPage(),d.pages.map(P=>({id:P.id,name:P.name||"",bg:P.bg,layers:P.layers.map(stripL)})));
+function fromRecord(id,x){const d=clone(x);d.id=id;delete d.thumb;return normDoc(d)}
+function mkPage(bg,layers,name){return{id:"p"+uid(),name:name||"",bg,layers}}
 const selL=()=>S.doc&&!S.multi.length&&S.doc.layers.find(l=>l.id===S.sel)||null;
 /* selection: one element (S.sel) or several (S.multi). Grouped elements share L.g */
 const selIds=()=>S.multi.length?S.multi.slice():(S.sel?[S.sel]:[]);
@@ -438,6 +472,11 @@ function isoArt(x,y,h,S0,op){return{id:uid(),t:"iso",name:"Isotipo (fondo)",x,y,
 function stack(list,gaps){let y=list[0].y;list.forEach((L,i)=>{L.y=Math.round(y);if(L.t==="text")layoutText(L);y+=L.h+(gaps[i]||0)})}
 
 /* ================== templates ================== */
+/* a list with small square bullets; returns the layers and where it ends */
+function bullets(x,y,w,items,o){const out=[];let yy=y;for(const t of items){const tx=T({name:"Punto",x:Math.round(x+o.size*1.1),y:Math.round(yy),w:Math.round(w-o.size*1.1),txt:t,font:o.font,weight:o.weight||400,size:o.size,color:o.color,lh:1.3});layoutText(tx);
+    const dsz=Math.round(o.size*.42);out.push(R({name:"Viñeta",x:Math.round(x),y:Math.round(yy+o.size*1.3/2-dsz/2),w:dsz,h:dsz,fill:o.dot,rad:o.round?999:Math.round(dsz*.2)}),tx);yy+=tx.h+o.gap}return{layers:out,y:yy}}
+const NCONT="nummeros.contaxbolivia.com\nWhatsApp +591 690-21969",CCONT="info@contaxbolivia.com\nWhatsApp +591 690-21969\nCond. Los Ángeles Casa 181 · Santa Cruz";
+const cfoto=(k,st)=>`fotos-web/contax-foto-${k}${st==="oscuro"?"-noche":"-blanco"}.jpg`;
 const TPL={
 nummeros:[
  {id:"n-estado-foto",name:"Estado con foto",size:"1080 × 1920",async build(st){const S0=BR.nummeros.st[st],B=brandText("nummeros",S0),d=newDoc(1080,1920,S0.bg,"nummeros","Estado con foto");
@@ -466,7 +505,45 @@ nummeros:[
  {id:"n-colab",name:"Colaboración",size:"1080 × 1350",async build(st){const S0=BR.nummeros.st[st],B=brandText("nummeros",S0),d=newDoc(1080,1350,S0.bg,"nummeros","Colaboración NUMMEROS × CONTAX");
    const k=B.kicker(80,760,920,"NUMMEROS × CONTAX",26),t=B.title(80,0,920,"Tus números, juntos en un solo lugar",84),p=B.body(80,0,920,"La contabilidad de CONTAX y los sistemas de NUMMEROS trabajan juntos para tu empresa.",34);
    stack([k,t,p],[18,26]);const lg=await logo("nummeros","firma",S0.logo,80,0,300);lg.y=1350-72-lg.h;
-   d.layers.push(I({name:"Foto",x:0,y:0,w:1080,h:700,src:"colaboracion/apreton-manos-claro.jpg"}),k,t,p,lg);return d}}
+   d.layers.push(I({name:"Foto",x:0,y:0,w:1080,h:700,src:"colaboracion/apreton-manos-claro.jpg"}),k,t,p,lg);return d}},
+ {id:"n-perfil",name:"Foto de perfil WhatsApp",size:"1080 × 1080",async build(st){const bg=st==="oscuro"?"#051F20":"#DAF1DE",fg=st==="oscuro"?"#DAF1DE":"#235347",d=newDoc(1080,1080,bg,"nummeros","Foto de perfil WhatsApp");
+   const h=560,w=Math.round(h*546/728);d.layers.push({id:uid(),t:"n",name:"La N",x:Math.round((1080-w)/2),y:Math.round((1080-h)/2),w,h,fill:fg,op:1});return d}},
+ {id:"n-folleto",name:"Folleto A4",size:"A4 · 21 × 29,7 cm",async build(st){const S0=BR.nummeros.st[st],B=brandText("nummeros",S0),d=newDoc(1240,1754,S0.bg,"nummeros","Folleto A4");d.mm=[210,297];
+   const k=B.kicker(96,750,1048,"Sistemas a la medida",30),t=B.title(96,0,1048,"Tu negocio, ordenado en un solo sistema",84),p=B.body(96,0,1048,"Dejamos atrás las hojas de cálculo: ventas, caja, inventario, facturación y reportes en un sistema hecho para tu empresa.",34);
+   stack([k,t,p],[20,28]);const L=bullets(96,p.y+p.h+36,1048,["Cierres de caja en minutos","Reportes al día para decidir","Menos errores y menos gasto en licencias"],{font:"Questrial",size:32,color:S0.ink,dot:S0.acc,gap:14});
+   const b=B.pill(96,Math.round(L.y+22),"Pide tu demo",32);const lg=await logo("nummeros","firma",S0.logo,96,0,340);lg.y=Math.round(1754-110-lg.h/2);
+   d.layers.push(I({name:"Foto",x:0,y:0,w:1240,h:680,src:"clasicos/pitagoras-tablet.jpg",fy:.42}),...chip(64,646,"pitagoras",32,S0),k,t,p,...L.layers,b,
+     R({name:"Franja de contacto",x:0,y:1754-220,w:1240,h:220,fill:S0.soft}),lg,T({name:"Contacto",x:600,y:1754-110-38,w:544,txt:NCONT,font:"Questrial",size:28,color:S0.ink,align:"right",lh:1.4}));return d}},
+ {id:"n-triptico",name:"Tríptico",size:"A4 horizontal · 2 páginas",async build(st){const S0=BR.nummeros.st[st],B=brandText("nummeros",S0),d=newDoc(1754,1240,S0.bg,"nummeros","Tríptico");d.mm=[297,210];d.folds=[1/3,2/3];
+   const P=585,m=56,cw=P-m*2;
+   /* exterior: solapa interior · contraportada · portada */
+   const k1=B.kicker(m,110,cw,"¿Por qué NUMMEROS?",24),t1=B.title(m,0,cw,"Tu empresa no se adapta al sistema",54);stack([k1,t1],[16]);
+   const L1=bullets(m,t1.y+t1.h+40,cw,["Hecho a la medida de tu operación","Funciona en línea: sin instalaciones","Ventas, caja e inventario conectados","Reportes claros para decidir"],{font:"Questrial",size:28,color:S0.ink,dot:S0.acc,gap:18});
+   const q=T({name:"Frase",x:m,y:Math.round(L1.y+40),w:cw,txt:"El sistema se adapta a tu empresa, no al revés.",font:"Akshar",weight:600,size:34,color:S0.acc,lh:1.1});
+   const lgB=await logo("nummeros","apilado",S0.logo,P+Math.round((P-300)/2),180,300);
+   const ct=T({name:"Contacto (título)",x:P+m,y:Math.round(lgB.y+lgB.h+90),w:cw,txt:"Contáctanos",font:"Akshar",weight:700,size:44,color:S0.ink,align:"center",lh:1.1});layoutText(ct);
+   const cx=T({name:"Contacto",x:P+m,y:ct.y+ct.h+18,w:cw,txt:NCONT+"\nSanta Cruz, Bolivia",font:"Questrial",size:28,color:S0.muted,align:"center",lh:1.5});
+   const lgF=await logo("nummeros","firma",S0.logo,2*P+m,800,320);const tF=B.title(2*P+m,Math.round(lgF.y+lgF.h+44),cw,"Sistemas a la medida de tu empresa.",52);
+   const pg1=[R({name:"Fondo solapa",x:0,y:0,w:P,h:1240,fill:S0.soft}),k1,t1,...L1.layers,q,lgB,ct,cx,T({name:"Pie",x:P+m,y:1240-90,w:cw,txt:"NUMMEROS by CONTAX",font:"Questrial",size:22,color:S0.muted,align:"center"}),
+     ...tiles(2*P,0,3,1,195,244,BR.nummeros.tiles[st]),I({name:"Foto portada",x:2*P,y:244,w:P,h:520,src:"clasicos/euclides-laptop.jpg",fy:.35}),...chip(2*P+24,744,"euclides",26,S0),lgF,tF];
+   /* interior: tres secciones */
+   const sec=async(i,img,kick,title,items,extra)=>{const x0=i*P+m;const out=[I({name:"Ilustración",x:x0,y:80,w:cw,h:340,src:"graficos/"+img+".png",fit:"contain"})];
+     const kk=B.kicker(x0,470,cw,kick,24),tt=B.title(x0,0,cw,title,46);stack([kk,tt],[14]);const LL=bullets(x0,tt.y+tt.h+34,cw,items,{font:"Questrial",size:27,color:S0.ink,dot:S0.acc,gap:16});out.push(kk,tt,...LL.layers);if(extra)out.push(extra(x0,LL.y));return out};
+   const pg2=[...await sec(0,"ilu-inventario","Qué hacemos","Tu sistema propio",["Creamos el sistema a la medida de tu empresa","Ventas, caja, inventario, planillas y reportes en un solo lugar","Tu equipo deja las hojas de cálculo usadas como sistema"]),
+     R({name:"Separador",x:P,y:80,w:2,h:1080,fill:S0.line}),
+     ...await sec(1,"ilu-ventas-celular","Cómo trabajamos","Paso a paso, contigo",["Conocemos tu operación y tus números","Diseñamos el sistema junto a tu equipo","Lo ponemos en marcha y te acompañamos"],(x,y)=>B.pill(x,Math.round(y+30),"Pide tu demo",28)),
+     R({name:"Separador",x:2*P,y:80,w:2,h:1080,fill:S0.line}),
+     ...await sec(2,"ilu-crecimiento-reportes","Lo que ganas","Control de tus números",["Cierres de caja en minutos","Reportes al día para decidir","Menos errores y menos gasto en licencias"])];
+   d.pages=[mkPage(S0.bg,pg1,"Exterior"),mkPage(S0.bg,pg2,"Interior")];return d}},
+ {id:"n-bannerweb",name:"Banner web",size:"1920 × 600",async build(st){const S0=BR.nummeros.st[st],B=brandText("nummeros",S0),d=newDoc(1920,600,S0.bg,"nummeros","Banner web");
+   const k=B.kicker(120,110,1040,"NUMMEROS",28),t=B.title(120,0,1040,"Sistemas a la medida de tu empresa",86),p=B.body(120,0,1040,"Ventas, caja, inventario y reportes en un solo lugar.",34);stack([k,t,p],[18,22]);
+   d.layers.push(...tiles(1280,0,3,2,640/3,300,BR.nummeros.tiles[st]),k,t,p,B.pill(120,Math.round(p.y+p.h+34),"Pide tu demo",28));return d}},
+ {id:"n-rollup",name:"Banner roll-up",size:"85 × 200 cm",async build(st){const S0=BR.nummeros.st[st],B=brandText("nummeros",S0),d=newDoc(1020,2400,S0.bg,"nummeros","Banner roll-up");d.mm=[850,2000];
+   const lg=await logo("nummeros","firma",S0.logo,90,120,440);const k=B.kicker(90,Math.round(lg.y+lg.h+110),840,"Sistemas a la medida",32),t=B.title(90,0,840,"Tu negocio en un solo sistema",112),p=B.body(90,0,840,"Ventas, caja, inventario, facturación y reportes, hechos para tu empresa.",40);stack([k,t,p],[20,30]);
+   const ph=I({name:"Foto",x:0,y:Math.round(p.y+p.h+70),w:1020,h:0,src:"clasicos/pitagoras-senalando.jpg",fy:.3});ph.h=1940-ph.y;
+   const ct=T({name:"Contacto",x:90,y:2210,w:840,txt:"nummeros.contaxbolivia.com · WhatsApp +591 690-21969",font:"Questrial",size:30,color:S0.ink,align:"center",lh:1.4});
+   const b=B.pill(0,2060,"Pide tu demo",42);layoutText(b);b.x=Math.round((1020-b.w)/2);
+   d.layers.push(lg,k,t,p,ph,...chip(60,ph.y+ph.h-40,"pitagoras",34,S0),R({name:"Franja inferior",x:0,y:1940,w:1020,h:460,fill:S0.soft}),b,ct);return d}}
 ],
 contax:[
  {id:"c-estado-foto",name:"Estado con foto",size:"1080 × 1920",async build(st){const S0=BR.contax.st[st],B=brandText("contax",S0),d=newDoc(1080,1920,S0.bg,"contax","Estado con foto");
@@ -495,7 +572,42 @@ contax:[
  {id:"c-colab",name:"Colaboración",size:"1080 × 1350",async build(st){const S0=BR.contax.st[st],B=brandText("contax",S0),d=newDoc(1080,1350,S0.bg,"contax","Colaboración CONTAX × NUMMEROS");
    const k=B.kicker(80,760,920,"CONTAX × NUMMEROS",26),t=B.title(80,0,920,"Su contabilidad y su sistema, en un solo equipo",72),p=B.body(80,0,920,"Sus estados financieros y reportes, siempre a la mano en su portal.",32);
    stack([k,t,p],[18,26]);const lg=await logo("contax","horizontal",S0.logo,80,0,300);lg.y=1350-72-lg.h;
-   d.layers.push(I({name:"Foto",x:0,y:0,w:1080,h:700,src:"colaboracion/arquimedes-saludo-claro.jpg"}),k,t,p,lg);return d}}
+   d.layers.push(I({name:"Foto",x:0,y:0,w:1080,h:700,src:"colaboracion/arquimedes-saludo-claro.jpg"}),k,t,p,lg);return d}},
+ {id:"c-perfil",name:"Foto de perfil WhatsApp",size:"1080 × 1080",async build(st){const dark=st==="oscuro",d=newDoc(1080,1080,dark?"#011230":"#FFFFFF","contax","Foto de perfil WhatsApp");
+   const h=600,w=Math.round(h*ISO.w/ISO.h);d.layers.push({id:uid(),t:"iso",name:"Isotipo",x:Math.round((1080-w)/2),y:Math.round((1080-h)/2),w,h,fill:dark?"#FFFFFF":"#152644",fill2:"#7E9197",fill3:dark?"#A9B6BA":"#000000",op:1});return d}},
+ {id:"c-folleto",name:"Folleto A4",size:"A4 · 21 × 29,7 cm",async build(st){const S0=BR.contax.st[st],B=brandText("contax",S0),d=newDoc(1240,1754,S0.bg,"contax","Folleto A4");d.mm=[210,297];
+   const k=B.kicker(96,750,1048,"Atención virtual",28),t=B.title(96,0,1048,"Su contabilidad al día, desde donde esté",76),p=B.body(96,0,1048,"Llevamos la contabilidad, las planillas y las declaraciones de su empresa en Santa Cruz. Usted nos escribe por WhatsApp y recibe todo en digital.",32);
+   stack([k,t,p],[20,28]);const L=bullets(96,p.y+p.h+36,1048,["Contabilidad mensual y estados financieros","Declaraciones al SIN a tiempo, sin multas","Planillas de sueldos y trámites"],{font:"Adventor CX",size:30,color:S0.ink,dot:S0.acc,gap:14});
+   const b=B.pill(96,Math.round(L.y+22),"Agende una reunión",30);const lg=await logo("contax","horizontal",S0.logo,96,0,340);lg.y=Math.round(1754-110-lg.h/2);
+   d.layers.push(I({name:"Foto",x:0,y:0,w:1240,h:680,src:cfoto("sofa",st)}),k,t,p,...L.layers,b,R({name:"Franja de contacto",x:0,y:1754-220,w:1240,h:220,fill:S0.soft}),lg,
+     T({name:"Contacto",x:560,y:1754-110-52,w:584,txt:CCONT,font:"Adventor CX",size:24,color:S0.ink,align:"right",lh:1.45}));return d}},
+ {id:"c-triptico",name:"Tríptico",size:"A4 horizontal · 2 páginas",async build(st){const S0=BR.contax.st[st],B=brandText("contax",S0),d=newDoc(1754,1240,S0.bg,"contax","Tríptico");d.mm=[297,210];d.folds=[1/3,2/3];
+   const P=585,m=56,cw=P-m*2;
+   const k1=B.kicker(m,110,cw,"¿Por qué CONTAX?",22),t1=B.title(m,0,cw,"Un contador que responde",50);stack([k1,t1],[16]);
+   const L1=bullets(m,t1.y+t1.h+40,cw,["Atención virtual desde 2023","Envíe sus facturas por WhatsApp","Buzón 24/7 para facturas manuales","Todo se entrega en digital"],{font:"Adventor CX",size:26,color:S0.ink,dot:S0.acc,gap:18});
+   const q=T({name:"Frase",x:m,y:Math.round(L1.y+40),w:cw,txt:"Sus números en orden, sin multas ni sorpresas.",font:"Adventor CX",weight:700,size:30,color:S0.acc,lh:1.2});
+   const lgB=await logo("contax","vertical",S0.logo,P+Math.round((P-280)/2),170,280);
+   const ct=T({name:"Contacto (título)",x:P+m,y:Math.round(lgB.y+lgB.h+90),w:cw,txt:"Contáctenos",font:"Adventor CX",weight:700,size:40,color:S0.ink,align:"center",lh:1.1});layoutText(ct);
+   const cx=T({name:"Contacto",x:P+m,y:ct.y+ct.h+18,w:cw,txt:CCONT,font:"Adventor CX",size:24,color:S0.muted,align:"center",lh:1.55});
+   const lgF=await logo("contax","horizontal",S0.logo,2*P+m,800,340);const tF=B.title(2*P+m,Math.round(lgF.y+lgF.h+44),cw,"Contabilidad e impuestos para su empresa",44);
+   const pg1=[R({name:"Fondo solapa",x:0,y:0,w:P,h:1240,fill:S0.soft}),k1,t1,...L1.layers,q,isoArt(P+P-260,1240-300,300,S0,.9),lgB,ct,cx,
+     I({name:"Foto portada",x:2*P,y:0,w:P,h:740,src:cfoto("retrato",st),fy:.3}),lgF,tF];
+   const sec=(i,img,kick,title,items,extra)=>{const x0=i*P+m;const out=[I({name:"Foto",x:x0,y:80,w:cw,h:340,src:cfoto(img,st),rad:10})];
+     const kk=B.kicker(x0,470,cw,kick,22),tt=B.title(x0,0,cw,title,42);stack([kk,tt],[14]);const LL=bullets(x0,tt.y+tt.h+34,cw,items,{font:"Adventor CX",size:25,color:S0.ink,dot:S0.acc,gap:16});out.push(kk,tt,...LL.layers);if(extra)out.push(extra(x0,LL.y));return out};
+   const pg2=[...sec(0,"escritorio","Qué hacemos","Su contabilidad, completa",["Llevamos su contabilidad mes a mes","Presentamos sus declaraciones al SIN a tiempo","Preparamos sus planillas de sueldos"]),
+     R({name:"Separador",x:P,y:80,w:2,h:1080,fill:S0.line}),
+     ...sec(1,"celular","Cómo trabajamos","Simple y por WhatsApp",["Recibimos sus facturas y extractos","Registramos y conciliamos cada movimiento","Le enviamos un resumen claro cada mes"],(x,y)=>B.pill(x,Math.round(y+30),"Agende una reunión",26)),
+     R({name:"Separador",x:2*P,y:80,w:2,h:1080,fill:S0.line}),
+     ...sec(2,"listo","Lo que gana","Tranquilidad cada mes",["Declaraciones sin multas por atraso","Reportes al día para decidir","Un contador que responde"])];
+   d.pages=[mkPage(S0.bg,pg1,"Exterior"),mkPage(S0.bg,pg2,"Interior")];return d}},
+ {id:"c-bannerweb",name:"Banner web",size:"1920 × 600",async build(st){const S0=BR.contax.st[st],B=brandText("contax",S0),d=newDoc(1920,600,S0.bg,"contax","Banner web");
+   const lg=await logo("contax","horizontal",S0.logo,120,80,300);const t=B.title(120,Math.round(lg.y+lg.h+50),1000,"Su contabilidad al día, desde donde esté",70),p=B.body(120,0,1000,"Contabilidad, declaraciones y planillas para su empresa en Santa Cruz.",30);stack([t,p],[22]);
+   d.layers.push(I({name:"Foto",x:1180,y:0,w:740,h:600,src:cfoto("hamaca2",st),fx:.6}),lg,t,p);return d}},
+ {id:"c-rollup",name:"Banner roll-up",size:"85 × 200 cm",async build(st){const S0=BR.contax.st[st],B=brandText("contax",S0),d=newDoc(1020,2400,S0.bg,"contax","Banner roll-up");d.mm=[850,2000];
+   const lg=await logo("contax","horizontal",S0.logo,90,130,520);const k=B.kicker(90,Math.round(lg.y+lg.h+110),840,"Atención virtual",30),t=B.title(90,0,840,"Su contabilidad al día, desde donde esté",96),p=B.body(90,0,840,"Contabilidad, declaraciones al SIN y planillas para su empresa.",38);stack([k,t,p],[20,30]);
+   const ph=I({name:"Foto",x:0,y:Math.round(p.y+p.h+60),w:1020,h:0,src:cfoto("caminando",st),fy:.25});ph.h=1940-ph.y;
+   const b=B.pill(0,2040,"Agende una reunión",40);layoutText(b);b.x=Math.round((1020-b.w)/2);
+   d.layers.push(lg,k,t,p,ph,R({name:"Franja inferior",x:0,y:1940,w:1020,h:460,fill:S0.soft}),b,T({name:"Contacto",x:90,y:2180,w:840,txt:CCONT,font:"Adventor CX",size:28,color:S0.ink,align:"center",lh:1.45}));return d}}
 ]};
 
 /* ================== storage ================== */
@@ -513,7 +625,7 @@ const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   async get(id){if(this.kind==="db"){const s=await this.col().doc(id).get();return s.exists?Object.assign({id},s.data()):null}
     if(this.idb){const d=await IDB.get("d:"+id);return d?Object.assign({id},d):null}
     return lsGet("ed.designs",[]).find(x=>x.id===id)||null},
-  async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,bg:d.bg,layers:d.layers,thumb:d.thumb||"",updated:Date.now()};
+  async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages||[{id:"p1",bg:d.bg,layers:d.layers||[]}],thumb:d.thumb||"",updated:Date.now()};
     if(this.kind==="db"){await this.col().doc(d.id).set(rec);return}
     if(this.idb){await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated});await IDB.set("index",idx);return}
     const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));localStorage.setItem("ed.designs",JSON.stringify(all.slice(0,30)))},
@@ -543,11 +655,11 @@ async function initStore(){
 }
 
 /* ================== history & autosave ================== */
-function snapshot(){const d=S.doc;return JSON.stringify({name:d.name,w:d.w,h:d.h,bg:d.bg,brand:d.brand,layers:d.layers.map(stripL)})}
+function snapshot(){const d=S.doc;return JSON.stringify({name:d.name,w:d.w,h:d.h,brand:d.brand,mm:d.mm||null,folds:d.folds||null,pi:d.pi||0,pages:pagesOut(d)})}
 function stripL(L){const o={};for(const k in L)if(k[0]!=="_")o[k]=L[k];return o}
 function resetHistory(){S.hist=[snapshot()];S.hi=0;updUndo()}
 function commit(){const s=snapshot();if(s===S.hist[S.hi])return;S.hist=S.hist.slice(0,S.hi+1);S.hist.push(s);if(S.hist.length>80)S.hist.shift();S.hi=S.hist.length-1;updUndo();S.ver=(S.ver||0)+1;S.dirty=true;scheduleSave()}
-function restore(s){const o=JSON.parse(s);Object.assign(S.doc,o);if(!S.doc.layers.find(l=>l.id===S.sel))S.sel=null;S.multi=S.multi.filter(id=>S.doc.layers.some(l=>l.id===id));if(S.multi.length<2)S.multi=[];S.crop=null;$("#nombre").value=S.doc.name;S.ver=(S.ver||0)+1;S.dirty=true;renderProps();requestRender();scheduleSave()}
+function restore(s){const o=JSON.parse(s);Object.assign(S.doc,o);normDoc(S.doc);renderPageBar();if(!S.doc.layers.find(l=>l.id===S.sel))S.sel=null;S.multi=S.multi.filter(id=>S.doc.layers.some(l=>l.id===id));if(S.multi.length<2)S.multi=[];S.crop=null;$("#nombre").value=S.doc.name;S.ver=(S.ver||0)+1;S.dirty=true;renderProps();requestRender();scheduleSave()}
 function undo(){if(S.hi>0){S.hi--;restore(S.hist[S.hi]);updUndo()}}
 function redo(){if(S.hi<S.hist.length-1){S.hi++;restore(S.hist[S.hi]);updUndo()}}
 function updUndo(){$("#undo").disabled=S.hi<=0;$("#redo").disabled=S.hi>=S.hist.length-1}
@@ -555,13 +667,13 @@ function setStatus(t,err){const el=$("#status");el.textContent=t;el.classList.to
 function scheduleSave(){clearTimeout(S.saveTimer);setStatus("Cambios sin guardar");S.saveTimer=setTimeout(saveNow,1300)}
 async function saveNow(){
   clearTimeout(S.saveTimer);if(!S.dirty)return;
-  const d=S.doc,ver=S.ver,rec=Object.assign({},d,{layers:d.layers.map(stripL)});
+  const d=S.doc,ver=S.ver,rec={id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:pagesOut(d)};
   setStatus("Guardando…");
   try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);
     if(S.doc===d&&S.ver===ver){S.dirty=false;setStatus(store.kind==="db"?"Guardado":"Guardado en este navegador")}}
   catch(e){setStatus(e&&(e.code==="quota_exceeded"||e.name==="QuotaExceededError")?"No se pudo guardar: no queda espacio. Elimina diseños viejos.":"No se pudo guardar. Revisa tu conexión.",true)}
 }
-async function makeThumb(d,max){const s=max/Math.max(d.w,d.h);const c=document.createElement("canvas");c.width=Math.round(d.w*s);c.height=Math.round(d.h*s);const x=c.getContext("2d");x.scale(s,s);drawDesign(x,d);try{return c.toDataURL("image/jpeg",.72)}catch(e){return ""}}
+async function makeThumb(d,max){const s=max/Math.max(d.w,d.h);const c=document.createElement("canvas");c.width=Math.round(d.w*s);c.height=Math.round(d.h*s);const x=c.getContext("2d");x.scale(s,s);const P=(d.pages&&d.pages[0])||d;drawDesign(x,{bg:P.bg,layers:P.layers});try{return c.toDataURL("image/jpeg",.72)}catch(e){return ""}}
 
 /* ================== stage / view ================== */
 const cv=$("#cv"),ctx=cv.getContext("2d"),stage=$("#stage");
@@ -597,7 +709,8 @@ function render(){
     const grouped=Ls.every(x=>x.g&&x.g===Ls[0].g);tag(grouped?"Grupo · "+Ls.length+" elementos":Ls.length+" elementos",sb.x,sb.y-6);ctx.restore()}
   if(drag&&drag.mode==="marquee"){const a=drag.start,c=drag.cur||a;ctx.save();ctx.fillStyle="rgba(46,144,250,.08)";ctx.strokeStyle=SELC;ctx.lineWidth=1;const x=Math.min(a.sx,c.sx),y=Math.min(a.sy,c.sy),w=Math.abs(a.sx-c.sx),h=Math.abs(a.sy-c.sy);ctx.fillRect(x,y,w,h);ctx.strokeRect(x+.5,y+.5,w,h);ctx.restore()}
   if(S.editing)placeEditor();
-  $("#sizetag").textContent=`${S.doc.w} × ${S.doc.h} px`;
+  if(S.doc.folds){ctx.save();ctx.strokeStyle="rgba(232,69,139,.7)";ctx.setLineDash([6,5]);ctx.lineWidth=1;for(const f of S.doc.folds){const x=Math.round(V.ox+S.doc.w*f*V.sc)+.5;ctx.beginPath();ctx.moveTo(x,V.oy);ctx.lineTo(x,V.oy+S.doc.h*V.sc);ctx.stroke()}ctx.restore()}
+  $("#sizetag").textContent=S.doc.mm?`${S.doc.mm[0]/10} × ${S.doc.mm[1]/10} cm`:`${S.doc.w} × ${S.doc.h} px`;
 }
 function scr(L){if(L.t==="text")layoutText(L);return{x:V.ox+L.x*V.sc,y:V.oy+L.y*V.sc,w:L.w*V.sc,h:L.h*V.sc}}
 function handles(L){const b=scr(L),x1=b.x,y1=b.y,x2=b.x+b.w,y2=b.y+b.h,mx=(x1+x2)/2,my=(y1+y2)/2;
@@ -799,9 +912,9 @@ function renderLib(){
       btn.innerHTML=`<div class="pic"></div><span>${esc(t.name)}<small>${t.size}</small></span>`;btn.querySelector(".pic").appendChild(c);box.appendChild(btn);
       let built=null;const st=S.style;
       const paint=()=>{if(!built)return;const s=300/Math.max(built.w,built.h);c.width=Math.round(built.w*s);c.height=Math.round(built.h*s);const x=c.getContext("2d");x.scale(s,s);drawDesign(x,built)};
-      t.build(st).then(d=>{built=d;paint()});thumbJobs.push(paint);
+      t.build(st).then(d=>{built=normDoc(d);built.layers=built.pages[0].layers;built.bg=built.pages[0].bg;paint()});thumbJobs.push(paint);
       btn.onclick=async()=>{await openTemplate(t,S.style)};});
-    el.querySelectorAll("#blank button").forEach(x=>x.onclick=()=>{const s=SIZES.find(s=>s[0]===x.dataset.k);openDoc(newDoc(s[2],s[3],BR[b].st[S.style].bg,b,s[1]+" en blanco"),true)});
+    el.querySelectorAll("#blank button").forEach(x=>x.onclick=()=>{const s=SIZES.find(s=>s[0]===x.dataset.k);{const d=newDoc(s[2],s[3],BR[b].st[S.style].bg,b,s[1]+" en blanco");if(s[4])d.mm=s[4];if(s[0]==="triptico")d.folds=[1/3,2/3];openDoc(d,true)}});
   }
   else if(S.tab==="fotos"){
     const groups=photoGroups(b);
@@ -1135,6 +1248,31 @@ function iaKeysDialog(){const c=aiCfg();
   v.querySelector("#k-save").onclick=()=>{const k=aiCfg();k.claude=v.querySelector("#k-claude").value.trim();k.openai=v.querySelector("#k-openai").value.trim();k.gemini=v.querySelector("#k-gemini").value.trim();k.imgModel=v.querySelector("#k-model").value;k.gemModel=v.querySelector("#k-gmodel").value;aiSave(k);v.remove();toast("Claves guardadas en este navegador");if(S.tab==="ia")renderLib()};
   v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";k.gemini="";aiSave(k);v.remove();toast("Claves borradas");if(S.tab==="ia")renderLib()}}
 
+/* ================== páginas ================== */
+function renderPageBar(){const d=S.doc;if(!d||!d.pages)return;const n=d.pages.length,P=d.pages[d.pi];
+  $("#pg-lbl").textContent=`Página ${d.pi+1} de ${n}${P&&P.name?" · "+P.name:""}`;$("#pg-prev").disabled=d.pi<=0;$("#pg-next").disabled=d.pi>=n-1}
+function goPage(i){const d=S.doc;if(S.editing)endEdit();if(S.crop){S.crop=null}syncPage();i=clamp(i,0,d.pages.length-1);d.pi=i;d.bg=d.pages[i].bg;d.layers=d.pages[i].layers;
+  S.sel=null;S.multi=[];renderProps();requestRender();renderPageBar();if(S.tab==="ia")iaSelUpdate()}
+function addPage(dup){const d=S.doc;syncPage();const cur=d.pages[d.pi];
+  const P=dup?mkPage(cur.bg,cloneSet(cur.layers,0),cur.name?cur.name+" (copia)":""):mkPage(cur.bg,[]);d.pages.splice(d.pi+1,0,P);goPage(d.pi+1);commit();toast(dup?"Página duplicada":"Página nueva agregada")}
+function delPage(){const d=S.doc;if(d.pages.length<2){toast("El diseño necesita al menos una página.");return}syncPage();d.pages.splice(d.pi,1);goPage(Math.min(d.pi,d.pages.length-1));commit();toast("Página eliminada · ⌘ + Z para recuperarla")}
+function movePage(dir){const d=S.doc,j=d.pi+dir;if(j<0||j>=d.pages.length)return;syncPage();const [P]=d.pages.splice(d.pi,1);d.pages.splice(j,0,P);d.pi=j;commit();renderProps();renderPageBar()}
+function pagesHtml(){const d=S.doc;return `<h3>Páginas (${d.pages.length})</h3><div class="pages">${d.pages.map((P,i)=>`<button type="button" class="pg" data-pg="${i}" aria-current="${i===d.pi}"><canvas width="10" height="10"></canvas>${i+1}${P.name?" · "+esc(P.name):""}</button>`).join("")}</div>
+  <div class="actions"><button class="btn" type="button" id="pg-new">Agregar página</button><button class="btn" type="button" id="pg-dup">Duplicar página</button><button class="btn" type="button" id="pg-left"${d.pi<=0?" disabled":""}>Mover antes</button><button class="btn" type="button" id="pg-right"${d.pi>=d.pages.length-1?" disabled":""}>Mover después</button><button class="btn danger" type="button" id="pg-del" style="grid-column:1/-1"${d.pages.length<2?" disabled":""}>Eliminar esta página</button></div>`}
+function bindPages(){const d=S.doc;syncPage();document.querySelectorAll(".pg").forEach(b=>{const P=d.pages[+b.dataset.pg],c=b.querySelector("canvas"),k=96/Math.max(d.w,d.h);c.width=Math.max(1,Math.round(d.w*k));c.height=Math.max(1,Math.round(d.h*k));const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{bg:P.bg,layers:P.layers});b.onclick=()=>goPage(+b.dataset.pg)});
+  const on=(id,fn)=>{const x=$("#"+id);if(x)x.onclick=fn};on("pg-new",()=>addPage(false));on("pg-dup",()=>addPage(true));on("pg-del",delPage);on("pg-left",()=>movePage(-1));on("pg-right",()=>movePage(1))}
+$("#pg-prev").onclick=()=>goPage(S.doc.pi-1);$("#pg-next").onclick=()=>goPage(S.doc.pi+1);$("#pg-add").onclick=()=>addPage(false);
+
+/* ================== tema claro / oscuro ================== */
+const TH_ICON={system:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',light:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',dark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg>'};
+function applyTheme(m,first){const r=document.documentElement;if(m==="light"||m==="dark")r.setAttribute("data-theme",m);else if(!first)r.removeAttribute("data-theme");
+  $("#btn-theme").innerHTML=TH_ICON[m]||TH_ICON.system;document.querySelectorAll("[data-th]").forEach(b=>{b.setAttribute("role","menuitemradio");b.setAttribute("aria-checked",String(b.dataset.th===m))});requestRender()}
+{const thBtn=$("#btn-theme"),thMenu=$("#menu-theme");
+  thBtn.onclick=e=>{e.stopPropagation();thMenu.hidden=!thMenu.hidden;thBtn.setAttribute("aria-expanded",String(!thMenu.hidden))};
+  document.addEventListener("click",e=>{if(!thMenu.hidden&&!e.target.closest("#menu-theme")&&e.target.closest("#btn-theme")!==thBtn){thMenu.hidden=true;thBtn.setAttribute("aria-expanded","false")}});
+  thMenu.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>{thMenu.hidden=true;lsSet("ed.theme",b.dataset.th);applyTheme(b.dataset.th)});
+  applyTheme(lsGet("ed.theme","system"),true)}
+
 /* ================== quitar fondo ================== */
 let BGR=null,bgBusy=false;
 async function removeBg(L,withAI){
@@ -1186,17 +1324,19 @@ function renderProps(){
     on("p-copy",()=>{let ok=false;try{ok=document.execCommand("copy")}catch(_){}if(!ok)copySel(false)});on("p-top",()=>reorder("top"));on("p-bottom",()=>reorder("bottom"));
     document.querySelectorAll("[data-align]").forEach(b=>b.onclick=()=>alignSel(b.dataset.align));bindLayers();return}
   if(!L){const d=S.doc;
-    el.innerHTML=`<div class="pane"><h2>Página</h2><p class="hint">Haz clic en un elemento del diseño para editarlo.</p>
+    el.innerHTML=`<div class="pane"><h2>Página ${d.pi+1}${d.pages.length>1?` de ${d.pages.length}`:""}${d.pages[d.pi].name?` · ${esc(d.pages[d.pi].name)}`:""}</h2><p class="hint">Haz clic en un elemento del diseño para editarlo.</p>
       <h3>Color de fondo</h3>${swatches("bg",d.bg)}
       <div class="actions" style="margin-top:14px"><button class="btn" type="button" id="p-paste">Pegar</button></div>
       <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div>
       <div class="row">${num("p-W","Ancho (px)",d.w,1,50)}${num("p-H","Alto (px)",d.h,1,50)}</div>
-      <p class="hint">Al cambiar el tamaño, los elementos se quedan donde están; muévelos a su lugar.</p>
+      <p class="hint">El tamaño es el mismo para todas las páginas. Al cambiarlo, los elementos se quedan donde están; muévelos a su lugar.${d.mm?` Tamaño de impresión: ${d.mm[0]/10} × ${d.mm[1]/10} cm.`:""}</p>
+      ${pagesHtml()}
       ${layersHtml()}</div>`;
     bindSw("bg",c=>{d.bg=c;requestRender()},true);
     $("#p-paste").onclick=pasteClip;
-    $("#p-size").onchange=e=>{const s=SIZES.find(s=>s[0]===e.target.value);if(s){d.w=s[2];d.h=s[3];commit();renderProps();requestRender()}};
-    ["W","H"].forEach(k=>$("#p-"+k).onchange=e=>{const v=Math.max(50,Math.min(6000,+e.target.value||0));d[k.toLowerCase()]=v;commit();renderProps();requestRender()});
+    $("#p-size").onchange=e=>{const s=SIZES.find(s=>s[0]===e.target.value);if(s){d.w=s[2];d.h=s[3];d.mm=s[4]||null;d.folds=s[0]==="triptico"?[1/3,2/3]:null;commit();renderProps();requestRender()}};
+    ["W","H"].forEach(k=>$("#p-"+k).onchange=e=>{const v=Math.max(50,Math.min(6000,+e.target.value||0));d[k.toLowerCase()]=v;d.mm=null;d.folds=null;commit();renderProps();requestRender()});
+    bindPages();
     bindLayers();return}
   let h=`<div class="pane"><h2>${esc(L.name||"Elemento")}</h2>`;
   if(L.g)h+=`<div class="note" style="margin-bottom:12px">Este elemento está en un grupo.<div class="actions" style="margin-top:8px"><button class="btn" type="button" id="g-all">Elegir el grupo</button><button class="btn" type="button" id="g-out">Sacar del grupo</button></div></div>`;
@@ -1272,9 +1412,9 @@ function bindLayers(){document.querySelectorAll(".layer").forEach(r=>r.addEventL
   document.querySelectorAll("[data-lock]").forEach(b=>b.onclick=()=>{const L=S.doc.layers.find(l=>l.id===b.dataset.lock);L.lock=!L.lock;commit();renderProps();requestRender()})}
 
 /* ================== open / brand ================== */
-async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=await t.build(st);await Promise.all(d.layers.filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
-function openDoc(d,fresh){if(S.dirty)saveNow();S.doc=d;S.sel=null;S.multi=[];S.crop=null;S.zoom=1;S.panX=0;S.panY=0;S.dirty=false;if(d.brand&&d.brand!==S.brand)setBrand(d.brand,true);
-  $("#nombre").value=d.name;resetHistory();renderProps();requestRender();if(fresh)setStatus("Plantilla abierta · se guarda sola cuando la cambies");if(isNarrow())window.scrollTo({top:0,behavior:"smooth"})}
+async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=normDoc(await t.build(st));await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
+function openDoc(d,fresh){if(S.dirty)saveNow();normDoc(d);S.doc=d;S.sel=null;S.multi=[];S.crop=null;S.zoom=1;S.panX=0;S.panY=0;S.dirty=false;if(d.brand&&d.brand!==S.brand)setBrand(d.brand,true);
+  $("#nombre").value=d.name;resetHistory();renderProps();requestRender();renderPageBar();if(fresh)setStatus("Plantilla abierta · se guarda sola cuando la cambies");if(isNarrow())window.scrollTo({top:0,behavior:"smooth"})}
 function setBrand(b,keep){S.brand=b;lsSet("ed.brand",b);document.documentElement.dataset.marca=b;
   document.querySelectorAll(".seg [data-marca]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.marca===b)));
   renderLib();if(S.doc)renderProps()}
@@ -1287,16 +1427,25 @@ const dlBtn=$("#btn-descargar"),dlMenu=$("#menu-descargar");
 dlBtn.onclick=e=>{e.stopPropagation();dlMenu.hidden=!dlMenu.hidden;dlBtn.setAttribute("aria-expanded",String(!dlMenu.hidden))};
 document.addEventListener("click",e=>{if(!dlMenu.hidden&&!e.target.closest(".menuwrap")){dlMenu.hidden=true;dlBtn.setAttribute("aria-expanded","false")}});
 dlMenu.querySelectorAll("[data-fmt]").forEach(b=>b.onclick=()=>{dlMenu.hidden=true;exportImg(b.dataset.fmt)});
+let JSPDF=null;
+function loadJsPDF(){return JSPDF||(JSPDF=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";sc.onload=()=>res(window.jspdf.jsPDF);sc.onerror=()=>{JSPDF=null;rej()};document.head.appendChild(sc)}))}
+function pageCanvas(d,P,k){const c=document.createElement("canvas");c.width=Math.round(d.w*k);c.height=Math.round(d.h*k);const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{bg:P.bg,layers:P.layers});return c}
 async function exportImg(fmt){
   if(S.editing)endEdit();
-  const d=S.doc;await Promise.all(d.layers.filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
-  const c=document.createElement("canvas");c.width=d.w;c.height=d.h;const x=c.getContext("2d");drawDesign(x,d);
-  const type=fmt==="jpg"?"image/jpeg":"image/png";
-  let blob;try{blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),type,.92))}catch(e){toast("No se pudo preparar la imagen.");return}
-  const fname=(d.name||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()+"."+fmt;
-  if(store.downloads){try{await store.downloads.save({filename:fname,data:blob});toast("Imagen descargada");return}catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("Ya hay una descarga esperando tu confirmación.");return}}}
+  const d=S.doc;syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
+  const base=(d.name||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
+  let blob,fname;
+  if(fmt==="pdf"){setStatus("Preparando el PDF…");let J;try{J=await loadJsPDF()}catch(e){setStatus("");toast("No se pudo cargar la herramienta de PDF. Revisa tu internet.");return}
+    const k=d.mm?Math.min(2,4000/Math.max(d.w,d.h)):1;const W=d.mm?d.mm[0]:d.w*.75,H=d.mm?d.mm[1]:d.h*.75,unit=d.mm?"mm":"pt";
+    const pdf=new J({orientation:W>H?"landscape":"portrait",unit,format:[W,H],compress:true});
+    d.pages.forEach((P,i)=>{if(i)pdf.addPage([W,H],W>H?"landscape":"portrait");pdf.addImage(pageCanvas(d,P,k).toDataURL("image/jpeg",.92),"JPEG",0,0,W,H,undefined,"FAST")});
+    blob=pdf.output("blob");fname=base+".pdf";setStatus("")}
+  else{const c=pageCanvas(d,d.pages[d.pi],1);const type=fmt==="jpg"?"image/jpeg":"image/png";
+    try{blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),type,.92))}catch(e){toast("No se pudo preparar la imagen.");return}
+    fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"."+fmt}
+  if(store.downloads){try{await store.downloads.save({filename:fname,data:blob});toast(fmt==="pdf"?"PDF descargado":"Imagen descargada");return}catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("Ya hay una descarga esperando tu confirmación.");return}}}
   const url=URL.createObjectURL(blob);
-  if(!window.claude){const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast("Imagen descargada");return}
+  if(!window.claude||fmt==="pdf"){const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast(fmt==="pdf"?"PDF descargado":"Imagen descargada");return}
   showDialog("Tu imagen",`<p class="hint" style="text-align:center;margin-bottom:12px">Para guardarla: clic derecho sobre la imagen → «Guardar imagen como…». En el celular, mantén el dedo sobre ella.</p><img class="preview-img" src="${url}" alt="Diseño listo para guardar">`);
 }
 
@@ -1310,8 +1459,8 @@ $("#btn-disenos").onclick=async()=>{
   let list=[];try{list=await store.list()}catch(e){body.innerHTML=`<div class="empty">No se pudieron cargar tus diseños. Revisa tu conexión y vuelve a abrir.</div>`;return}
   list.sort((a,b)=>(b.updated||0)-(a.updated||0));
   const draw=()=>{body.innerHTML=(store.kind!=="db"?`<p class="hint">Estos diseños están guardados en este navegador. Si abres el editor en otra computadora, no aparecerán ahí.</p>`:"")+(list.length?`<div class="designs">${list.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-open="${i}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="">`:""}</button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${d.w}×${d.h} · ${new Date(d.updated||0).toLocaleDateString("es-BO",{day:"numeric",month:"short"})}</small></div><div class="acts" data-acts="${i}"><button type="button" data-open="${i}">Abrir</button><button type="button" data-copy="${i}">Duplicar</button><button type="button" data-del="${i}">Eliminar</button></div></div>`).join("")}</div>`:`<div class="empty">Todavía no tienes diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.</div>`);
-    body.querySelectorAll("[data-open]").forEach(b=>b.onclick=async()=>{let d;try{d=await store.get(list[+b.dataset.open].id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return}openDoc({id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,bg:d.bg,layers:clone(d.layers||[])});v.remove()});
-    body.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{let s;try{s=await store.get(list[+b.dataset.copy].id)}catch(e){}if(!s){toast("No se pudo duplicar.");return}const d=newDoc(s.w,s.h,s.bg,s.brand,s.name+" (copia)");d.layers=clone(s.layers||[]);d.thumb=s.thumb;try{await store.put(d)}catch(e){toast("No se pudo duplicar.");return}list.unshift(Object.assign({updated:Date.now()},d));draw()});
+    body.querySelectorAll("[data-open]").forEach(b=>b.onclick=async()=>{let d;try{d=await store.get(list[+b.dataset.open].id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return}openDoc(fromRecord(d.id,d));v.remove()});
+    body.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{let s;try{s=await store.get(list[+b.dataset.copy].id)}catch(e){}if(!s){toast("No se pudo duplicar.");return}const d=fromRecord(newDoc(1,1).id,s);d.name=s.name+" (copia)";d.pages=pagesOut(d);d.thumb=s.thumb;try{await store.put(d)}catch(e){toast("No se pudo duplicar.");return}list.unshift(Object.assign({updated:Date.now()},d));draw()});
     body.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const i=+b.dataset.del,box=body.querySelector(`[data-acts="${i}"]`);box.innerHTML=`<span style="font-size:11.5px;align-self:center">¿Eliminar?</span><button type="button" data-yes>Sí, eliminar</button><button type="button" data-no>No</button>`;
       box.querySelector("[data-no]").onclick=draw;box.querySelector("[data-yes]").onclick=async()=>{try{await store.del(list[i].id)}catch(e){toast("No se pudo eliminar.");return}if(list[i].id===S.doc.id)S.dirty=false;list.splice(i,1);draw()}});};
   draw();
@@ -1322,13 +1471,13 @@ const fontsReady=(async()=>{try{await Promise.all(["600 40px Akshar","700 40px A
 (async function boot(){
   document.documentElement.dataset.marca=S.brand;
   document.querySelectorAll(".seg [data-marca]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.marca===S.brand)));
-  S.doc=newDoc(1080,1350,BR[S.brand].st.claro.bg,S.brand);resetHistory();renderProps();renderLib();
+  S.doc=normDoc(newDoc(1080,1350,BR[S.brand].st.claro.bg,S.brand));resetHistory();renderProps();renderLib();
   await fontsReady;
   const t=TPL[S.brand].find(t=>t.id.endsWith("post-foto"));const d=await t.build("claro");openDoc(d);setStatus("");
   renderLib();
   await initStore();
   const last=lsGet("ed.last",null);
-  if(last){try{const x=await store.get(last);if(x&&!S.dirty&&S.hi===0){openDoc({id:last,name:x.name,brand:x.brand,w:x.w,h:x.h,bg:x.bg,layers:clone(x.layers||[])});setStatus("Seguiste donde te quedaste")}}catch(e){}}
+  if(last){try{const x=await store.get(last);if(x&&!S.dirty&&S.hi===0){openDoc(fromRecord(last,x));setStatus("Seguiste donde te quedaste")}}catch(e){}}
   document.fonts&&document.fonts.addEventListener&&document.fonts.addEventListener("loadingdone",()=>{requestRender();refreshThumbs()});
 })();
 window.addEventListener("beforeunload",()=>{if(S.dirty)saveNow()});
