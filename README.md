@@ -7,6 +7,9 @@ Editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva p
 - **Plantillas** de cada marca en versión clara y oscura: estado de WhatsApp, publicación 4:5 y cuadrada, comunicado, portada de Facebook y colaboración.
 - **Edición libre**: mover, agrandar, cambiar textos, letras, colores, encuadre de fotos, transparencia y orden de capas.
 - **Copiar, cortar y pegar** elementos con ⌘ + C, ⌘ + X y ⌘ + V (también entre diseños distintos). Pegar texto copiado de otra app crea un texto nuevo.
+- **Varios a la vez**: Shift + clic o arrastrar un recuadro para elegir varios; moverlos, escalarlos, alinearlos, **agrupar** (⌘ + G) o **unir en una sola imagen**.
+- **Recortar**: doble clic sobre una imagen; se arrastra la imagen dentro del marco y se mueven los bordes.
+- **Quitar fondo**: gratis en el navegador (herramienta de IMG.LY, la primera vez descarga unos 40 MB) o con IA de OpenAI.
 - **Fotos y logos de marca**: los clásicos de los números, el Contador Virtual, íconos en relieve, la N y el isotipo de CONTAX en vector.
 - **Subir imágenes** propias (por ejemplo las que se generan en ChatGPT o Gemini), también pegándolas con ⌘ + V.
 - **IA** (solo en la versión de GitHub): Claude escribe el prompt de la imagen y los textos con la voz de cada marca. OpenAI o Gemini (a elección) crean la imagen y la ponen directo en el diseño. También pueden **mejorar** una imagen ya puesta (subida, de la marca o generada); Claude puede mirarla y preparar la instrucción.
