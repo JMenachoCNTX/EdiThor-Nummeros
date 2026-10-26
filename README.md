@@ -12,6 +12,8 @@ Editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva p
 - **Modo claro, oscuro o según el sistema**, con el botón de la barra superior.
 - **Barras distribuidas**: arriba del lienzo, las opciones rápidas del elemento elegido (letra, tamaño, color, recortar, quitar fondo, agrupar…); abajo, las páginas, la vista previa y el zoom.
 - **Paneles automáticos** (botón en la barra superior): a los lados quedan solo los íconos; los paneles se abren al tocar un ícono, y al tocar un elemento del diseño se abren sus opciones.
+- **Menús al pasar el cursor**: las pestañas de los lados, Descargar y el tema se muestran al pasar el cursor; un clic los deja fijos.
+- **Cuadrícula** (botón abajo o ⌘ + '): fina, media o gruesa, con líneas del centro y opción de pegar los elementos a la cuadrícula. No sale en las descargas.
 - **Vista previa en pantalla completa**, con flechas para pasar las páginas.
 - El lienzo no se escapa de la pantalla: el diseño queda centrado y solo se desplaza cuando está ampliado.
 - **Edición libre**: mover, agrandar, cambiar textos, letras, colores, encuadre de fotos, transparencia y orden de capas.
