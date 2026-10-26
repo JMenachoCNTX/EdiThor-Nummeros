@@ -8,12 +8,22 @@ Editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva p
 - **Edición libre**: mover, agrandar, cambiar textos, letras, colores, encuadre de fotos, transparencia y orden de capas.
 - **Fotos y logos de marca**: los clásicos de los números, el Contador Virtual, íconos en relieve, la N y el isotipo de CONTAX en vector.
 - **Subir imágenes** propias (por ejemplo las que se generan en ChatGPT o Gemini), también pegándolas con ⌘ + V.
+- **IA** (solo en la versión de GitHub): Claude escribe el prompt de la imagen y los textos con la voz de cada marca; OpenAI genera la imagen y la pone directo en el diseño.
 - **Descargar** en PNG o JPG.
+
+## IA: claves
+
+En la pestaña **IA → Configurar claves** se pegan dos claves:
+
+- **Claude**: se crea en console.anthropic.com → API Keys (la API se paga aparte de la suscripción de Claude).
+- **OpenAI**: se crea en platform.openai.com → API keys (la API se paga aparte de ChatGPT). OpenAI puede pedir verificar la organización antes de generar imágenes.
+
+Las claves se guardan solo en el navegador de quien las pega. No están en este repositorio.
 
 ## Dónde se usa
 
 1. **Como artifact de Claude** (versión principal): guarda los diseños y las imágenes subidas en la nube.
-2. **Desde este repositorio con GitHub Pages**: funciona igual, pero los diseños se guardan solo en el navegador de esa computadora.
+2. **Desde este repositorio con GitHub Pages** (https://jmenachocntx.github.io/Sistema-Edici-n-MKT/): tiene la IA. Los diseños y las imágenes se guardan en el navegador de esa computadora.
 
 ## Cómo está organizado
 

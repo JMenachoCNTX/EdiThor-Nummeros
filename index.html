@@ -176,6 +176,26 @@ button{cursor:pointer}
 .preview-img{max-width:100%;max-height:60vh;display:block;margin:0 auto;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;font-weight:600;z-index:60;max-width:calc(100% - 32px)}
 
+/* IA tab */
+.keyrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:600;border:1px solid var(--line);background:var(--field)}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--danger)}
+.pill.on i{background:var(--ok)}
+.step{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font:600 12px/1.2 var(--head);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.step b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--acc);color:var(--on-acc);font-size:11px;letter-spacing:0}
+.f textarea.tall{min-height:150px}
+.btn.wide{width:100%;margin-top:8px}
+.progress{font-size:12.5px;color:var(--muted);margin-top:8px;min-height:18px}
+.progress.err{color:var(--danger)}
+.note{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:12px;font-size:12.5px;color:var(--ink)}
+.note a{color:var(--acc);font-weight:600}
+.dlg .f{margin-bottom:12px}
+.dlg .f input,.dlg .f select{width:100%;background:var(--field);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.dlg small.k{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.dlg .row-end{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
 /* phones and narrow windows */
 @media (max-width:900px){
   body{overflow:auto}
@@ -230,6 +250,7 @@ button{cursor:pointer}
       <button role="tab" type="button" data-tab="texto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg>Texto</button>
       <button role="tab" type="button" data-tab="formas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="10" height="10" rx="1.5"/><circle cx="16" cy="8" r="5"/></svg>Formas</button>
       <button role="tab" type="button" data-tab="subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir</button>
+      <button role="tab" type="button" data-tab="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>IA</button>
       <button role="tab" type="button" data-tab="editar" class="only-mobile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Editar</button>
     </nav>
     <aside class="lib" id="lib"></aside>
@@ -316,7 +337,14 @@ function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
 /* images */
 const IMG={};
-function img(src){let r=IMG[src];if(!r){const im=new Image();r=IMG[src]={im,ok:false,err:false};r.p=new Promise(res=>{im.onload=()=>{r.ok=true;res(im);requestRender();refreshThumbs()};im.onerror=()=>{r.err=true;res(null)}});im.src=src}return r}
+function img(src){let r=IMG[src];if(!r){const im=new Image();r=IMG[src]={im,ok:false,err:false};r.p=new Promise(res=>{im.onload=()=>{r.ok=true;res(im);requestRender();refreshThumbs()};im.onerror=()=>{r.err=true;res(null)};
+    if(String(src).startsWith("idb:"))IDB.get("img:"+src.slice(4)).then(b=>{if(b)im.src=URL.createObjectURL(b);else{r.err=true;res(null)}}).catch(()=>{r.err=true;res(null)});else im.src=src})}return r}
+/* keep an image for later: cloud asset, browser database, or (last resort) inline */
+async function keepImage(blob){
+  if(store.assets){const r=await store.assets.upload(blob,{type:blob.type==="image/jpg"?"image/jpeg":blob.type});return"/_blob/"+r.id}
+  if(store.idb){const id=uid()+uid();await IDB.set("img:"+id,blob);return"idb:"+id}
+  return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(blob)})}
+function fillImgs(root){root.querySelectorAll("img[data-src]").forEach(el=>{const s=el.dataset.src;if(!s.startsWith("idb:")){el.src=s;return}img(s).p.then(im=>{if(im)el.src=im.src})})}
 const ld=src=>img(src).p;
 
 /* ================== text layout ================== */
@@ -461,25 +489,46 @@ contax:[
 ]};
 
 /* ================== storage ================== */
-const store={kind:"local",db:null,uid:null,assets:null,downloads:null,
+/* local storage: IndexedDB (no 5 MB limit), with localStorage as fallback */
+const IDB={p:null,
+  open(){return this.p||(this.p=new Promise((res,rej)=>{try{const r=indexedDB.open("editor-marca",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}))},
+  async get(k){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction("kv").objectStore("kv").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})},
+  async set(k,v){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error||new Error("abort"))})},
+  async del(k){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
+const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   col(){return this.db.collection("data/users/"+this.uid)},
   async list(){if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
+    if(this.idb)return(await IDB.get("index"))||[];
     return lsGet("ed.designs",[])},
+  async get(id){if(this.kind==="db"){const s=await this.col().doc(id).get();return s.exists?Object.assign({id},s.data()):null}
+    if(this.idb){const d=await IDB.get("d:"+id);return d?Object.assign({id},d):null}
+    return lsGet("ed.designs",[]).find(x=>x.id===id)||null},
   async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,bg:d.bg,layers:d.layers,thumb:d.thumb||"",updated:Date.now()};
     if(this.kind==="db"){await this.col().doc(d.id).set(rec);return}
-    const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));lsSet("ed.designs",all.slice(0,30))},
-  async del(id){if(this.kind==="db"){await this.col().doc(id).delete();return}lsSet("ed.designs",lsGet("ed.designs",[]).filter(x=>x.id!==id))},
-  async uploads(){if(this.kind==="db"){const s=await this.col().doc("subidas").get();return s.exists?(s.data().items||[]):[]}return lsGet("ed.uploads",[])},
-  async setUploads(items){if(this.kind==="db"){await this.col().doc("subidas").set({items});return}lsSet("ed.uploads",items.filter(i=>!i.src.startsWith("data:")))}
+    if(this.idb){await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated});await IDB.set("index",idx);return}
+    const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));localStorage.setItem("ed.designs",JSON.stringify(all.slice(0,30)))},
+  async del(id){if(this.kind==="db"){await this.col().doc(id).delete();return}
+    if(this.idb){await IDB.del("d:"+id);await IDB.set("index",((await IDB.get("index"))||[]).filter(x=>x.id!==id));return}
+    lsSet("ed.designs",lsGet("ed.designs",[]).filter(x=>x.id!==id))},
+  async uploads(){if(this.kind==="db"){const s=await this.col().doc("subidas").get();return s.exists?(s.data().items||[]):[]}
+    if(this.idb)return(await IDB.get("uploads"))||[];return lsGet("ed.uploads",[])},
+  async setUploads(items){if(this.kind==="db"){await this.col().doc("subidas").set({items:items.filter(i=>!i.src.startsWith("data:"))});return}
+    if(this.idb){await IDB.set("uploads",items);return}lsSet("ed.uploads",items.filter(i=>!i.src.startsWith("data:")))}
 };
+async function initLocal(){
+  try{await IDB.open();store.idb=true;
+    if(!(await IDB.get("index"))){const old=lsGet("ed.designs",[]);for(const d of old.slice().reverse()){await store.put(d)}await IDB.set("index",(await IDB.get("index"))||[])}
+  }catch(e){store.idb=false}
+}
 async function initStore(){
-  const c=window.claude;if(!c||!c.use)return;
+  const c=window.claude;if(!c||!c.use){await initLocal();refreshUploads();return}
   try{
     const [db,user,assets,downloads]=await Promise.all(["db","user","assets","downloads"].map(n=>c.use(n).catch(()=>null)));
     store.assets=assets;store.downloads=downloads;
     const id=user?await user.id():null;
     if(db&&id){store.db=db;store.uid=id;store.kind="db"}
   }catch(e){}
+  if(store.kind!=="db")await initLocal();
   refreshUploads();
 }
 
@@ -500,7 +549,7 @@ async function saveNow(){
   setStatus("Guardando…");
   try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);
     if(S.doc===d&&S.ver===ver){S.dirty=false;setStatus(store.kind==="db"?"Guardado":"Guardado en este navegador")}}
-  catch(e){setStatus(e&&e.code==="quota_exceeded"?"No se pudo guardar: no queda espacio. Elimina diseños viejos.":"No se pudo guardar. Revisa tu conexión.",true)}
+  catch(e){setStatus(e&&(e.code==="quota_exceeded"||e.name==="QuotaExceededError")?"No se pudo guardar: no queda espacio. Elimina diseños viejos.":"No se pudo guardar. Revisa tu conexión.",true)}
 }
 async function makeThumb(d,max){const s=max/Math.max(d.w,d.h);const c=document.createElement("canvas");c.width=Math.round(d.w*s);c.height=Math.round(d.h*s);const x=c.getContext("2d");x.scale(s,s);drawDesign(x,d);try{return c.toDataURL("image/jpeg",.72)}catch(e){return ""}}
 
@@ -688,6 +737,7 @@ function renderLib(){
       </div></div>`;
     el.querySelectorAll("[data-v]").forEach(x=>x.onclick=()=>addShape(x.dataset.v));
   }
+  else if(S.tab==="ia"){renderIA(el)}
   else if(S.tab==="subir"){
     el.innerHTML=`<div class="pane"><h2>Tus imágenes</h2><p class="hint">Sube fotos que generaste en ChatGPT o Gemini. También puedes copiar una imagen y pegarla aquí con Ctrl/⌘ + V, o arrastrarla sobre el lienzo.</p>
       <div class="drop" id="drop"><span>Arrastra imágenes aquí</span><button class="btn pri" type="button" id="pick">Elegir imágenes</button></div>
@@ -700,21 +750,20 @@ function renderLib(){
 let UPS=[];
 async function refreshUploads(){try{UPS=await store.uploads()}catch(e){UPS=[]}if(S.tab==="subir")paintUploads()}
 function paintUploads(){const box=$("#ups");if(!box)return;const n=$("#upnote");
-  if(n)n.textContent=store.kind==="db"&&store.assets?"Tus imágenes quedan guardadas para tus próximos diseños.":"En esta vista las imágenes subidas solo duran mientras la página esté abierta.";
-  box.innerHTML=UPS.length?UPS.map((u,i)=>`<button type="button" class="thumb" data-i="${i}"><div class="pic"><img src="${esc(u.src)}" alt="" loading="lazy"></div><span>${esc(u.name||"Imagen")}</span></button>`).join(""):`<p class="hint">Todavía no subiste imágenes.</p>`;
+  if(n)n.textContent=store.kind==="db"&&store.assets?"Tus imágenes quedan guardadas para tus próximos diseños.":store.idb?"Tus imágenes quedan guardadas en este navegador para tus próximos diseños.":"En esta vista las imágenes subidas solo duran mientras la página esté abierta.";
+  box.innerHTML=UPS.length?UPS.map((u,i)=>`<button type="button" class="thumb" data-i="${i}"><div class="pic"><img data-src="${esc(u.src)}" alt=""></div><span>${esc(u.name||"Imagen")}</span></button>`).join(""):`<p class="hint">Todavía no subiste imágenes.</p>`;fillImgs(box);
   box.querySelectorAll(".thumb").forEach(x=>x.onclick=()=>{const u=UPS[+x.dataset.i];addImage(u.src,{name:u.name||"Imagen"})})}
 $("#file").addEventListener("change",e=>{handleFiles(e.target.files);e.target.value=""});
 async function handleFiles(files){
   const list=[...files].filter(f=>/^image\/(png|jpe?g|webp|gif)$/.test(f.type));if(!list.length){toast("Solo se pueden subir imágenes PNG, JPG, WEBP o GIF.");return}
   for(const f of list){
     let src;
-    if(store.assets){try{setStatus("Subiendo imagen…");const r=await store.assets.upload(f,{type:f.type==="image/jpg"?"image/jpeg":f.type});src="/_blob/"+r.id}catch(e){const m={too_large:"La imagen pesa más de 20 MB.",quota_or_state:"No queda espacio para más imágenes.",rate_limited:"Espera unos segundos y vuelve a intentar."}[e&&e.code];toast(m||"No se pudo subir la imagen.");setStatus("");continue}}
-    else src=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f)});
+    try{setStatus("Guardando imagen…");src=await keepImage(f)}catch(e){const m={too_large:"La imagen pesa más de 20 MB.",quota_or_state:"No queda espacio para más imágenes.",rate_limited:"Espera unos segundos y vuelve a intentar."}[e&&e.code];toast(m||"No se pudo guardar la imagen.");setStatus("");continue}
     UPS.unshift({src,name:f.name.replace(/\.[a-z0-9]+$/i,"").slice(0,40)||"Imagen",at:Date.now()});
     await addImage(src,{name:"Imagen subida",forceNew:true});
   }
   setStatus(S.dirty?"Cambios sin guardar":"");
-  try{await store.setUploads(UPS.filter(u=>!u.src.startsWith("data:")).slice(0,200))}catch(e){}
+  try{await store.setUploads(UPS.slice(0,200))}catch(e){}
   if(S.tab==="subir")paintUploads();
 }
 document.addEventListener("paste",e=>{const t=(e.target.tagName||"").toLowerCase();if(t==="input"||t==="textarea")return;const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();handleFiles(files)}});
@@ -736,6 +785,145 @@ function addShape(v){const S0=curStyle(),W=S.doc.w,H=S.doc.h,m=Math.min(W,H);
   if(v==="tiles"){const st=isDark(S.doc.bg)?"oscuro":"claro";const cw=Math.round(W/4),ch=Math.round(cw*1.25);tiles(0,0,4,1,cw,ch,BR.nummeros.tiles[st]).forEach(l=>S.doc.layers.push(l));commit();requestRender();toast("Cuadros agregados arriba del diseño");return}
   if(L)addLayer(L);
   if(v==="band"&&L){L.x=0;L.y=H-L.h;requestRender()}}
+
+/* ================== IA: Claude (texto) + OpenAI (imágenes) ================== */
+const AI_KEYS="ed.ia";
+const IMG_MODELS=[["gpt-image-2","GPT Image 2 · el más nuevo"],["gpt-image-1.5","GPT Image 1.5"],["gpt-image-1-mini","GPT Image 1 mini · el más barato"]];
+const CLAUDE_MODEL="claude-sonnet-5-5";
+function aiCfg(){return Object.assign({claude:"",openai:"",imgModel:"gpt-image-2",quality:"medium"},lsGet(AI_KEYS,{}))}
+function aiSave(c){lsSet(AI_KEYS,c)}
+const IA={idea:"",prompt:"",ask:"",fmt:"auto",busy:false,gen:[]};
+const BRAND_GUIDE={
+nummeros:`Marca NUMMEROS (empresa boliviana de sistemas a la medida para pequeñas empresas: facturación, caja, inventario, contabilidad). Eslogan: "Sistemas a la medida de tu empresa."
+Dirección de fotografía: campaña "Los clásicos de los números". Estatuas clásicas de mármol blanco de matemáticos griegos (Pitágoras, Euclides, Arquímedes) que cobran vida en escenas cotidianas y modernas de negocios: usando celular, tablet, laptop, una caja registradora, revisando inventario. Fotografía realista y cinematográfica, el mármol con textura y vetas reales.
+Luz: el brillo de las pantallas tiñe el mármol con el verde de la marca. Paleta de la marca: #051F20, #0B2B26, #163832, #235347 (principal), #8EB69B, #DAF1DE. Fondos preferentemente claros (verde muy claro #DAF1DE o blanco cálido), los oscuros solo si se pide modo oscuro.
+Euclides no debe parecer una figura religiosa: barba corta y rizada, cabello corto. Ilustraciones de apoyo: pantallas recortadas del sistema.`,
+contax:`Marca CONTAX (consultora contable en Santa Cruz, Bolivia; atención virtual desde 2023: los clientes piden todo por WhatsApp o en su portal, desde donde estén). Personalidad formal y confiable.
+Personaje: el "Contador Virtual". Un hombre real (no robot, no escultura) con traje formal de saco, chaleco de 3 botones, camisa y corbata, TODO en gris claro mate; casco con los costados redondos y un visor oscuro sin ojos visibles (no debe parecerse al casco de Daft Punk). Solo el visor y el objeto que se quiere resaltar (por ejemplo un celular o una tablet) van en un azul intenso y vivo. No modificar el visor.
+Escenas cotidianas, dinámicas y naturales, nunca poses rígidas: tranquilo y relajado, pidiendo el servicio desde donde esté (sofá, hamaca, auto, café). Ambientes mínimos en gris.
+Fondo SIEMPRE de un solo color plano, sin degradado: blanco (principal, modo claro) o gris #7E9197; azul noche #011230 solo para modo oscuro. Sin halo ni círculo detrás de la cabeza.
+Evitar imágenes típicas de contabilidad (calculadoras, montones de documentos, gráficos financieros).`};
+const VOICE={nummeros:"Voz de NUMMEROS: como un contador de confianza que entiende de tecnología; claro, preciso y cercano. Tutea (tú). Sin emojis. Preferir: sistema, a la medida, ordenado, claro, control, tus números. Evitar: solución integral, disruptivo, sinergia, revolucionario. Escribir siempre NUMMEROS en mayúsculas.",
+  contax:"Voz de CONTAX: formal, claro y exacto, como un contador de confianza. Siempre de usted. Frases cortas, el dato primero y el siguiente paso claro. Sin emojis. Montos como Bs 48.250,00 y fechas como 14 de noviembre de 2026. Preferir: al día, a tiempo, ordenado, respaldo, declaración, vencimiento. Evitar: barato, trámite express, garantizado, ofertón. CONTAX siempre en mayúsculas. CONTAX SÍ tiene oficina: nunca decir que es 100 % virtual."};
+function frameFmt(){if(IA.fmt!=="auto")return IA.fmt;const L=selL();const w=L&&L.t==="img"?L.w:S.doc.w,h=L&&L.t==="img"?L.h:S.doc.h;const r=h/w;return r>1.15?"vertical":r<.87?"horizontal":"cuadrada"}
+const SIZE_OF={vertical:"1024x1536",cuadrada:"1024x1024",horizontal:"1536x1024"};
+
+async function callClaude(system,user,maxTokens){
+  const c=aiCfg();if(!c.claude)throw{msg:"Falta tu clave de Claude. Tócala en «Configurar claves»."};
+  let r;try{r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":c.claude,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:CLAUDE_MODEL,max_tokens:maxTokens||1500,system,messages:[{role:"user",content:user}]})})}catch(e){throw{msg:"No se pudo conectar con Claude. Revisa tu internet."}}
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok){const m=(j.error&&j.error.message)||"";throw{msg:r.status===401?"La clave de Claude no es válida. Revísala en «Configurar claves».":/credit|balance/i.test(m)?"Tu cuenta de la API de Claude no tiene saldo. Carga crédito en console.anthropic.com → Billing.":r.status===429?"Claude está ocupado. Espera unos segundos y vuelve a intentar.":"Claude respondió con un error: "+(m||r.status)}}
+  return (j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("").trim()}
+
+async function callOpenAIImage(prompt,size,quality){
+  const c=aiCfg();if(!c.openai)throw{msg:"Falta tu clave de OpenAI. Tócala en «Configurar claves»."};
+  const tryModel=async model=>{let r;try{r=await fetch("https://api.openai.com/v1/images/generations",{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+c.openai},body:JSON.stringify({model,prompt,size,quality,n:1})})}catch(e){throw{msg:"No se pudo conectar con OpenAI. Revisa tu internet."}}
+    const j=await r.json().catch(()=>({}));return{r,j}};
+  let model=c.imgModel||"gpt-image-2",{r,j}=await tryModel(model);
+  const bad=x=>!x.r.ok&&/model/i.test((x.j.error&&x.j.error.message)||"")&&/not|exist|support|access/i.test(x.j.error.message);
+  if(bad({r,j})){for(const alt of IMG_MODELS.map(m=>m[0]).filter(m=>m!==model)){const t=await tryModel(alt);if(t.r.ok||!bad(t)){({r,j}=t);model=alt;c.imgModel=alt;aiSave(c);break}}}
+  if(!r.ok){const m=(j.error&&j.error.message)||"",code=(j.error&&j.error.code)||"";
+    throw{msg:r.status===401?"La clave de OpenAI no es válida. Revísala en «Configurar claves».":/verif/i.test(m)?"OpenAI pide verificar tu organización antes de generar imágenes: entra a platform.openai.com → Settings → Organization → General → Verify Organization. Tarda unos minutos.":code==="insufficient_quota"||/quota|billing/i.test(m)?"Tu cuenta de la API de OpenAI no tiene saldo. Carga crédito en platform.openai.com → Billing.":/safety|policy|moderation/i.test(m)?"OpenAI rechazó la imagen por sus reglas de contenido. Cambia un poco el prompt y vuelve a intentar.":r.status===429?"OpenAI está ocupado. Espera un momento y vuelve a intentar.":"OpenAI respondió con un error: "+(m||r.status)}}
+  const b64=j.data&&j.data[0]&&j.data[0].b64_json;if(!b64)throw{msg:"OpenAI no devolvió ninguna imagen. Vuelve a intentar."};
+  return{b64,model}}
+
+async function b64ToJpeg(b64){const im=new Image();im.src="data:image/png;base64,"+b64;await im.decode();const c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext("2d").drawImage(im,0,0);return await new Promise(res=>c.toBlob(res,"image/jpeg",.92))}
+
+function iaProgress(t,err){const el=$("#ia-prog");if(el){el.innerHTML=t;el.classList.toggle("err",!!err)}}
+async function iaWritePrompt(){
+  if(IA.busy)return;IA.idea=$("#ia-idea").value.trim();if(!IA.idea){iaProgress("Escribe primero tu idea de la imagen.",true);return}
+  IA.busy=true;iaButtons();iaProgress('<span class="spin"></span>Claude está escribiendo el prompt…');
+  const fmt=frameFmt();
+  try{const txt=await callClaude(
+`Eres el director de arte de la marca. Escribes prompts para generar imágenes con IA (modelo GPT Image de OpenAI).
+Reglas del prompt:
+- En español, un solo bloque de texto, largo, muy detallado y completo (entre 180 y 300 palabras), listo para copiar y pegar.
+- Describe: escena y acción, personaje, pose y expresión natural, vestuario, ambiente y objetos, encuadre y lente de cámara, luz, paleta de colores exacta con sus códigos, textura y nivel de realismo, fondo.
+- Indica el formato de la imagen y deja espacio libre donde irá el texto del diseño.
+- La imagen NO debe llevar textos, letras, números legibles, logos ni marcas de agua: el texto y el logo se agregan después en el editor.
+- Respeta al pie de la letra la guía de la marca.
+- Responde SOLO con el prompt, sin títulos, sin comillas y sin explicaciones.
+
+Guía de la marca:
+${BRAND_GUIDE[S.brand]}`,
+`Idea de la imagen: ${IA.idea}
+Formato: ${fmt} (${SIZE_OF[fmt].replace("x"," × ")} px).
+Uso: pieza de redes sociales de ${BR[S.brand].name} (${S.doc.name}).`,1600);
+    IA.prompt=txt;const t=$("#ia-prompt");if(t)t.value=txt;iaProgress("Listo. Puedes ajustar el prompt antes de generar la imagen.")}
+  catch(e){iaProgress(esc(e.msg||"Algo salió mal con Claude."),true)}
+  IA.busy=false;iaButtons()}
+async function iaGenerate(){
+  if(IA.busy)return;IA.prompt=$("#ia-prompt").value.trim();if(!IA.prompt){iaProgress("Escribe un prompt o pídele uno a Claude.",true);return}
+  const c=aiCfg(),fmt=frameFmt(),size=SIZE_OF[fmt];
+  IA.busy=true;iaButtons();const t0=Date.now();let tick=setInterval(()=>iaProgress(`<span class="spin"></span>Generando la imagen ${fmt}… ${Math.round((Date.now()-t0)/1000)} s (suele tardar entre 20 y 60 s)`),1000);
+  iaProgress('<span class="spin"></span>Generando la imagen…');
+  try{const {b64,model}=await callOpenAIImage(IA.prompt,size,c.quality);
+    clearInterval(tick);iaProgress('<span class="spin"></span>Colocando la imagen en tu diseño…');
+    const blob=await b64ToJpeg(b64);const src=await keepImage(blob);
+    const name="IA · "+IA.prompt.split(/[,.]/)[0].slice(0,36);
+    UPS.unshift({src,name,at:Date.now()});try{await store.setUploads(UPS.slice(0,200))}catch(e){}
+    IA.gen.unshift({src,name});
+    await addImage(src,{name:"Imagen IA"});
+    iaProgress(`Imagen lista (${esc(model)}). Quedó guardada también en «Subir».`);renderIAGen()}
+  catch(e){clearInterval(tick);iaProgress(esc(e.msg||"Algo salió mal al generar la imagen."),true)}
+  clearInterval(tick);IA.busy=false;iaButtons()}
+async function iaWriteText(){
+  if(IA.busy)return;const L=selL();IA.ask=$("#ia-ask").value.trim();
+  if(!L||L.t!=="text"){iaProgress2("Primero selecciona en el diseño el texto que quieres cambiar.",true);return}
+  if(!IA.ask){iaProgress2("Dile a Claude qué quieres que diga el texto.",true);return}
+  IA.busy=true;iaButtons();iaProgress2('<span class="spin"></span>Claude está escribiendo…');
+  const others=S.doc.layers.filter(x=>x.t==="text"&&x.id!==L.id).map(x=>`- ${x.name}: ${x.txt}`).join("\n");
+  try{const lim=L.name==="Título"?"máximo 8 palabras":L.name==="Etiqueta"?"máximo 4 palabras":L.name==="Botón"?"máximo 3 palabras":"máximo 30 palabras";
+    const txt=await callClaude(`Eres el redactor de la marca. Escribes textos cortos para piezas de redes sociales.
+${VOICE[S.brand]}
+Responde SOLO con el texto final, sin comillas ni explicaciones.`,
+`Pieza: ${S.doc.name}. Elemento a escribir: ${L.name} (${lim}).
+Texto actual: ${L.txt}
+Otros textos de la pieza:
+${others||"(ninguno)"}
+Pedido: ${IA.ask}`,400);
+    L.txt=txt.replace(/^["“”']+|["“”']+$/g,"");layoutText(L);commit();renderProps();requestRender();iaProgress2("Texto cambiado. Si no te gusta, usa Deshacer (⌘ + Z).")}
+  catch(e){iaProgress2(esc(e.msg||"Algo salió mal con Claude."),true)}
+  IA.busy=false;iaButtons()}
+function iaProgress2(t,err){const el=$("#ia-prog2");if(el){el.innerHTML=t;el.classList.toggle("err",!!err)}}
+function iaButtons(){["#ia-btn-prompt","#ia-btn-gen","#ia-btn-text"].forEach(id=>{const b=$(id);if(b)b.disabled=IA.busy})}
+function renderIAGen(){const box=$("#ia-gen");if(!box)return;box.innerHTML=IA.gen.length?IA.gen.map((g,i)=>`<button type="button" class="thumb" data-i="${i}"><div class="pic"><img data-src="${esc(g.src)}" alt=""></div><span>${esc(g.name)}</span></button>`).join(""):`<p class="hint">Aquí aparecerán las imágenes que generes.</p>`;
+  fillImgs(box);box.querySelectorAll(".thumb").forEach(x=>x.onclick=()=>{const g=IA.gen[+x.dataset.i];addImage(g.src,{name:"Imagen IA"})})}
+function renderIA(el){
+  if(window.claude){el.innerHTML=`<div class="pane"><h2>IA</h2><div class="note">La IA funciona en la versión de GitHub del editor:<br><b style="user-select:all">jmenachocntx.github.io/Sistema-Edici-n-MKT</b><br><br>Esta versión dentro de Claude no tiene permiso para conectarse con Claude ni con OpenAI.</div></div>`;return}
+  const c=aiCfg(),fmt=frameFmt();
+  el.innerHTML=`<div class="pane"><h2>IA</h2><p class="hint">Claude escribe el prompt y los textos. OpenAI genera la imagen y la pone en tu diseño.</p>
+    <div class="keyrow"><span class="pill${c.claude?" on":""}"><i></i>Claude</span><span class="pill${c.openai?" on":""}"><i></i>OpenAI</span><button class="btn" type="button" id="ia-keys" style="margin-left:auto">Configurar claves</button></div>
+    <div class="step"><b>1</b>Tu idea</div>
+    <label class="f"><span>Describe con tus palabras la imagen que quieres</span><textarea id="ia-idea" placeholder="${S.brand==="nummeros"?"Ej.: Arquímedes cobrando en la caja de un restaurante, feliz porque el sistema cuadra solo":"Ej.: El Contador Virtual en una hamaca revisando su declaración en el celular"}">${esc(IA.idea)}</textarea></label>
+    <div class="row" style="margin-top:8px"><label class="f"><span>Formato</span><select id="ia-fmt">${[["auto","Según el diseño ("+fmt+")"],["vertical","Vertical"],["cuadrada","Cuadrada"],["horizontal","Horizontal"]].map(([v,n])=>`<option value="${v}"${IA.fmt===v?" selected":""}>${n}</option>`).join("")}</select></label>
+      <label class="f"><span>Calidad</span><select id="ia-q">${[["low","Baja · más rápida"],["medium","Media"],["high","Alta · más cara"]].map(([v,n])=>`<option value="${v}"${c.quality===v?" selected":""}>${n}</option>`).join("")}</select></label></div>
+    <button class="btn wide" type="button" id="ia-btn-prompt">Escribir prompt con Claude</button>
+    <div class="step"><b>2</b>Prompt</div>
+    <label class="f"><span>Lo escribe Claude; también puedes cambiarlo o pegar el tuyo</span><textarea id="ia-prompt" class="tall">${esc(IA.prompt)}</textarea></label>
+    <button class="btn pri wide" type="button" id="ia-btn-gen">Generar imagen y ponerla en el diseño</button>
+    <p class="hint" style="margin-top:6px">Si tienes una imagen seleccionada en el diseño, la nueva la reemplaza en el mismo marco.</p>
+    <div class="progress" id="ia-prog" aria-live="polite"></div>
+    <div class="step"><b>3</b>Textos con Claude</div>
+    <label class="f"><span>Selecciona un texto del diseño y pídele a Claude qué escribir</span><textarea id="ia-ask" placeholder="Ej.: un título que invite a dejar el Excel">${esc(IA.ask)}</textarea></label>
+    <button class="btn wide" type="button" id="ia-btn-text">Escribir el texto seleccionado</button>
+    <div class="progress" id="ia-prog2" aria-live="polite"></div>
+    <h3>Generadas en esta sesión</h3><div class="thumbs" id="ia-gen"></div></div>`;
+  $("#ia-keys").onclick=iaKeysDialog;
+  $("#ia-idea").oninput=e=>IA.idea=e.target.value;$("#ia-prompt").oninput=e=>IA.prompt=e.target.value;$("#ia-ask").oninput=e=>IA.ask=e.target.value;
+  $("#ia-fmt").onchange=e=>IA.fmt=e.target.value;$("#ia-q").onchange=e=>{const k=aiCfg();k.quality=e.target.value;aiSave(k)};
+  $("#ia-btn-prompt").onclick=iaWritePrompt;$("#ia-btn-gen").onclick=iaGenerate;$("#ia-btn-text").onclick=iaWriteText;
+  iaButtons();renderIAGen()}
+function iaKeysDialog(){const c=aiCfg();
+  const v=showDialog("Claves de IA",`<p class="hint">Las claves se guardan solo en este navegador. Nunca se suben a GitHub ni las ve otra persona que abra el link.</p>
+    <label class="f"><span>Clave de la API de Claude</span><input type="password" id="k-claude" autocomplete="off" placeholder="sk-ant-…" value="${esc(c.claude)}"><small class="k">Se crea en console.anthropic.com → API Keys</small></label>
+    <label class="f"><span>Clave de la API de OpenAI</span><input type="password" id="k-openai" autocomplete="off" placeholder="sk-…" value="${esc(c.openai)}"><small class="k">Se crea en platform.openai.com → API keys</small></label>
+    <label class="f"><span>Modelo de imágenes</span><select id="k-model">${IMG_MODELS.map(([m,n])=>`<option value="${m}"${c.imgModel===m?" selected":""}>${n}</option>`).join("")}</select><small class="k">Si el elegido no está disponible en tu cuenta, el editor prueba solo con el siguiente.</small></label>
+    <div class="row-end"><button class="btn danger" type="button" id="k-clear">Borrar claves</button><button class="btn pri" type="button" id="k-save">Guardar</button></div>`);
+  v.querySelector(".dlg").style.width="min(520px,100%)";
+  v.querySelector("#k-save").onclick=()=>{const k=aiCfg();k.claude=v.querySelector("#k-claude").value.trim();k.openai=v.querySelector("#k-openai").value.trim();k.imgModel=v.querySelector("#k-model").value;aiSave(k);v.remove();toast("Claves guardadas en este navegador");if(S.tab==="ia")renderLib()};
+  v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";aiSave(k);v.remove();toast("Claves borradas");if(S.tab==="ia")renderLib()}}
 
 /* ================== properties panel ================== */
 const ICON={left:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="9" height="2"/><rect x="1" y="12" width="12" height="2"/></svg>',center:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="3.5" y="7" width="9" height="2"/><rect x="2" y="12" width="12" height="2"/></svg>',right:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="6" y="7" width="9" height="2"/><rect x="3" y="12" width="12" height="2"/></svg>',
@@ -859,9 +1047,9 @@ $("#btn-disenos").onclick=async()=>{
   const v=showDialog("Mis diseños",`<div class="empty">Cargando tus diseños…</div>`);const body=v.querySelector(".body");
   let list=[];try{list=await store.list()}catch(e){body.innerHTML=`<div class="empty">No se pudieron cargar tus diseños. Revisa tu conexión y vuelve a abrir.</div>`;return}
   list.sort((a,b)=>(b.updated||0)-(a.updated||0));
-  const draw=()=>{body.innerHTML=(store.kind!=="db"?`<p class="hint">Estos diseños están guardados solo en este navegador.</p>`:"")+(list.length?`<div class="designs">${list.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-open="${i}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="">`:""}</button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${d.w}×${d.h} · ${new Date(d.updated||0).toLocaleDateString("es-BO",{day:"numeric",month:"short"})}</small></div><div class="acts" data-acts="${i}"><button type="button" data-open="${i}">Abrir</button><button type="button" data-copy="${i}">Duplicar</button><button type="button" data-del="${i}">Eliminar</button></div></div>`).join("")}</div>`:`<div class="empty">Todavía no tienes diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.</div>`);
-    body.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{const d=list[+b.dataset.open];openDoc({id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,bg:d.bg,layers:clone(d.layers||[])});v.remove()});
-    body.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{const s=list[+b.dataset.copy];const d=newDoc(s.w,s.h,s.bg,s.brand,s.name+" (copia)");d.layers=clone(s.layers||[]);d.thumb=s.thumb;try{await store.put(d)}catch(e){toast("No se pudo duplicar.");return}list.unshift(Object.assign({updated:Date.now()},d));draw()});
+  const draw=()=>{body.innerHTML=(store.kind!=="db"?`<p class="hint">Estos diseños están guardados en este navegador. Si abres el editor en otra computadora, no aparecerán ahí.</p>`:"")+(list.length?`<div class="designs">${list.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-open="${i}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="">`:""}</button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${d.w}×${d.h} · ${new Date(d.updated||0).toLocaleDateString("es-BO",{day:"numeric",month:"short"})}</small></div><div class="acts" data-acts="${i}"><button type="button" data-open="${i}">Abrir</button><button type="button" data-copy="${i}">Duplicar</button><button type="button" data-del="${i}">Eliminar</button></div></div>`).join("")}</div>`:`<div class="empty">Todavía no tienes diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.</div>`);
+    body.querySelectorAll("[data-open]").forEach(b=>b.onclick=async()=>{let d;try{d=await store.get(list[+b.dataset.open].id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return}openDoc({id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,bg:d.bg,layers:clone(d.layers||[])});v.remove()});
+    body.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{let s;try{s=await store.get(list[+b.dataset.copy].id)}catch(e){}if(!s){toast("No se pudo duplicar.");return}const d=newDoc(s.w,s.h,s.bg,s.brand,s.name+" (copia)");d.layers=clone(s.layers||[]);d.thumb=s.thumb;try{await store.put(d)}catch(e){toast("No se pudo duplicar.");return}list.unshift(Object.assign({updated:Date.now()},d));draw()});
     body.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const i=+b.dataset.del,box=body.querySelector(`[data-acts="${i}"]`);box.innerHTML=`<span style="font-size:11.5px;align-self:center">¿Eliminar?</span><button type="button" data-yes>Sí, eliminar</button><button type="button" data-no>No</button>`;
       box.querySelector("[data-no]").onclick=draw;box.querySelector("[data-yes]").onclick=async()=>{try{await store.del(list[i].id)}catch(e){toast("No se pudo eliminar.");return}if(list[i].id===S.doc.id)S.dirty=false;list.splice(i,1);draw()}});};
   draw();
@@ -878,7 +1066,7 @@ const fontsReady=(async()=>{try{await Promise.all(["600 40px Akshar","700 40px A
   renderLib();
   await initStore();
   const last=lsGet("ed.last",null);
-  if(last&&store.kind==="db"){try{const s=await store.col().doc(last).get();if(s.exists&&!S.dirty&&S.hi===0){const x=s.data();openDoc({id:last,name:x.name,brand:x.brand,w:x.w,h:x.h,bg:x.bg,layers:clone(x.layers||[])});setStatus("Seguiste donde te quedaste")}}catch(e){}}
+  if(last){try{const x=await store.get(last);if(x&&!S.dirty&&S.hi===0){openDoc({id:last,name:x.name,brand:x.brand,w:x.w,h:x.h,bg:x.bg,layers:clone(x.layers||[])});setStatus("Seguiste donde te quedaste")}}catch(e){}}
   document.fonts&&document.fonts.addEventListener&&document.fonts.addEventListener("loadingdone",()=>{requestRender();refreshThumbs()});
 })();
 window.addEventListener("beforeunload",()=>{if(S.dirty)saveNow()});
