@@ -1,6 +1,6 @@
-# Editor de Marca · NUMMEROS by CONTAX
+# EdiThor Nummeros
 
-Editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva pero con todo lo de nuestras marcas ya cargado: plantillas, fotos, logos, colores y letras.
+**EdiThor** es el editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva pero con todo lo de nuestras marcas ya cargado: plantillas, fotos, logos, colores y letras.
 
 ## Qué hace
 
@@ -38,8 +38,17 @@ Las claves se guardan solo en el navegador de quien las pega. No están en este 
 
 ## Dónde se usa
 
-1. **Como artifact de Claude** (versión principal): guarda los diseños y las imágenes subidas en la nube.
-2. **Desde este repositorio con GitHub Pages** (https://jmenachocntx.github.io/Sistema-Edici-n-MKT/): tiene la IA. Los diseños y las imágenes se guardan en el navegador de esa computadora.
+- **En línea:** https://edithornummeros.contaxbolivia.com (GitHub Pages con dominio propio).
+- Se entra con una cuenta de Google autorizada. Los diseños y las imágenes se guardan en **Firebase** (proyecto «EdiThor Nummeros»), así se ven desde cualquier computadora.
+- Sin internet o sin entrar, el editor guarda en el navegador; después, en «Mis diseños», se suben a la nube con un clic.
+- También existe una versión dentro de Claude (artifact), sin IA.
+
+## Firebase
+
+- `firebase-config.js`: datos de la app web de Firebase (no son secretos).
+- `firestore.rules`: quién puede entrar. Solo las cuentas de la lista pueden ver y guardar. Para dar acceso a alguien, se agrega su correo y se publican de nuevo las reglas en Firebase → Firestore → Reglas.
+- Se usa **Authentication** (Google) y **Firestore**. Las imágenes se guardan dentro de Firestore en partes, así no hace falta el plan de pago de Storage.
+- En Authentication → Configuración → Dominios autorizados deben estar `edithornummeros.contaxbolivia.com` y `jmenachocntx.github.io`.
 
 ## Cómo está organizado
 
@@ -51,6 +60,7 @@ Las claves se guardan solo en el navegador de quien las pega. No están en este 
 | `fotos-web/`, `objetos-web/` | Fotos del Contador Virtual y objetos 3D de CONTAX |
 | `png/` | Logos de ambas marcas |
 | `fonts/` | Letras: Akshar, Questrial y Adventor (reemplazo de Century Gothic) |
+| `firebase-config.js`, `firestore.rules` | Conexión con Firebase y reglas de acceso |
 | `lib/qrcode.js` | Librería para generar los códigos QR (qrcode-generator, licencia MIT) |
 | `herramientas/para-artifact.py` | Prepara `index.html` para publicarlo como artifact |
 

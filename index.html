@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<script src="firebase-config.js"></script>
 </head>
 <body>
 <!-- PAGINA -->
-<title>Editor de Marca</title>
+<title>EdiThor Nummeros</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap">
 <style>
@@ -90,6 +91,11 @@ button{cursor:pointer}
 .main.compact.lib-open .ctxbar{left:calc(50% + 150px);max-width:calc(100% - 336px)}
 .main.compact.props-open .ctxbar{left:calc(50% - 145px);max-width:calc(100% - 326px)}
 .main.compact.lib-open.props-open .ctxbar{left:calc(50% + 5px);max-width:calc(100% - 626px)}
+#btn-acct{border-radius:999px;font-weight:700;background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+#btn-acct img{width:100%;height:100%;border-radius:999px;object-fit:cover}
+.menu .acct-mail{padding:8px 10px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);margin-bottom:4px;word-break:break-all}
+.login-err{color:var(--danger);font-size:13px;margin:0}
+.cloudnote{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:12px;margin-bottom:14px;display:grid;gap:8px;font-size:13px}
 #btn-panels[aria-pressed="true"]{background:var(--field);color:var(--acc);border-color:var(--acc)}
 .rail{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:2px;padding:8px 6px;padding-left:max(6px,env(safe-area-inset-left,0px))}
 .rail button{border:0;background:transparent;border-radius:8px;padding:8px 2px 6px;display:grid;justify-items:center;gap:4px;font-size:11px;color:var(--muted)}
@@ -288,7 +294,7 @@ button{cursor:pointer}
   <header class="top">
     <div class="brandmark" title="NUMMEROS by CONTAX">
       <svg viewBox="0 0 546 728" aria-hidden="true"><path fill="currentColor" style="color:var(--acc)" d="M0 427 L0 728 L136 728 L136 634 Z M410 0 L410 85 L546 292 L546 0 Z M0 0 L148 0 L410 458.5 L410 341 L546 548 L546 728 L401.71 728 L136 263 L136 379 L0 172 Z"/></svg>
-      <div>Editor de Marca<small>NUMMEROS by CONTAX</small></div>
+      <div>EdiThor<small>NUMMEROS by CONTAX</small></div>
     </div>
     <div class="seg" role="group" aria-label="Marca">
       <button type="button" id="m-nummeros" data-marca="nummeros">NUMMEROS</button>
@@ -297,6 +303,10 @@ button{cursor:pointer}
     <input id="nombre" type="text" aria-label="Nombre del diseño" value="Diseño sin nombre">
     <div class="spacer"></div>
     <span class="status" id="status" aria-live="polite"></span>
+    <div class="menuwrap" id="acct" hidden>
+      <button class="btn icon" id="btn-acct" type="button" aria-haspopup="true" aria-expanded="false" title="Tu cuenta"></button>
+      <div class="menu" id="menu-acct" hidden></div>
+    </div>
     <button class="btn icon hide-narrow" id="btn-panels" type="button" title="Paneles automáticos: solo íconos a los lados" aria-label="Paneles automáticos" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16M16 4v16"/></svg></button>
     <div class="menuwrap">
       <button class="btn icon" id="btn-theme" type="button" title="Modo claro u oscuro" aria-label="Modo claro u oscuro" aria-haspopup="true" aria-expanded="false"></button>
@@ -439,13 +449,15 @@ function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 /* images */
 const IMG={};
 function img(src){let r=IMG[src];if(!r){const im=new Image();r=IMG[src]={im,ok:false,err:false};r.p=new Promise(res=>{im.onload=()=>{r.ok=true;res(im);requestRender();refreshThumbs()};im.onerror=()=>{r.err=true;res(null)};
-    if(String(src).startsWith("idb:"))IDB.get("img:"+src.slice(4)).then(b=>{if(b)im.src=URL.createObjectURL(b);else{r.err=true;res(null)}}).catch(()=>{r.err=true;res(null)});else im.src=src})}return r}
+    if(String(src).startsWith("fb:"))fbGetImage(src.slice(3)).then(b=>{if(b)im.src=URL.createObjectURL(b);else{r.err=true;res(null)}}).catch(()=>{r.err=true;res(null)});
+    else if(String(src).startsWith("idb:"))IDB.get("img:"+src.slice(4)).then(b=>{if(b)im.src=URL.createObjectURL(b);else{r.err=true;res(null)}}).catch(()=>{r.err=true;res(null)});else im.src=src})}return r}
 /* keep an image for later: cloud asset, browser database, or (last resort) inline */
 async function keepImage(blob){
+  if(store.kind==="fb")return await fbPutImage(blob);
   if(store.assets){const r=await store.assets.upload(blob,{type:blob.type==="image/jpg"?"image/jpeg":blob.type});return"/_blob/"+r.id}
   if(store.idb){const id=uid()+uid();await IDB.set("img:"+id,blob);return"idb:"+id}
   return await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(blob)})}
-function fillImgs(root){root.querySelectorAll("img[data-src]").forEach(el=>{const s=el.dataset.src;if(!s.startsWith("idb:")){el.src=s;return}img(s).p.then(im=>{if(im)el.src=im.src})})}
+function fillImgs(root){root.querySelectorAll("img[data-src]").forEach(el=>{const s=el.dataset.src;if(!s.startsWith("idb:")&&!s.startsWith("fb:")){el.src=s;return}img(s).p.then(im=>{if(im)el.src=im.src})})}
 const ld=src=>img(src).p;
 
 /* ================== text layout ================== */
@@ -793,22 +805,28 @@ const IDB={p:null,
   async del(k){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
 const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   col(){return this.db.collection("data/users/"+this.uid)},
-  async list(){if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
+  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0}})}
+    if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
     if(this.idb)return(await IDB.get("index"))||[];
     return lsGet("ed.designs",[])},
-  async get(id){if(this.kind==="db"){const s=await this.col().doc(id).get();return s.exists?Object.assign({id},s.data()):null}
+  async get(id){if(this.kind==="fb"){const x=await FB.m.getDoc(fbDoc("designs",id));if(!x.exists())return null;const v=x.data();let more={};try{more=JSON.parse(v.data||"{}")}catch(e){}const o=Object.assign({id},v,more);delete o.data;return o}
+    if(this.kind==="db"){const s=await this.col().doc(id).get();return s.exists?Object.assign({id},s.data()):null}
     if(this.idb){const d=await IDB.get("d:"+id);return d?Object.assign({id},d):null}
     return lsGet("ed.designs",[]).find(x=>x.id===id)||null},
   async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages||[{id:"p1",bg:d.bg,layers:d.layers||[]}],thumb:d.thumb||"",updated:Date.now()};
+    if(this.kind==="fb"){await FB.m.setDoc(fbDoc("designs",d.id),{name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds})});return}
     if(this.kind==="db"){await this.col().doc(d.id).set(rec);return}
     if(this.idb){await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated});await IDB.set("index",idx);return}
     const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));localStorage.setItem("ed.designs",JSON.stringify(all.slice(0,30)))},
-  async del(id){if(this.kind==="db"){await this.col().doc(id).delete();return}
+  async del(id){if(this.kind==="fb"){await FB.m.deleteDoc(fbDoc("designs",id));return}
+    if(this.kind==="db"){await this.col().doc(id).delete();return}
     if(this.idb){await IDB.del("d:"+id);await IDB.set("index",((await IDB.get("index"))||[]).filter(x=>x.id!==id));return}
     lsSet("ed.designs",lsGet("ed.designs",[]).filter(x=>x.id!==id))},
-  async uploads(){if(this.kind==="db"){const s=await this.col().doc("subidas").get();return s.exists?(s.data().items||[]):[]}
+  async uploads(){if(this.kind==="fb"){const x=await FB.m.getDoc(fbDoc("meta","uploads"));return x.exists()?(x.data().items||[]):[]}
+    if(this.kind==="db"){const s=await this.col().doc("subidas").get();return s.exists?(s.data().items||[]):[]}
     if(this.idb)return(await IDB.get("uploads"))||[];return lsGet("ed.uploads",[])},
-  async setUploads(items){if(this.kind==="db"){await this.col().doc("subidas").set({items:items.filter(i=>!i.src.startsWith("data:"))});return}
+  async setUploads(items){if(this.kind==="fb"){await FB.m.setDoc(fbDoc("meta","uploads"),{items:items.filter(i=>!String(i.src).startsWith("data:")).slice(0,300).map(i=>({src:i.src,name:i.name||"",at:i.at||0}))});return}
+    if(this.kind==="db"){await this.col().doc("subidas").set({items:items.filter(i=>!i.src.startsWith("data:"))});return}
     if(this.idb){await IDB.set("uploads",items);return}lsSet("ed.uploads",items.filter(i=>!i.src.startsWith("data:")))}
 };
 async function initLocal(){
@@ -816,8 +834,65 @@ async function initLocal(){
     if(!(await IDB.get("index"))){const old=lsGet("ed.designs",[]);for(const d of old.slice().reverse()){await store.put(d)}await IDB.set("index",(await IDB.get("index"))||[])}
   }catch(e){store.idb=false}
 }
+/* ================== Firebase: la nube de EdiThor ================== */
+const FB_V="12.19.0";
+const FB={m:null,app:null,auth:null,db:null,user:null};
+FB.ready=new Promise(r=>FB.done=r);
+const fbDoc=(...p)=>FB.m.doc(FB.db,...p);
+const fbDenied=e=>!!e&&(e.code==="permission-denied"||/permission/i.test(e.message||""));
+const b64OfBlob=blob=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]||"");r.onerror=rej;r.readAsDataURL(blob)});
+function blobOfB64(b64,type){const bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type})}
+async function fbLoad(){const base=`https://www.gstatic.com/firebasejs/${FB_V}/`;const mods=await Promise.all(["firebase-app.js","firebase-auth.js","firebase-firestore.js"].map(f=>import(base+f)));
+  const M=FB.m=Object.assign({},...mods);FB.app=M.initializeApp(window.EDITHOR_FIREBASE);FB.auth=M.getAuth(FB.app);
+  try{FB.db=M.initializeFirestore(FB.app,{localCache:M.persistentLocalCache({tabManager:M.persistentMultipleTabManager()})})}catch(e){FB.db=M.getFirestore(FB.app)}}
+/* pictures live in Firestore as pieces of text (no paid Storage plan needed); a copy stays in this browser for speed */
+async function fbPutImage(blob){const M=FB.m,id=uid()+uid(),b64=await b64OfBlob(blob),size=700000,n=Math.max(1,Math.ceil(b64.length/size));
+  const batch=M.writeBatch(FB.db);batch.set(fbDoc("images",id),{type:blob.type||"image/png",n,bytes:blob.size,at:Date.now()});
+  for(let i=0;i<n;i++)batch.set(fbDoc("images",id,"parts",String(i)),{d:b64.slice(i*size,(i+1)*size)});
+  await batch.commit();try{await IDB.set("img:fb:"+id,blob)}catch(e){}return"fb:"+id}
+async function fbGetImage(id){try{const c=await IDB.get("img:fb:"+id);if(c)return c}catch(e){}
+  if(!(await FB.ready))return null;const M=FB.m,meta=await M.getDoc(fbDoc("images",id));if(!meta.exists())return null;const {n,type}=meta.data();
+  const parts=await Promise.all(Array.from({length:n},(_,i)=>M.getDoc(fbDoc("images",id,"parts",String(i)))));const b=blobOfB64(parts.map(p=>p.exists()?p.data().d:"").join(""),type);
+  try{await IDB.set("img:fb:"+id,b)}catch(e){}return b}
+const NLOGO=`<svg viewBox="0 0 546 728" width="44" height="58" aria-hidden="true"><path fill="currentColor" d="${NPATH}"/></svg>`;
+function fbLoginUI(msg,isErr){let v=$("#fblogin");if(!v){v=document.createElement("div");v.id="fblogin";v.className="veil";document.body.appendChild(v)}
+  v.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-label="Entrar a EdiThor" style="width:min(420px,100%)"><div class="body" style="display:grid;gap:14px;justify-items:center;text-align:center;padding:30px 24px">
+    <span style="color:var(--acc)">${NLOGO}</span><h2 style="font:700 30px/1 var(--head);margin:0">EdiThor Nummeros</h2>
+    <p class="hint" style="margin:0">Entra con tu cuenta de Google. Tus diseños e imágenes se guardan en la nube y los ves desde cualquier computadora.</p>
+    ${msg?`<p class="${isErr?"login-err":"hint"}" style="margin:0">${msg}</p>`:""}
+    <button class="btn pri" type="button" id="fb-in" style="width:100%;height:42px">Entrar con Google</button>
+    ${FB.user?`<button class="btn" type="button" id="fb-out" style="width:100%">Entrar con otra cuenta</button>`:""}
+    <button class="btn" type="button" id="fb-local" style="width:100%;font-size:12px;color:var(--muted)">Seguir sin entrar (se guarda solo en este navegador)</button></div></div>`}
+function acctUI(){const w=$("#acct"),u=FB.user;if(!u){w.hidden=true;return}w.hidden=false;const b=$("#btn-acct");
+  b.innerHTML=u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`:esc((u.displayName||u.email||"?").trim().charAt(0).toUpperCase());b.title=u.email||"";
+  $("#menu-acct").innerHTML=`<div class="acct-mail">Conectado como<br><b>${esc(u.email||"")}</b><br>Tus diseños se guardan en la nube.</div><button type="button" id="acct-out">Cerrar sesión</button>`;
+  $("#acct-out").onclick=async()=>{if(S.dirty)await saveNow();await FB.m.signOut(FB.auth);location.reload()};
+  b.onclick=e=>{e.stopPropagation();const m=$("#menu-acct");m.hidden=!m.hidden;b.setAttribute("aria-expanded",String(!m.hidden))}}
+document.addEventListener("click",e=>{const m=$("#menu-acct");if(m&&!m.hidden&&!e.target.closest("#acct"))m.hidden=true});
+async function initFirebase(){
+  try{await fbLoad()}catch(e){toast("No se pudo conectar con la nube. Por ahora se guarda en este navegador.",5000);return false}
+  const M=FB.m;
+  return await new Promise(resolve=>{let done=false;const finish=ok=>{if(done)return;done=true;$("#fblogin")?.remove();FB.done(ok);resolve(ok)};
+    M.onAuthStateChanged(FB.auth,async u=>{FB.user=u;acctUI();if(!u){if(!done)fbLoginUI();return}
+      fbLoginUI("Entrando…");
+      try{await M.getDoc(fbDoc("meta","uploads"))}catch(e){if(fbDenied(e)){fbLoginUI(`La cuenta <b>${esc(u.email||"")}</b> no tiene permiso para usar EdiThor. Entra con otra cuenta o pide que la agreguen.`,true);return}}
+      finish(true)});
+    document.addEventListener("click",async e=>{const id=e.target&&e.target.id;
+      if(id==="fb-in"){try{await M.signInWithPopup(FB.auth,new M.GoogleAuthProvider())}catch(err){const c=err&&err.code||"";if(c==="auth/popup-closed-by-user"||c==="auth/cancelled-popup-request")return;
+        fbLoginUI(c==="auth/unauthorized-domain"?"Falta agregar esta dirección en Firebase → Authentication → Configuración → Dominios autorizados.":c==="auth/popup-blocked"?"El navegador bloqueó la ventana de Google. Permite las ventanas emergentes para esta página.":"No se pudo entrar: "+esc(c||err.message||""),true)}}
+      if(id==="fb-out"){await M.signOut(FB.auth)}
+      if(id==="fb-local")finish(false)})})}
+/* designs and images saved in this browser before the cloud existed */
+async function localDesigns(){try{return(await IDB.get("index"))||[]}catch(e){return[]}}
+async function migrateLocal(onStep){const idx=await localDesigns(),map={};let n=0;
+  const conv=async src=>{if(!src||map[src])return map[src]||src;let blob=null;if(src.startsWith("idb:"))blob=await IDB.get("img:"+src.slice(4));else if(src.startsWith("data:"))blob=await (await fetch(src)).blob();if(!blob)return src;return map[src]=await fbPutImage(blob)};
+  for(const it of idx){const d=await IDB.get("d:"+it.id);if(!d)continue;const pages=d.pages||[{id:"p1",bg:d.bg,layers:d.layers||[]}];
+    for(const P of pages)for(const L of P.layers||[])if(L.src)L.src=await conv(L.src);await store.put(Object.assign({},d,{id:it.id,pages}));n++;onStep&&onStep(n,idx.length)}
+  const ups=(await IDB.get("uploads"))||[];for(const u of ups)u.src=await conv(u.src);const cur=await store.uploads();await store.setUploads([...ups.filter(u=>!String(u.src).startsWith("idb:")),...cur]);
+  lsSet("ed.migrated",true);return n}
+
 async function initStore(){
-  const c=window.claude;if(!c||!c.use){await initLocal();refreshUploads();return}
+  const c=window.claude;if(!c||!c.use){await initLocal();if(window.EDITHOR_FIREBASE&&await initFirebase())store.kind="fb";else FB.done(false);refreshUploads();return}
   try{
     const [db,user,assets,downloads]=await Promise.all(["db","user","assets","downloads"].map(n=>c.use(n).catch(()=>null)));
     store.assets=assets;store.downloads=downloads;
@@ -844,7 +919,7 @@ async function saveNow(){
   const d=S.doc,ver=S.ver,rec={id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:pagesOut(d)};
   setStatus("Guardando…");
   try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);
-    if(S.doc===d&&S.ver===ver){S.dirty=false;setStatus(store.kind==="db"?"Guardado":"Guardado en este navegador")}}
+    if(S.doc===d&&S.ver===ver){S.dirty=false;setStatus(store.kind==="fb"?"Guardado en la nube":store.kind==="db"?"Guardado":"Guardado en este navegador")}}
   catch(e){setStatus(e&&(e.code==="quota_exceeded"||e.name==="QuotaExceededError")?"No se pudo guardar: no queda espacio. Elimina diseños viejos.":"No se pudo guardar. Revisa tu conexión.",true)}
 }
 async function makeThumb(d,max){const s=max/Math.max(d.w,d.h);const c=document.createElement("canvas");c.width=Math.round(d.w*s);c.height=Math.round(d.h*s);const x=c.getContext("2d");x.scale(s,s);const P=(d.pages&&d.pages[0])||d;drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers});try{return c.toDataURL("image/jpeg",.72)}catch(e){return ""}}
@@ -1873,12 +1948,16 @@ $("#btn-disenos").onclick=async()=>{
   const v=showDialog("Mis diseños",`<div class="empty">Cargando tus diseños…</div>`);const body=v.querySelector(".body");
   let list=[];try{list=await store.list()}catch(e){body.innerHTML=`<div class="empty">No se pudieron cargar tus diseños. Revisa tu conexión y vuelve a abrir.</div>`;return}
   list.sort((a,b)=>(b.updated||0)-(a.updated||0));
-  const draw=()=>{body.innerHTML=(store.kind!=="db"?`<p class="hint">Estos diseños están guardados en este navegador. Si abres el editor en otra computadora, no aparecerán ahí.</p>`:"")+(list.length?`<div class="designs">${list.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-open="${i}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="">`:""}</button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${d.w}×${d.h} · ${new Date(d.updated||0).toLocaleDateString("es-BO",{day:"numeric",month:"short"})}</small></div><div class="acts" data-acts="${i}"><button type="button" data-open="${i}">Abrir</button><button type="button" data-copy="${i}">Duplicar</button><button type="button" data-del="${i}">Eliminar</button></div></div>`).join("")}</div>`:`<div class="empty">Todavía no tienes diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.</div>`);
+  const locals=store.kind==="fb"&&!lsGet("ed.migrated",false)?await localDesigns():[];
+  const draw=()=>{body.innerHTML=(store.kind==="fb"?(locals.length?`<div class="cloudnote"><b>Tienes ${locals.length} diseño${locals.length>1?"s":""} guardado${locals.length>1?"s":""} solo en este navegador.</b><span>Súbelos a la nube para verlos desde cualquier computadora. Las imágenes que usan también se suben.</span><button class="btn pri" type="button" id="mig-go">Subir a la nube</button><span id="mig-msg" class="hint" style="margin:0"></span></div>`:""):store.kind!=="db"?`<p class="hint">Estos diseños están guardados en este navegador. Si abres el editor en otra computadora, no aparecerán ahí.</p>`:"")+(list.length?`<div class="designs">${list.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-open="${i}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="">`:""}</button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${d.w}×${d.h} · ${new Date(d.updated||0).toLocaleDateString("es-BO",{day:"numeric",month:"short"})}</small></div><div class="acts" data-acts="${i}"><button type="button" data-open="${i}">Abrir</button><button type="button" data-copy="${i}">Duplicar</button><button type="button" data-del="${i}">Eliminar</button></div></div>`).join("")}</div>`:`<div class="empty">Todavía no tienes diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.</div>`);
     body.querySelectorAll("[data-open]").forEach(b=>b.onclick=async()=>{let d;try{d=await store.get(list[+b.dataset.open].id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return}openDoc(fromRecord(d.id,d));v.remove()});
     body.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{let s;try{s=await store.get(list[+b.dataset.copy].id)}catch(e){}if(!s){toast("No se pudo duplicar.");return}const d=fromRecord(newDoc(1,1).id,s);d.name=s.name+" (copia)";d.pages=pagesOut(d);d.thumb=s.thumb;try{await store.put(d)}catch(e){toast("No se pudo duplicar.");return}list.unshift(Object.assign({updated:Date.now()},d));draw()});
     body.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const i=+b.dataset.del,box=body.querySelector(`[data-acts="${i}"]`);box.innerHTML=`<span style="font-size:11.5px;align-self:center">¿Eliminar?</span><button type="button" data-yes>Sí, eliminar</button><button type="button" data-no>No</button>`;
       box.querySelector("[data-no]").onclick=draw;box.querySelector("[data-yes]").onclick=async()=>{try{await store.del(list[i].id)}catch(e){toast("No se pudo eliminar.");return}if(list[i].id===S.doc.id)S.dirty=false;list.splice(i,1);draw()}});};
   draw();
+  const mg=body.querySelector("#mig-go");if(mg)mg.onclick=async()=>{mg.disabled=true;const msg=body.querySelector("#mig-msg");
+    try{const n=await migrateLocal((i,t)=>{msg.textContent=`Subiendo ${i} de ${t}…`});toast(`Listo: ${n} diseño${n===1?"":"s"} en la nube`);v.remove();$("#btn-disenos").click()}
+    catch(e){mg.disabled=false;msg.textContent="No se pudo terminar de subir. Revisa tu internet y vuelve a intentar."}};
 };
 
 /* ================== boot ================== */
