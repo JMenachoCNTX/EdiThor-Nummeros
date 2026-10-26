@@ -184,7 +184,11 @@ button{cursor:pointer}
 .step{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font:600 12px/1.2 var(--head);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .step b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--acc);color:var(--on-acc);font-size:11px;letter-spacing:0}
 .f textarea.tall{min-height:150px}
-.btn.wide{width:100%;margin-top:8px}
+.selimg{display:flex;align-items:center;gap:10px;border:1px dashed var(--line);border-radius:8px;padding:8px;margin-bottom:8px;min-height:56px}
+.selimg img{width:56px;height:56px;object-fit:cover;border-radius:6px;flex:none;background:var(--stage)}
+.selimg span{min-width:0;font-size:12.5px}.selimg small{display:block;color:var(--muted);font-size:11.5px}
+.selimg .empty-sel{color:var(--muted)}
+.btn.wide{width:100%;margin-top:8px;white-space:normal}
 .progress{font-size:12.5px;color:var(--muted);margin-top:8px;min-height:18px}
 .progress.err{color:var(--danger)}
 .note{border:1px solid var(--line);background:var(--field);border-radius:10px;padding:12px;font-size:12.5px;color:var(--ink)}
@@ -667,7 +671,7 @@ document.addEventListener("keydown",e=>{
 });
 
 /* ================== layer operations ================== */
-function select(id){if(S.sel===id)return;S.sel=id;renderProps();requestRender()}
+function select(id){if(S.sel===id)return;S.sel=id;renderProps();requestRender();if(S.tab==="ia")iaSelUpdate()}
 function addLayer(L,{center=true}={}){if(L.t==="text")layoutText(L);if(center){L.x=Math.round((S.doc.w-L.w)/2);L.y=Math.round((S.doc.h-L.h)/2)}S.doc.layers.push(L);S.sel=L.id;commit();renderProps();requestRender();if(isNarrow())setTab("editar")}
 function removeSel(){const i=S.doc.layers.findIndex(l=>l.id===S.sel);if(i<0)return;S.doc.layers.splice(i,1);S.sel=null;commit();renderProps();requestRender()}
 function duplicate(){const L=selL();if(!L)return;const c=clone(stripL(L));c.id=uid();c.x+=30;c.y+=30;c.lock=false;const i=S.doc.layers.indexOf(L);S.doc.layers.splice(i+1,0,c);S.sel=c.id;commit();renderProps();requestRender()}
@@ -786,13 +790,16 @@ function addShape(v){const S0=curStyle(),W=S.doc.w,H=S.doc.h,m=Math.min(W,H);
   if(L)addLayer(L);
   if(v==="band"&&L){L.x=0;L.y=H-L.h;requestRender()}}
 
-/* ================== IA: Claude (texto) + OpenAI (imágenes) ================== */
+/* ================== IA: Claude (texto) + OpenAI / Gemini (imágenes) ================== */
 const AI_KEYS="ed.ia";
-const IMG_MODELS=[["gpt-image-2","GPT Image 2 · el más nuevo"],["gpt-image-1.5","GPT Image 1.5"],["gpt-image-1-mini","GPT Image 1 mini · el más barato"]];
+const IMG_MODELS=[["gpt-image-2","GPT Image 2"],["gpt-image-2.5-flare","GPT Image 2.5 Flare"],["gpt-image-2.5-sunburst","GPT Image 2.5 Sunburst"],["gpt-image-1.5","GPT Image 1.5"],["gpt-image-1-mini","GPT Image 1 mini · el más barato"]];
+const GEM_MODELS=[["gemini-nano-banana-2.1","Nano Banana 2.1 · recomendado"],["gemini-3.1-flash-image","Gemini 3.1 Flash Image"],["gemini-3.1-flash-lite-image","Gemini 3.1 Flash Lite · el más barato"],["gemini-3-pro-image","Gemini 3 Pro Image · el más avanzado"],["gemini-2.5-flash-image","Gemini 2.5 Flash Image"]];
 const CLAUDE_MODEL="claude-sonnet-5-5";
-function aiCfg(){return Object.assign({claude:"",openai:"",imgModel:"gpt-image-2",quality:"medium"},lsGet(AI_KEYS,{}))}
+const PROV={openai:"OpenAI",gemini:"Gemini"};
+function aiCfg(){return Object.assign({claude:"",openai:"",gemini:"",imgModel:"gpt-image-2",gemModel:"gemini-nano-banana-2.1",quality:"medium",prov:""},lsGet(AI_KEYS,{}))}
 function aiSave(c){lsSet(AI_KEYS,c)}
-const IA={idea:"",prompt:"",ask:"",fmt:"auto",busy:false,gen:[]};
+function aiProv(){const c=aiCfg();if(c.prov&&c[c.prov])return c.prov;return c.openai?"openai":c.gemini?"gemini":(c.prov||"openai")}
+const IA={idea:"",prompt:"",ask:"",fix:"",fmt:"auto",busy:false,gen:[]};
 const BRAND_GUIDE={
 nummeros:`Marca NUMMEROS (empresa boliviana de sistemas a la medida para pequeñas empresas: facturación, caja, inventario, contabilidad). Eslogan: "Sistemas a la medida de tu empresa."
 Dirección de fotografía: campaña "Los clásicos de los números". Estatuas clásicas de mármol blanco de matemáticos griegos (Pitágoras, Euclides, Arquímedes) que cobran vida en escenas cotidianas y modernas de negocios: usando celular, tablet, laptop, una caja registradora, revisando inventario. Fotografía realista y cinematográfica, el mármol con textura y vetas reales.
@@ -807,36 +814,86 @@ const VOICE={nummeros:"Voz de NUMMEROS: como un contador de confianza que entien
   contax:"Voz de CONTAX: formal, claro y exacto, como un contador de confianza. Siempre de usted. Frases cortas, el dato primero y el siguiente paso claro. Sin emojis. Montos como Bs 48.250,00 y fechas como 14 de noviembre de 2026. Preferir: al día, a tiempo, ordenado, respaldo, declaración, vencimiento. Evitar: barato, trámite express, garantizado, ofertón. CONTAX siempre en mayúsculas. CONTAX SÍ tiene oficina: nunca decir que es 100 % virtual."};
 function frameFmt(){if(IA.fmt!=="auto")return IA.fmt;const L=selL();const w=L&&L.t==="img"?L.w:S.doc.w,h=L&&L.t==="img"?L.h:S.doc.h;const r=h/w;return r>1.15?"vertical":r<.87?"horizontal":"cuadrada"}
 const SIZE_OF={vertical:"1024x1536",cuadrada:"1024x1024",horizontal:"1536x1024"};
+/* closest Gemini aspect ratio to the frame being filled */
+function gemAspect(){const L=selL();let w=S.doc.w,h=S.doc.h;if(IA.fmt==="vertical"){w=2;h=3}else if(IA.fmt==="cuadrada"){w=h=1}else if(IA.fmt==="horizontal"){w=3;h=2}else if(L&&L.t==="img"){w=L.w;h=L.h}
+  const r=w/h,opts=["1:1","2:3","3:2","3:4","4:3","4:5","5:4","9:16","16:9"];let best="1:1",d=9;for(const o of opts){const [a,b]=o.split(":").map(Number);const e=Math.abs(Math.log(a/b)-Math.log(r));if(e<d){d=e;best=o}}return best}
 
-async function callClaude(system,user,maxTokens){
-  const c=aiCfg();if(!c.claude)throw{msg:"Falta tu clave de Claude. Tócala en «Configurar claves»."};
+async function callClaude(system,content,maxTokens){
+  const c=aiCfg();if(!c.claude)throw{msg:"Falta tu clave de Claude. Pégala en «Configurar claves»."};
   let r;try{r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":c.claude,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:CLAUDE_MODEL,max_tokens:maxTokens||1500,system,messages:[{role:"user",content:user}]})})}catch(e){throw{msg:"No se pudo conectar con Claude. Revisa tu internet."}}
+    body:JSON.stringify({model:CLAUDE_MODEL,max_tokens:maxTokens||1500,system,messages:[{role:"user",content}]})})}catch(e){throw{msg:"No se pudo conectar con Claude. Revisa tu internet."}}
   const j=await r.json().catch(()=>({}));
   if(!r.ok){const m=(j.error&&j.error.message)||"";throw{msg:r.status===401?"La clave de Claude no es válida. Revísala en «Configurar claves».":/credit|balance/i.test(m)?"Tu cuenta de la API de Claude no tiene saldo. Carga crédito en console.anthropic.com → Billing.":r.status===429?"Claude está ocupado. Espera unos segundos y vuelve a intentar.":"Claude respondió con un error: "+(m||r.status)}}
   return (j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("").trim()}
 
-async function callOpenAIImage(prompt,size,quality){
-  const c=aiCfg();if(!c.openai)throw{msg:"Falta tu clave de OpenAI. Tócala en «Configurar claves»."};
-  const tryModel=async model=>{let r;try{r=await fetch("https://api.openai.com/v1/images/generations",{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+c.openai},body:JSON.stringify({model,prompt,size,quality,n:1})})}catch(e){throw{msg:"No se pudo conectar con OpenAI. Revisa tu internet."}}
+/* OpenAI: generate (no image) or edit (with image blob) */
+async function callOpenAI(prompt,{size,quality,image}){
+  const c=aiCfg();if(!c.openai)throw{msg:"Falta tu clave de OpenAI. Pégala en «Configurar claves»."};
+  const req=async model=>{let r;try{
+      if(image){const fd=new FormData();fd.append("model",model);fd.append("prompt",prompt);fd.append("image",image,"imagen.jpg");fd.append("quality",quality);fd.append("size","auto");
+        r=await fetch("https://api.openai.com/v1/images/edits",{method:"POST",headers:{"authorization":"Bearer "+c.openai},body:fd})}
+      else r=await fetch("https://api.openai.com/v1/images/generations",{method:"POST",headers:{"content-type":"application/json","authorization":"Bearer "+c.openai},body:JSON.stringify({model,prompt,size,quality,n:1})})
+    }catch(e){throw{msg:"No se pudo conectar con OpenAI. Revisa tu internet."}}
     const j=await r.json().catch(()=>({}));return{r,j}};
-  let model=c.imgModel||"gpt-image-2",{r,j}=await tryModel(model);
-  const bad=x=>!x.r.ok&&/model/i.test((x.j.error&&x.j.error.message)||"")&&/not|exist|support|access/i.test(x.j.error.message);
-  if(bad({r,j})){for(const alt of IMG_MODELS.map(m=>m[0]).filter(m=>m!==model)){const t=await tryModel(alt);if(t.r.ok||!bad(t)){({r,j}=t);model=alt;c.imgModel=alt;aiSave(c);break}}}
+  const noModel=x=>!x.r.ok&&/model/i.test((x.j.error&&x.j.error.message)||"")&&/not|exist|support|access|invalid/i.test(x.j.error.message);
+  const order=[c.imgModel,...IMG_MODELS.map(m=>m[0])].filter((m,i,a)=>m&&a.indexOf(m)===i);
+  let x,model;for(model of order){x=await req(model);if(!noModel(x))break}
+  if(model!==c.imgModel&&x.r.ok){c.imgModel=model;aiSave(c)}
+  const {r,j}=x;
   if(!r.ok){const m=(j.error&&j.error.message)||"",code=(j.error&&j.error.code)||"";
-    throw{msg:r.status===401?"La clave de OpenAI no es válida. Revísala en «Configurar claves».":/verif/i.test(m)?"OpenAI pide verificar tu organización antes de generar imágenes: entra a platform.openai.com → Settings → Organization → General → Verify Organization. Tarda unos minutos.":code==="insufficient_quota"||/quota|billing/i.test(m)?"Tu cuenta de la API de OpenAI no tiene saldo. Carga crédito en platform.openai.com → Billing.":/safety|policy|moderation/i.test(m)?"OpenAI rechazó la imagen por sus reglas de contenido. Cambia un poco el prompt y vuelve a intentar.":r.status===429?"OpenAI está ocupado. Espera un momento y vuelve a intentar.":"OpenAI respondió con un error: "+(m||r.status)}}
+    throw{msg:r.status===401?"La clave de OpenAI no es válida. Revísala en «Configurar claves».":/verif/i.test(m)?"OpenAI pide verificar tu organización antes de generar imágenes: entra a platform.openai.com → Settings → Organization → General → Verify Organization. Tarda unos minutos.":code==="insufficient_quota"||/quota|billing/i.test(m)?"Tu cuenta de la API de OpenAI no tiene saldo. Carga crédito en platform.openai.com → Billing, o usa Gemini.":/safety|policy|moderation/i.test(m)?"OpenAI rechazó la imagen por sus reglas de contenido. Cambia un poco el pedido y vuelve a intentar.":r.status===429?"OpenAI está ocupado. Espera un momento y vuelve a intentar.":"OpenAI respondió con un error: "+(m||r.status)}}
   const b64=j.data&&j.data[0]&&j.data[0].b64_json;if(!b64)throw{msg:"OpenAI no devolvió ninguna imagen. Vuelve a intentar."};
-  return{b64,model}}
+  return{b64,mime:"image/png",model}}
 
-async function b64ToJpeg(b64){const im=new Image();im.src="data:image/png;base64,"+b64;await im.decode();const c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext("2d").drawImage(im,0,0);return await new Promise(res=>c.toBlob(res,"image/jpeg",.92))}
+/* Gemini: generate or edit (image as base64 jpeg) */
+async function callGemini(prompt,{aspect,imageB64}){
+  const c=aiCfg();if(!c.gemini)throw{msg:"Falta tu clave de Gemini. Pégala en «Configurar claves»."};
+  const req=async(model,withCfg)=>{const parts=[{text:prompt}];if(imageB64)parts.push({inline_data:{mime_type:"image/jpeg",data:imageB64}});
+    const gc={responseModalities:["TEXT","IMAGE"]};if(withCfg&&aspect)gc.imageConfig={aspectRatio:aspect};
+    let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,{method:"POST",headers:{"content-type":"application/json","x-goog-api-key":c.gemini},body:JSON.stringify({contents:[{role:"user",parts}],generationConfig:gc})})}
+    catch(e){throw{msg:"No se pudo conectar con Gemini. Revisa tu internet."}}
+    const j=await r.json().catch(()=>({}));return{r,j}};
+  const msgOf=x=>(x.j.error&&x.j.error.message)||"";
+  const noModel=x=>!x.r.ok&&(x.r.status===404||/not found|not supported|is not available|unknown model/i.test(msgOf(x)));
+  const order=[c.gemModel,...GEM_MODELS.map(m=>m[0])].filter((m,i,a)=>m&&a.indexOf(m)===i);
+  let x,model;for(model of order){x=await req(model,!imageB64);
+    if(!x.r.ok&&x.r.status===400&&/imageConfig|aspect/i.test(msgOf(x)))x=await req(model,false);
+    if(!noModel(x))break}
+  if(model!==c.gemModel&&x.r.ok){c.gemModel=model;aiSave(c)}
+  const {r,j}=x,m=msgOf(x);
+  if(!r.ok)throw{msg:r.status===400&&/API key|API_KEY/i.test(m)||r.status===403?"La clave de Gemini no es válida o no tiene permiso. Revísala en «Configurar claves».":r.status===429||/quota|RESOURCE_EXHAUSTED|billing/i.test(m)?"Tu cuenta de Gemini no tiene cuota para imágenes. Los modelos de imagen de Gemini no tienen nivel gratis en la API: activa la facturación en aistudio.google.com → Billing, o usa OpenAI.":noModel(x)?"Ningún modelo de imágenes de Gemini está disponible en tu cuenta.":"Gemini respondió con un error: "+(m||r.status)};
+  const cand=(j.candidates||[])[0];const parts=(cand&&cand.content&&cand.content.parts)||[];
+  const imgp=parts.find(p=>p.inlineData||p.inline_data);
+  if(!imgp){const why=(j.promptFeedback&&j.promptFeedback.blockReason)||(cand&&cand.finishReason)||"";const said=parts.filter(p=>p.text).map(p=>p.text).join(" ").trim();
+    throw{msg:/SAFETY|PROHIBITED|BLOCK/i.test(why)?"Gemini rechazó la imagen por sus reglas de contenido. Cambia un poco el pedido y vuelve a intentar.":said?"Gemini respondió sin imagen: «"+said.slice(0,220)+"». Prueba de nuevo o reformula el pedido.":"Gemini no devolvió ninguna imagen. Vuelve a intentar."}}
+  const d=imgp.inlineData||imgp.inline_data;return{b64:d.data,mime:d.mimeType||d.mime_type||"image/png",model}}
+
+async function b64ToJpeg(b64,mime){const im=new Image();im.src=`data:${mime||"image/png"};base64,`+b64;await im.decode();const c=document.createElement("canvas");c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext("2d").drawImage(im,0,0);return await new Promise(res=>c.toBlob(res,"image/jpeg",.92))}
+/* the selected image layer as a jpeg (max 1536 px), for editing and for Claude to look at */
+async function layerJpeg(L,max){const im=await ld(L.src);if(!im)throw{msg:"No se pudo leer la imagen seleccionada."};const k=Math.min(1,(max||1536)/Math.max(im.naturalWidth,im.naturalHeight));
+  const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);const x=c.getContext("2d");x.fillStyle="#FFFFFF";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+  const blob=await new Promise(res=>c.toBlob(res,"image/jpeg",.9));const b64=c.toDataURL("image/jpeg",.9).split(",")[1];return{blob,b64}}
+async function runImage(prov,prompt,image){const c=aiCfg();
+  if(prov==="gemini")return callGemini(prompt,{aspect:gemAspect(),imageB64:image&&image.b64});
+  return callOpenAI(prompt,{size:SIZE_OF[frameFmt()],quality:c.quality,image:image&&image.blob})}
+async function placeResult(res,{name,replaceL}){
+  const blob=await b64ToJpeg(res.b64,res.mime);const src=await keepImage(blob);
+  UPS.unshift({src,name,at:Date.now()});try{await store.setUploads(UPS.slice(0,200))}catch(e){}
+  IA.gen.unshift({src,name});
+  if(replaceL&&S.doc.layers.includes(replaceL)){replaceL.src=src;await ld(src);commit();renderProps();requestRender()}
+  else await addImage(src,{name:"Imagen IA"});
+  renderIAGen()}
+function ticker(fn,label){const t0=Date.now();fn(`<span class="spin"></span>${label}…`);const t=setInterval(()=>fn(`<span class="spin"></span>${label}… ${Math.round((Date.now()-t0)/1000)} s (suele tardar entre 20 y 60 s)`),1000);return()=>clearInterval(t)}
 
 function iaProgress(t,err){const el=$("#ia-prog");if(el){el.innerHTML=t;el.classList.toggle("err",!!err)}}
+function iaProgress2(t,err){const el=$("#ia-prog2");if(el){el.innerHTML=t;el.classList.toggle("err",!!err)}}
+function iaProgress3(t,err){const el=$("#ia-prog3");if(el){el.innerHTML=t;el.classList.toggle("err",!!err)}}
 async function iaWritePrompt(){
   if(IA.busy)return;IA.idea=$("#ia-idea").value.trim();if(!IA.idea){iaProgress("Escribe primero tu idea de la imagen.",true);return}
   IA.busy=true;iaButtons();iaProgress('<span class="spin"></span>Claude está escribiendo el prompt…');
   const fmt=frameFmt();
   try{const txt=await callClaude(
-`Eres el director de arte de la marca. Escribes prompts para generar imágenes con IA (modelo GPT Image de OpenAI).
+`Eres el director de arte de la marca. Escribes prompts para generar imágenes con IA (GPT Image de OpenAI o Gemini de Google).
 Reglas del prompt:
 - En español, un solo bloque de texto, largo, muy detallado y completo (entre 180 y 300 palabras), listo para copiar y pegar.
 - Describe: escena y acción, personaje, pose y expresión natural, vestuario, ambiente y objetos, encuadre y lente de cámara, luz, paleta de colores exacta con sus códigos, textura y nivel de realismo, fondo.
@@ -855,19 +912,41 @@ Uso: pieza de redes sociales de ${BR[S.brand].name} (${S.doc.name}).`,1600);
   IA.busy=false;iaButtons()}
 async function iaGenerate(){
   if(IA.busy)return;IA.prompt=$("#ia-prompt").value.trim();if(!IA.prompt){iaProgress("Escribe un prompt o pídele uno a Claude.",true);return}
-  const c=aiCfg(),fmt=frameFmt(),size=SIZE_OF[fmt];
-  IA.busy=true;iaButtons();const t0=Date.now();let tick=setInterval(()=>iaProgress(`<span class="spin"></span>Generando la imagen ${fmt}… ${Math.round((Date.now()-t0)/1000)} s (suele tardar entre 20 y 60 s)`),1000);
-  iaProgress('<span class="spin"></span>Generando la imagen…');
-  try{const {b64,model}=await callOpenAIImage(IA.prompt,size,c.quality);
-    clearInterval(tick);iaProgress('<span class="spin"></span>Colocando la imagen en tu diseño…');
-    const blob=await b64ToJpeg(b64);const src=await keepImage(blob);
-    const name="IA · "+IA.prompt.split(/[,.]/)[0].slice(0,36);
-    UPS.unshift({src,name,at:Date.now()});try{await store.setUploads(UPS.slice(0,200))}catch(e){}
-    IA.gen.unshift({src,name});
-    await addImage(src,{name:"Imagen IA"});
-    iaProgress(`Imagen lista (${esc(model)}). Quedó guardada también en «Subir».`);renderIAGen()}
-  catch(e){clearInterval(tick);iaProgress(esc(e.msg||"Algo salió mal al generar la imagen."),true)}
-  clearInterval(tick);IA.busy=false;iaButtons()}
+  const prov=aiProv();const L=selL();
+  IA.busy=true;iaButtons();const stop=ticker(iaProgress,`Generando la imagen con ${PROV[prov]}`);
+  try{const res=await runImage(prov,IA.prompt,null);stop();iaProgress('<span class="spin"></span>Colocando la imagen en tu diseño…');
+    await placeResult(res,{name:"IA · "+IA.prompt.split(/[,.]/)[0].slice(0,36),replaceL:L&&L.t==="img"&&!L.lock?L:null});
+    iaProgress(`Imagen lista (${esc(res.model)}). Quedó guardada también en «Subir».`)}
+  catch(e){stop();iaProgress(esc(e.msg||"Algo salió mal al generar la imagen."),true)}
+  IA.busy=false;iaButtons()}
+async function iaClaudeFix(){
+  if(IA.busy)return;const L=selL();if(!L||L.t!=="img"){iaProgress3("Primero selecciona en el diseño la imagen que quieres mejorar.",true);return}
+  IA.fix=$("#ia-fix").value.trim();
+  IA.busy=true;iaButtons();iaProgress3('<span class="spin"></span>Claude está mirando la imagen…');
+  try{const im=await layerJpeg(L,1024);
+    const txt=await callClaude(`Eres el director de arte de la marca. Miras una imagen y escribes la instrucción para que una IA de imágenes (GPT Image o Gemini) la EDITE.
+Reglas:
+- En español, un solo bloque de texto detallado (entre 80 y 180 palabras), listo para copiar y pegar.
+- Di primero qué se debe CONSERVAR igual (personaje, pose, composición, rasgos) y luego qué cambiar exactamente.
+- Respeta la guía de la marca. La imagen no debe llevar textos, letras ni logos.
+- Responde SOLO con la instrucción, sin títulos, sin comillas y sin explicaciones.
+
+Guía de la marca:
+${BRAND_GUIDE[S.brand]}`,[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:im.b64}},{type:"text",text:IA.fix?`Lo que quiero cambiar: ${IA.fix}`:"No tengo un pedido concreto: mejora lo que haga falta para que la imagen se vea profesional y siga la guía de la marca."}],900);
+    IA.fix=txt;const t=$("#ia-fix");if(t)t.value=txt;iaProgress3("Listo. Revisa la instrucción y toca «Mejorar».")}
+  catch(e){iaProgress3(esc(e.msg||"Algo salió mal con Claude."),true)}
+  IA.busy=false;iaButtons()}
+async function iaImprove(){
+  if(IA.busy)return;const L=selL();if(!L||L.t!=="img"){iaProgress3("Primero selecciona en el diseño la imagen que quieres mejorar.",true);return}
+  if(L.lock){iaProgress3("Esa imagen está bloqueada. Desbloquéala para cambiarla.",true);return}
+  IA.fix=$("#ia-fix").value.trim();if(!IA.fix){iaProgress3("Escribe qué quieres cambiar, o pide a Claude que prepare la instrucción.",true);return}
+  const prov=aiProv();
+  IA.busy=true;iaButtons();const stop=ticker(iaProgress3,`Mejorando la imagen con ${PROV[prov]}`);
+  try{const im=await layerJpeg(L,1536);const res=await runImage(prov,IA.fix,im);stop();iaProgress3('<span class="spin"></span>Colocando la imagen mejorada…');
+    await placeResult(res,{name:"Mejorada · "+(L.name||"imagen"),replaceL:L});
+    iaProgress3(`Imagen mejorada (${esc(res.model)}). Si no te gusta, usa Deshacer (⌘ + Z) para volver a la anterior.`)}
+  catch(e){stop();iaProgress3(esc(e.msg||"Algo salió mal al mejorar la imagen."),true)}
+  IA.busy=false;iaButtons()}
 async function iaWriteText(){
   if(IA.busy)return;const L=selL();IA.ask=$("#ia-ask").value.trim();
   if(!L||L.t!=="text"){iaProgress2("Primero selecciona en el diseño el texto que quieres cambiar.",true);return}
@@ -886,44 +965,59 @@ Pedido: ${IA.ask}`,400);
     L.txt=txt.replace(/^["“”']+|["“”']+$/g,"");layoutText(L);commit();renderProps();requestRender();iaProgress2("Texto cambiado. Si no te gusta, usa Deshacer (⌘ + Z).")}
   catch(e){iaProgress2(esc(e.msg||"Algo salió mal con Claude."),true)}
   IA.busy=false;iaButtons()}
-function iaProgress2(t,err){const el=$("#ia-prog2");if(el){el.innerHTML=t;el.classList.toggle("err",!!err)}}
-function iaButtons(){["#ia-btn-prompt","#ia-btn-gen","#ia-btn-text"].forEach(id=>{const b=$(id);if(b)b.disabled=IA.busy})}
-function renderIAGen(){const box=$("#ia-gen");if(!box)return;box.innerHTML=IA.gen.length?IA.gen.map((g,i)=>`<button type="button" class="thumb" data-i="${i}"><div class="pic"><img data-src="${esc(g.src)}" alt=""></div><span>${esc(g.name)}</span></button>`).join(""):`<p class="hint">Aquí aparecerán las imágenes que generes.</p>`;
-  fillImgs(box);box.querySelectorAll(".thumb").forEach(x=>x.onclick=()=>{const g=IA.gen[+x.dataset.i];addImage(g.src,{name:"Imagen IA"})})}
+function iaButtons(){["#ia-btn-prompt","#ia-btn-gen","#ia-btn-text","#ia-btn-cfix","#ia-btn-fix"].forEach(id=>{const b=$(id);if(b)b.disabled=IA.busy})}
+function renderIAGen(){const box=$("#ia-gen");if(!box)return;box.innerHTML=IA.gen.length?IA.gen.map((g,i)=>`<button type="button" class="thumb" data-i="${i}"><div class="pic"><img data-src="${esc(g.src)}" alt=""></div><span>${esc(g.name)}</span></button>`).join(""):`<p class="hint">Aquí aparecerán las imágenes que generes o mejores.</p>`;
+  fillImgs(box);box.querySelectorAll(".thumb").forEach(x=>x.onclick=()=>{const g=IA.gen[+x.dataset.i];addImage(g.src,{name:"Imagen IA",forceNew:true})})}
+/* keep the IA pane in step with what is selected on the canvas */
+function iaSelUpdate(){const box=$("#ia-sel");if(!box)return;const L=selL();
+  if(L&&L.t==="img"){box.innerHTML=`<img data-src="${esc(L.src)}" alt=""><span><b>${esc(L.name||"Imagen")}</b><small>Esta es la imagen que se va a mejorar</small></span>`;fillImgs(box)}
+  else box.innerHTML=`<span class="empty-sel">Toca una imagen del diseño para elegirla.</span>`;
+  const f=$("#ia-fmt");if(f&&f.options[0])f.options[0].textContent="Según el diseño ("+frameFmt()+")";
+  const g=$("#ia-gen-hint");if(g)g.textContent=L&&L.t==="img"?"Tienes una imagen seleccionada: la nueva la reemplaza en el mismo marco.":"Sin imagen seleccionada: la nueva se agrega como capa aparte."}
 function renderIA(el){
-  if(window.claude){el.innerHTML=`<div class="pane"><h2>IA</h2><div class="note">La IA funciona en la versión de GitHub del editor:<br><b style="user-select:all">jmenachocntx.github.io/Sistema-Edici-n-MKT</b><br><br>Esta versión dentro de Claude no tiene permiso para conectarse con Claude ni con OpenAI.</div></div>`;return}
-  const c=aiCfg(),fmt=frameFmt();
-  el.innerHTML=`<div class="pane"><h2>IA</h2><p class="hint">Claude escribe el prompt y los textos. OpenAI genera la imagen y la pone en tu diseño.</p>
-    <div class="keyrow"><span class="pill${c.claude?" on":""}"><i></i>Claude</span><span class="pill${c.openai?" on":""}"><i></i>OpenAI</span><button class="btn" type="button" id="ia-keys" style="margin-left:auto">Configurar claves</button></div>
+  if(window.claude){el.innerHTML=`<div class="pane"><h2>IA</h2><div class="note">La IA funciona en la versión de GitHub del editor:<br><b style="user-select:all">jmenachocntx.github.io/Sistema-Edici-n-MKT</b><br><br>Esta versión dentro de Claude no tiene permiso para conectarse con Claude, OpenAI ni Gemini.</div></div>`;return}
+  const c=aiCfg(),prov=aiProv(),fmt=frameFmt();
+  el.innerHTML=`<div class="pane"><h2>IA</h2><p class="hint">Claude escribe los prompts y los textos. OpenAI o Gemini crean y mejoran las imágenes.</p>
+    <div class="keyrow"><span class="pill${c.claude?" on":""}"><i></i>Claude</span><span class="pill${c.openai?" on":""}"><i></i>OpenAI</span><span class="pill${c.gemini?" on":""}"><i></i>Gemini</span><button class="btn" type="button" id="ia-keys" style="margin-left:auto">Configurar claves</button></div>
+    <div class="f"><span>IA para las imágenes</span><div class="toggle2" role="group" aria-label="IA para las imágenes" style="margin:0">${["openai","gemini"].map(k=>`<button type="button" data-prov="${k}" aria-pressed="${prov===k}">${PROV[k]}${c[k]?"":" · sin clave"}</button>`).join("")}</div></div>
     <div class="step"><b>1</b>Tu idea</div>
     <label class="f"><span>Describe con tus palabras la imagen que quieres</span><textarea id="ia-idea" placeholder="${S.brand==="nummeros"?"Ej.: Arquímedes cobrando en la caja de un restaurante, feliz porque el sistema cuadra solo":"Ej.: El Contador Virtual en una hamaca revisando su declaración en el celular"}">${esc(IA.idea)}</textarea></label>
     <div class="row" style="margin-top:8px"><label class="f"><span>Formato</span><select id="ia-fmt">${[["auto","Según el diseño ("+fmt+")"],["vertical","Vertical"],["cuadrada","Cuadrada"],["horizontal","Horizontal"]].map(([v,n])=>`<option value="${v}"${IA.fmt===v?" selected":""}>${n}</option>`).join("")}</select></label>
-      <label class="f"><span>Calidad</span><select id="ia-q">${[["low","Baja · más rápida"],["medium","Media"],["high","Alta · más cara"]].map(([v,n])=>`<option value="${v}"${c.quality===v?" selected":""}>${n}</option>`).join("")}</select></label></div>
+      <label class="f"><span>Calidad (OpenAI)</span><select id="ia-q">${[["low","Baja · más rápida"],["medium","Media"],["high","Alta · más cara"]].map(([v,n])=>`<option value="${v}"${c.quality===v?" selected":""}>${n}</option>`).join("")}</select></label></div>
     <button class="btn wide" type="button" id="ia-btn-prompt">Escribir prompt con Claude</button>
-    <div class="step"><b>2</b>Prompt</div>
+    <div class="step"><b>2</b>Crear la imagen</div>
     <label class="f"><span>Lo escribe Claude; también puedes cambiarlo o pegar el tuyo</span><textarea id="ia-prompt" class="tall">${esc(IA.prompt)}</textarea></label>
-    <button class="btn pri wide" type="button" id="ia-btn-gen">Generar imagen y ponerla en el diseño</button>
-    <p class="hint" style="margin-top:6px">Si tienes una imagen seleccionada en el diseño, la nueva la reemplaza en el mismo marco.</p>
+    <button class="btn pri wide" type="button" id="ia-btn-gen">Generar imagen con ${PROV[prov]}</button>
+    <p class="hint" id="ia-gen-hint" style="margin-top:6px"></p>
     <div class="progress" id="ia-prog" aria-live="polite"></div>
-    <div class="step"><b>3</b>Textos con Claude</div>
+    <div class="step"><b>3</b>Mejorar una imagen</div>
+    <p class="hint">Sirve para una imagen subida, una de la marca o una generada.</p>
+    <div class="selimg" id="ia-sel"></div>
+    <label class="f"><span>¿Qué quieres cambiar?</span><textarea id="ia-fix" placeholder="Ej.: hazla más nítida y pon el fondo blanco plano, sin cambiar al personaje">${esc(IA.fix)}</textarea></label>
+    <button class="btn wide" type="button" id="ia-btn-cfix">Que Claude la mire y prepare la instrucción</button><button class="btn pri wide" type="button" id="ia-btn-fix">Mejorar con ${PROV[prov]}</button>
+    <div class="progress" id="ia-prog3" aria-live="polite"></div>
+    <div class="step"><b>4</b>Textos con Claude</div>
     <label class="f"><span>Selecciona un texto del diseño y pídele a Claude qué escribir</span><textarea id="ia-ask" placeholder="Ej.: un título que invite a dejar el Excel">${esc(IA.ask)}</textarea></label>
     <button class="btn wide" type="button" id="ia-btn-text">Escribir el texto seleccionado</button>
     <div class="progress" id="ia-prog2" aria-live="polite"></div>
-    <h3>Generadas en esta sesión</h3><div class="thumbs" id="ia-gen"></div></div>`;
+    <h3>Creadas en esta sesión</h3><div class="thumbs" id="ia-gen"></div></div>`;
   $("#ia-keys").onclick=iaKeysDialog;
-  $("#ia-idea").oninput=e=>IA.idea=e.target.value;$("#ia-prompt").oninput=e=>IA.prompt=e.target.value;$("#ia-ask").oninput=e=>IA.ask=e.target.value;
+  el.querySelectorAll("[data-prov]").forEach(b=>b.onclick=()=>{const k=aiCfg();k.prov=b.dataset.prov;aiSave(k);if(!k[k.prov])toast(`Falta la clave de ${PROV[k.prov]}. Pégala en «Configurar claves».`);renderLib()});
+  $("#ia-idea").oninput=e=>IA.idea=e.target.value;$("#ia-prompt").oninput=e=>IA.prompt=e.target.value;$("#ia-ask").oninput=e=>IA.ask=e.target.value;$("#ia-fix").oninput=e=>IA.fix=e.target.value;
   $("#ia-fmt").onchange=e=>IA.fmt=e.target.value;$("#ia-q").onchange=e=>{const k=aiCfg();k.quality=e.target.value;aiSave(k)};
-  $("#ia-btn-prompt").onclick=iaWritePrompt;$("#ia-btn-gen").onclick=iaGenerate;$("#ia-btn-text").onclick=iaWriteText;
-  iaButtons();renderIAGen()}
+  $("#ia-btn-prompt").onclick=iaWritePrompt;$("#ia-btn-gen").onclick=iaGenerate;$("#ia-btn-text").onclick=iaWriteText;$("#ia-btn-cfix").onclick=iaClaudeFix;$("#ia-btn-fix").onclick=iaImprove;
+  iaButtons();renderIAGen();iaSelUpdate()}
 function iaKeysDialog(){const c=aiCfg();
-  const v=showDialog("Claves de IA",`<p class="hint">Las claves se guardan solo en este navegador. Nunca se suben a GitHub ni las ve otra persona que abra el link.</p>
-    <label class="f"><span>Clave de la API de Claude</span><input type="password" id="k-claude" autocomplete="off" placeholder="sk-ant-…" value="${esc(c.claude)}"><small class="k">Se crea en console.anthropic.com → API Keys</small></label>
-    <label class="f"><span>Clave de la API de OpenAI</span><input type="password" id="k-openai" autocomplete="off" placeholder="sk-…" value="${esc(c.openai)}"><small class="k">Se crea en platform.openai.com → API keys</small></label>
-    <label class="f"><span>Modelo de imágenes</span><select id="k-model">${IMG_MODELS.map(([m,n])=>`<option value="${m}"${c.imgModel===m?" selected":""}>${n}</option>`).join("")}</select><small class="k">Si el elegido no está disponible en tu cuenta, el editor prueba solo con el siguiente.</small></label>
+  const v=showDialog("Claves de IA",`<p class="hint">Las claves se guardan solo en este navegador. Nunca se suben a GitHub ni las ve otra persona que abra el link. No hace falta tener las tres: basta Claude más OpenAI o Gemini.</p>
+    <label class="f"><span>Clave de la API de Claude</span><input type="password" id="k-claude" autocomplete="off" placeholder="sk-ant-…" value="${esc(c.claude)}"><small class="k">Se crea en console.anthropic.com → API Keys. Escribe prompts y textos.</small></label>
+    <label class="f"><span>Clave de la API de OpenAI</span><input type="password" id="k-openai" autocomplete="off" placeholder="sk-…" value="${esc(c.openai)}"><small class="k">Se crea en platform.openai.com → API keys.</small></label>
+    <label class="f"><span>Modelo de OpenAI</span><select id="k-model">${IMG_MODELS.map(([m,n])=>`<option value="${m}"${c.imgModel===m?" selected":""}>${n}</option>`).join("")}</select></label>
+    <label class="f"><span>Clave de la API de Gemini</span><input type="password" id="k-gemini" autocomplete="off" placeholder="AIza…" value="${esc(c.gemini)}"><small class="k">Se crea en aistudio.google.com → Get API key. Para imágenes hay que activar la facturación.</small></label>
+    <label class="f"><span>Modelo de Gemini</span><select id="k-gmodel">${GEM_MODELS.map(([m,n])=>`<option value="${m}"${c.gemModel===m?" selected":""}>${n}</option>`).join("")}</select><small class="k">Si el modelo elegido no está en tu cuenta, el editor prueba solo con el siguiente.</small></label>
     <div class="row-end"><button class="btn danger" type="button" id="k-clear">Borrar claves</button><button class="btn pri" type="button" id="k-save">Guardar</button></div>`);
   v.querySelector(".dlg").style.width="min(520px,100%)";
-  v.querySelector("#k-save").onclick=()=>{const k=aiCfg();k.claude=v.querySelector("#k-claude").value.trim();k.openai=v.querySelector("#k-openai").value.trim();k.imgModel=v.querySelector("#k-model").value;aiSave(k);v.remove();toast("Claves guardadas en este navegador");if(S.tab==="ia")renderLib()};
-  v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";aiSave(k);v.remove();toast("Claves borradas");if(S.tab==="ia")renderLib()}}
+  v.querySelector("#k-save").onclick=()=>{const k=aiCfg();k.claude=v.querySelector("#k-claude").value.trim();k.openai=v.querySelector("#k-openai").value.trim();k.gemini=v.querySelector("#k-gemini").value.trim();k.imgModel=v.querySelector("#k-model").value;k.gemModel=v.querySelector("#k-gmodel").value;aiSave(k);v.remove();toast("Claves guardadas en este navegador");if(S.tab==="ia")renderLib()};
+  v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";k.gemini="";aiSave(k);v.remove();toast("Claves borradas");if(S.tab==="ia")renderLib()}}
 
 /* ================== properties panel ================== */
 const ICON={left:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="9" height="2"/><rect x="1" y="12" width="12" height="2"/></svg>',center:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="3.5" y="7" width="9" height="2"/><rect x="2" y="12" width="12" height="2"/></svg>',right:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="6" y="7" width="9" height="2"/><rect x="3" y="12" width="12" height="2"/></svg>',

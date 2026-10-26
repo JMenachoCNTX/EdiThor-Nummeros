@@ -8,15 +8,16 @@ Editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva p
 - **Edición libre**: mover, agrandar, cambiar textos, letras, colores, encuadre de fotos, transparencia y orden de capas.
 - **Fotos y logos de marca**: los clásicos de los números, el Contador Virtual, íconos en relieve, la N y el isotipo de CONTAX en vector.
 - **Subir imágenes** propias (por ejemplo las que se generan en ChatGPT o Gemini), también pegándolas con ⌘ + V.
-- **IA** (solo en la versión de GitHub): Claude escribe el prompt de la imagen y los textos con la voz de cada marca; OpenAI genera la imagen y la pone directo en el diseño.
+- **IA** (solo en la versión de GitHub): Claude escribe el prompt de la imagen y los textos con la voz de cada marca. OpenAI o Gemini (a elección) crean la imagen y la ponen directo en el diseño. También pueden **mejorar** una imagen ya puesta (subida, de la marca o generada); Claude puede mirarla y preparar la instrucción.
 - **Descargar** en PNG o JPG.
 
 ## IA: claves
 
-En la pestaña **IA → Configurar claves** se pegan dos claves:
+En la pestaña **IA → Configurar claves** se pegan las claves. Basta Claude más OpenAI o Gemini:
 
 - **Claude**: se crea en console.anthropic.com → API Keys (la API se paga aparte de la suscripción de Claude).
 - **OpenAI**: se crea en platform.openai.com → API keys (la API se paga aparte de ChatGPT). OpenAI puede pedir verificar la organización antes de generar imágenes.
+- **Gemini**: se crea en aistudio.google.com → Get API key. Los modelos de imagen de Gemini no tienen nivel gratis en la API: hay que activar la facturación.
 
 Las claves se guardan solo en el navegador de quien las pega. No están en este repositorio.
 
