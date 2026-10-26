@@ -5,6 +5,9 @@ Editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva p
 ## Qué hace
 
 - **Plantillas** de cada marca en versión clara y oscura: estado de WhatsApp, publicación 4:5 y cuadrada, comunicado, portada de Facebook, colaboración, foto de perfil de WhatsApp, folleto A4, tríptico (2 páginas), banner web y banner roll-up 85 × 200 cm.
+- **QR**: pestaña QR para crear códigos de WhatsApp, página web, Telegram, correo, Wi-Fi o texto, con el logo de la marca en el centro. Plantillas de **porta QR para acrílico** (10 × 15 cm, 2 caras) y **QR para redes**.
+- **Mockups**: marcos de laptop, celular, tablet y navegador para mostrar capturas de los sistemas; plantillas de mockup laptop, mockup celular y **guía paso a paso** (A4) para manuales.
+- **Descargas**: PNG, PNG sin fondo, JPG, SVG (con las letras incluidas) y PDF; también **solo lo seleccionado** en PNG sin fondo o SVG.
 - **Páginas**: un diseño puede tener varias páginas (agregar, duplicar, mover, eliminar). Se descarga la página actual en PNG/JPG o todas juntas en **PDF** (las piezas de imprenta salen a su tamaño real en cm).
 - **Modo claro, oscuro o según el sistema**, con el botón de la barra superior.
 - **Barras distribuidas**: arriba del lienzo, las opciones rápidas del elemento elegido (letra, tamaño, color, recortar, quitar fondo, agrupar…); abajo, las páginas, la vista previa y el zoom.
@@ -46,6 +49,7 @@ Las claves se guardan solo en el navegador de quien las pega. No están en este 
 | `fotos-web/`, `objetos-web/` | Fotos del Contador Virtual y objetos 3D de CONTAX |
 | `png/` | Logos de ambas marcas |
 | `fonts/` | Letras: Akshar, Questrial y Adventor (reemplazo de Century Gothic) |
+| `lib/qrcode.js` | Librería para generar los códigos QR (qrcode-generator, licencia MIT) |
 | `herramientas/para-artifact.py` | Prepara `index.html` para publicarlo como artifact |
 
 El contenido de la página está entre las marcas `<!-- PAGINA -->` y `<!-- /PAGINA -->`. Para publicar como artifact se usa solo esa parte:

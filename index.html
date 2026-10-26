@@ -67,6 +67,8 @@ button{cursor:pointer}
 .menu button{border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:6px}
 .menu button:hover{background:var(--hover)}
 .menu button small{display:block;color:var(--muted);font-size:11.5px}
+.menu .menu-sep{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 10px 2px;border-top:1px solid var(--line);margin-top:4px}
+.menu button[disabled]{opacity:.45;cursor:default}
 .menu button[aria-checked="true"]{color:var(--acc);font-weight:700}
 .menu button[aria-checked="true"]::after{content:" ✓"}
 
@@ -307,7 +309,12 @@ button{cursor:pointer}
       <div class="menu" id="menu-descargar" hidden>
         <button type="button" data-fmt="png">PNG<small>Máxima calidad · para redes y estados</small></button>
         <button type="button" data-fmt="jpg">JPG<small>Archivo más liviano · para WhatsApp</small></button>
+        <button type="button" data-fmt="pngt">PNG sin fondo<small>Página actual con fondo transparente</small></button>
+        <button type="button" data-fmt="svg">SVG<small>Página actual · para webs y sistemas</small></button>
         <button type="button" data-fmt="pdf">PDF<small>Todas las páginas · para imprimir o enviar</small></button>
+        <span class="menu-sep">Solo lo seleccionado</span>
+        <button type="button" data-fmt="sel-png">PNG sin fondo<small>Recortado justo a lo que elegiste</small></button>
+        <button type="button" data-fmt="sel-svg">SVG<small>Recortado justo a lo que elegiste</small></button>
       </div>
     </div>
   </header>
@@ -319,6 +326,7 @@ button{cursor:pointer}
       <button role="tab" type="button" data-tab="logos"><svg viewBox="0 0 546 728" fill="currentColor"><path d="M0 427 L0 728 L136 728 L136 634 Z M410 0 L410 85 L546 292 L546 0 Z M0 0 L148 0 L410 458.5 L410 341 L546 548 L546 728 L401.71 728 L136 263 L136 379 L0 172 Z" transform="translate(91 64) scale(.82)"/></svg>Logos</button>
       <button role="tab" type="button" data-tab="texto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg>Texto</button>
       <button role="tab" type="button" data-tab="formas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="10" height="10" rx="1.5"/><circle cx="16" cy="8" r="5"/></svg>Formas</button>
+      <button role="tab" type="button" data-tab="qr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h1M20 14h1" stroke-linecap="round"/></svg>QR</button>
       <button role="tab" type="button" data-tab="subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir</button>
       <button role="tab" type="button" data-tab="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>IA</button>
       <button role="tab" type="button" data-tab="editar" class="only-mobile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Editar</button>
@@ -354,6 +362,7 @@ button{cursor:pointer}
 </div>
 <input type="file" id="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
 
+<script src="lib/qrcode.js"></script>
 <script>
 "use strict";
 /* ================== brand data ================== */
@@ -472,6 +481,8 @@ function drawLayer(ctx,L,editingId){
   }
   else if(L.t==="n"){ctx.translate(x,y);ctx.scale(w/546,h/728);ctx.fillStyle=L.fill;ctx.fill(P2D.n)}
   else if(L.t==="iso"){ctx.translate(x,y);ctx.scale(w/ISO.w,h/ISO.h);ctx.fillStyle=L.fill2;ctx.fill(P2D.gris);ctx.fillStyle=L.fill3;ctx.fill(P2D.negro);ctx.fillStyle=L.fill;ctx.fill(P2D.azul)}
+  else if(L.t==="qr")drawQR(ctx,L);
+  else if(L.t==="dev")drawDevice(ctx,L);
   else if(L.t==="text"){
     layoutText(L);
     if(L.bg){rr(ctx,x,y,L.w,L.h,L.rad);ctx.fillStyle=L.bg;ctx.fill()}
@@ -484,8 +495,51 @@ function drawLayer(ctx,L,editingId){
   }
   ctx.restore();
 }
-function drawDesign(ctx,d,editingId){
-  ctx.fillStyle=d.bg||"#FFFFFF";ctx.fillRect(0,0,d.w,d.h);
+/* ---- QR codes ---- */
+const QRC=new Map();
+function qrMatrix(data,ecc){const k=ecc+"|"+data;if(QRC.has(k))return QRC.get(k);if(!window.qrcode||!data)return null;let q;
+  try{qrcode.stringToBytes=qrcode.stringToBytesFuncs["UTF-8"];q=qrcode(0,ecc);q.addData(data,"Byte");q.make()}catch(e){QRC.set(k,null);return null}
+  const n=q.getModuleCount(),m=[];for(let r=0;r<n;r++){const row=[];for(let c=0;c<n;c++)row.push(q.isDark(r,c));m.push(row)}const v={n,m};QRC.set(k,v);return v}
+function qrLogoBox(L){const s=L.w*.24;return{x:L.x+(L.w-s)/2,y:L.y+(L.w-s)/2,s}}
+function drawQR(ctx,L){const M=qrMatrix(L.data,L.logo?"H":"M"),{x,y,w}=L;
+  if(L.bg){rr(ctx,x,y,w,w,L.rad||0);ctx.fillStyle=L.bg;ctx.fill()}
+  if(!M){ctx.fillStyle="rgba(127,127,127,.2)";ctx.fillRect(x,y,w,w);return}
+  const q=L.margin??2,cell=w/(M.n+2*q);ctx.fillStyle=L.fg||"#000000";ctx.beginPath();
+  for(let r=0;r<M.n;r++){let c=0;while(c<M.n){if(M.m[r][c]){let e=c;while(e<M.n&&M.m[r][e])e++;ctx.rect(x+(c+q)*cell,y+(r+q)*cell,(e-c)*cell+.03,cell+.03);c=e}else c++}}ctx.fill();
+  if(L.logo){const b=qrLogoBox(L),pad=b.s*.18;rr(ctx,b.x,b.y,b.s,b.s,b.s*.18);ctx.fillStyle=L.bg||"#FFFFFF";ctx.fill();
+    ctx.save();if(L.mark==="iso"){const ih=b.s-2*pad,iw=ih*ISO.w/ISO.h;ctx.translate(b.x+(b.s-iw)/2,b.y+pad);ctx.scale(iw/ISO.w,ih/ISO.h);ctx.fillStyle="#7E9197";ctx.fill(P2D.gris);ctx.fillStyle="#000000";ctx.fill(P2D.negro);ctx.fillStyle=L.fg||"#152644";ctx.fill(P2D.azul)}
+    else{const nh=b.s-2*pad,nw=nh*546/728;ctx.translate(b.x+(b.s-nw)/2,b.y+pad);ctx.scale(nw/546,nh/728);ctx.fillStyle=L.fg||"#235347";ctx.fill(P2D.n)}ctx.restore()}}
+/* ---- device frames for screenshots (mockups) ---- */
+const DEVK=[["laptop","Laptop",1.6],["phone","Celular",.49],["tablet","Tablet",.75],["browser","Navegador",1.5]];
+const devRatio=k=>(DEVK.find(d=>d[0]===k)||DEVK[0])[2];
+function devGeom(L){const {x,y,w,h}=L,k=L.kind||"laptop";
+  if(k==="laptop"){const lid={x:x+w*.075,y,w:w*.85,h:h*.9,r:w*.022};return{k,lid,scr:{x:lid.x+lid.w*.03,y:lid.y+lid.h*.045,w:lid.w*.94,h:lid.h*.9,r:0},base:{x,y:y+h*.9,w,h:h*.1}}}
+  if(k==="phone"){const p=w*.045;return{k,lid:{x,y,w,h,r:w*.16},scr:{x:x+p,y:y+p,w:w-2*p,h:h-2*p,r:w*.12}}}
+  if(k==="tablet"){const p=w*.04;return{k,lid:{x,y,w,h,r:w*.06},scr:{x:x+p,y:y+p,w:w-2*p,h:h-2*p,r:w*.025}}}
+  const bar=Math.max(16,h*.07);return{k,bar,lid:{x,y,w,h,r:Math.min(w,h)*.02},scr:{x,y:y+bar,w,h:h-bar,r:0}}}
+function drawMockUI(ctx,s,acc,mobile){const u=s.w/100,v=s.h/100,card=(x,y,w,h)=>{rr(ctx,x,y,w,h,Math.min(w,h)*.08);ctx.fillStyle="#FFFFFF";ctx.fill()},line=(x,y,w,h,c)=>{rr(ctx,x,y,w,h,h/2);ctx.fillStyle=c||"#DCE2E0";ctx.fill()};
+  ctx.fillStyle="#F2F5F4";ctx.fillRect(s.x,s.y,s.w,s.h);
+  if(mobile){ctx.fillStyle=acc;ctx.fillRect(s.x,s.y,s.w,13*v);line(s.x+8*u,s.y+6*v,40*u,2*v,"rgba(255,255,255,.55)");
+    card(s.x+6*u,s.y+17*v,88*u,18*v);line(s.x+12*u,s.y+21*v,30*u,1.6*v);line(s.x+12*u,s.y+26*v,55*u,4*v,acc);
+    for(let i=0;i<6;i++){card(s.x+6*u,s.y+(39+i*9.5)*v,88*u,8*v);line(s.x+12*u,s.y+(42+i*9.5)*v,40*u,1.6*v);line(s.x+70*u,s.y+(42+i*9.5)*v,18*u,1.6*v,acc)}return}
+  ctx.fillStyle=acc;ctx.fillRect(s.x,s.y,17*u,s.h);for(let i=0;i<6;i++)line(s.x+3*u,s.y+(10+i*7)*v,11*u,2.2*v,"rgba(255,255,255,"+(i?".3":".7")+")");
+  ctx.fillStyle="#FFFFFF";ctx.fillRect(s.x+17*u,s.y,83*u,9*v);line(s.x+21*u,s.y+3.4*v,20*u,2.2*v);
+  for(let i=0;i<3;i++){const x=s.x+(20+i*26.5)*u;card(x,s.y+13*v,24*u,17*v);line(x+2*u,s.y+16*v,12*u,2*v);line(x+2*u,s.y+22*v,16*u,4.5*v,acc)}
+  card(s.x+20*u,s.y+34*v,48*u,60*v);const hs=[.45,.7,.55,.85,.6,.95,.75];hs.forEach((t,i)=>{const bw=4.2*u,bx=s.x+(24+i*6.2)*u,bh=46*v*t;rr(ctx,bx,s.y+88*v-bh,bw,bh,bw*.25);ctx.fillStyle=i===5?acc:acc+"88";ctx.fill()});
+  card(s.x+71*u,s.y+34*v,26*u,60*v);for(let i=0;i<7;i++){line(s.x+74*u,s.y+(39+i*7.5)*v,14*u,1.8*v);line(s.x+90*u,s.y+(39+i*7.5)*v,5*u,1.8*v,acc)}}
+function drawDevice(ctx,L){const g=devGeom(L),fr=L.frame||"#16191B";ctx.save();
+  if(g.k==="laptop"){rr(ctx,g.lid.x,g.lid.y,g.lid.w,g.lid.h,g.lid.r);ctx.fillStyle=fr;ctx.fill();const b=g.base;ctx.beginPath();ctx.moveTo(b.x+b.w*.01,b.y);ctx.lineTo(b.x+b.w*.99,b.y);ctx.quadraticCurveTo(b.x+b.w,b.y+b.h*.6,b.x+b.w*.95,b.y+b.h);ctx.lineTo(b.x+b.w*.05,b.y+b.h);ctx.quadraticCurveTo(b.x,b.y+b.h*.6,b.x+b.w*.01,b.y);ctx.closePath();ctx.fillStyle="#C9CED1";ctx.fill();
+    rr(ctx,b.x+b.w*.42,b.y,b.w*.16,b.h*.3,b.h*.15);ctx.fillStyle="rgba(0,0,0,.16)";ctx.fill()}
+  else if(g.k==="browser"){rr(ctx,g.lid.x,g.lid.y,g.lid.w,g.lid.h,g.lid.r);ctx.fillStyle="#E6EAEC";ctx.fill();const r=g.bar*.15;["#FF5F57","#FEBC2E","#28C840"].forEach((c,i)=>{ctx.beginPath();ctx.arc(L.x+g.bar*.6+i*g.bar*.45,L.y+g.bar/2,r,0,7);ctx.fillStyle=c;ctx.fill()});rr(ctx,L.x+g.bar*2.3,L.y+g.bar*.24,L.w*.45,g.bar*.52,g.bar*.26);ctx.fillStyle="#FFFFFF";ctx.fill()}
+  else{rr(ctx,g.lid.x,g.lid.y,g.lid.w,g.lid.h,g.lid.r);ctx.fillStyle=fr;ctx.fill()}
+  const s=g.scr;ctx.save();rr(ctx,g.lid.x,g.lid.y,g.lid.w,g.lid.h,g.lid.r);ctx.clip();rr(ctx,s.x,s.y,s.w,s.h,s.r||0);ctx.clip();
+  const im=L.src?img(L.src):null;
+  if(im&&im.ok){const iw=im.im.naturalWidth,ih=im.im.naturalHeight,k=Math.max(s.w/iw,s.h/ih),dw=iw*k,dh=ih*k;ctx.drawImage(im.im,s.x+(s.w-dw)*(L.fx??.5),s.y+(s.h-dh)*(L.fy??0),dw,dh)}
+  else drawMockUI(ctx,s,L.acc||"#235347",g.k==="phone");ctx.restore();
+  if(g.k==="phone"){rr(ctx,L.x+L.w*.38,L.y+L.w*.075,L.w*.24,L.w*.06,L.w*.03);ctx.fillStyle=fr;ctx.fill()}
+  ctx.restore()}
+function drawDesign(ctx,d,editingId,noBg){
+  if(!noBg){ctx.fillStyle=d.bg||"#FFFFFF";ctx.fillRect(0,0,d.w,d.h)}
   for(const L of d.layers)drawLayer(ctx,L,editingId);
 }
 
@@ -511,6 +565,8 @@ function bbox(Ls){let x1=Infinity,y1=Infinity,x2=-Infinity,y2=-Infinity;for(cons
 function T(o){return Object.assign({id:uid(),t:"text",name:"Texto",x:80,y:80,w:600,h:60,txt:"Texto",font:"Questrial",size:40,weight:400,color:"#163832",align:"left",lh:1.25,ls:0,upper:false,bg:null,px:0,py:0,rad:0,autoW:false,op:1},o)}
 function R(o){return Object.assign({id:uid(),t:"rect",name:"Rectángulo",x:0,y:0,w:200,h:200,fill:"#DAF1DE",rad:0,stroke:"#163832",sw:0,op:1},o)}
 function I(o){return Object.assign({id:uid(),t:"img",name:"Imagen",x:0,y:0,w:400,h:400,src:"",fit:"cover",fx:.5,fy:.5,rad:0,op:1},o)}
+function Q(o){const L=Object.assign({id:uid(),t:"qr",name:"QR",x:0,y:0,w:600,data:"",qr:null,fg:"#000000",bg:"#FFFFFF",margin:2,logo:true,mark:"n",rad:0,op:1},o);L.h=L.w;return L}
+function Dv(o){return Object.assign({id:uid(),t:"dev",name:"Dispositivo",kind:"laptop",x:0,y:0,w:1000,h:625,src:"",fx:.5,fy:0,frame:"#16191B",acc:"#235347",op:1},o)}
 function brandText(brand,S0){const b=BR[brand];return{
   kicker:(x,y,w,txt,s)=>T({name:"Etiqueta",x,y,w,txt,font:b.d,weight:b.kw,size:s,color:S0.acc,upper:true,ls:b.kls,lh:1.2}),
   title:(x,y,w,txt,s)=>T({name:"Título",x,y,w,txt,font:b.d,weight:b.dw,size:s,color:S0.ink,lh:b.tlh}),
@@ -532,6 +588,53 @@ function bullets(x,y,w,items,o){const out=[];let yy=y;for(const t of items){cons
     const dsz=Math.round(o.size*.42);out.push(R({name:"Viñeta",x:Math.round(x),y:Math.round(yy+o.size*1.3/2-dsz/2),w:dsz,h:dsz,fill:o.dot,rad:o.round?999:Math.round(dsz*.2)}),tx);yy+=tx.h+o.gap}return{layers:out,y:yy}}
 const NCONT="nummeros.contaxbolivia.com\nWhatsApp +591 690-21969",CCONT="info@contaxbolivia.com\nWhatsApp +591 690-21969\nCond. Los Ángeles Casa 181 · Santa Cruz";
 const cfoto=(k,st)=>`fotos-web/contax-foto-${k}${st==="oscuro"?"-noche":"-blanco"}.jpg`;
+const WA="59169021969",WEB={nummeros:"nummeros.contaxbolivia.com",contax:"contaxbolivia.com"};
+/* one face of an acrylic QR stand (10 × 15 cm) */
+async function qrFace(brand,st,o){const S0=BR[brand].st[st],B=brandText(brand,S0),W=1200,H=1800,isN=brand==="nummeros",Ls=[];
+  if(isN)Ls.push(...tiles(0,0,4,1,300,240,BR.nummeros.tiles[st]));else Ls.push(isoArt(W-420,-80,560,S0,.9));
+  const lg=await logo(brand,isN?"firma":"horizontal",S0.logo,0,isN?330:130,isN?440:470);lg.x=Math.round((W-lg.w)/2);
+  const k=B.kicker(100,0,W-200,o.kick,34);k.align="center";k.y=Math.round(lg.y+lg.h+70);layoutText(k);
+  const t=B.title(100,0,W-200,o.title,isN?96:84);t.align="center";t.y=k.y+k.h+18;layoutText(t);
+  const cs=720,cy=t.y+t.h+60,fg=isN?"#051F20":"#011230";
+  Ls.push(lg,k,t,R({name:"Tarjeta del QR",x:(W-cs)/2,y:cy,w:cs,h:cs,fill:"#FFFFFF",rad:isN?40:16,stroke:S0.line,sw:st==="oscuro"?0:3}),
+    Q({name:"QR "+o.label,x:(W-640)/2,y:cy+40,w:640,data:o.data,qr:o.qr,fg,bg:"#FFFFFF",margin:1,logo:true,mark:isN?"n":"iso"}),
+    T({name:"Dato",x:100,y:cy+cs+50,w:W-200,txt:o.caption,font:BR[brand].d,weight:BR[brand].dw,size:54,color:S0.ink,align:"center",lh:1.1}),
+    T({name:"Pie",x:100,y:H-110,w:W-200,txt:isN?"NUMMEROS by CONTAX":"CONTAX · Contabilidad e Impuestos",font:BR[brand].b,size:28,color:S0.muted,align:"center"}));
+  return mkPage(S0.bg,Ls,o.page)}
+async function qrPortaTpl(brand,st){const isN=brand==="nummeros",d=newDoc(1200,1800,BR[brand].st[st].bg,brand,"Porta QR para acrílico");d.mm=[100,150];
+  d.pages=[await qrFace(brand,st,{page:"Cara 1 · WhatsApp",label:"WhatsApp",kick:isN?"Escanea y escríbenos":"Escanee y escríbanos",title:"Atención por WhatsApp",data:"https://wa.me/"+WA,qr:{type:"whatsapp",f:{num:"+591 690-21969",msg:""}},caption:"+591 690-21969"}),
+    await qrFace(brand,st,{page:"Cara 2 · Web",label:"web",kick:isN?"Escanea y conoce":"Escanee y visite",title:isN?"Nuestros sistemas":"Nuestra página web",data:"https://"+WEB[brand],qr:{type:"web",f:{url:WEB[brand]}},caption:WEB[brand]})];return d}
+async function qrPostTpl(brand,st){const S0=BR[brand].st[st],B=brandText(brand,S0),isN=brand==="nummeros",d=newDoc(1080,1350,S0.bg,brand,"QR para redes"),W=1080;
+  const msg=isN?"Hola, quiero una demo de NUMMEROS":"Hola, quiero información sobre sus servicios";
+  const k=B.kicker(90,110,W-180,isN?"Escanea con tu cámara":"Escanee con su cámara",28);k.align="center";
+  const t=B.title(90,0,W-180,isN?"Pide tu demo por WhatsApp":"Su contador, a un mensaje",isN?84:74);t.align="center";stack([k,t],[16]);
+  const cs=620,cy=t.y+t.h+50;const lg=await logo(brand,isN?"firma":"horizontal",S0.logo,0,0,isN?320:340);lg.x=Math.round((W-lg.w)/2);lg.y=1350-80-lg.h;
+  if(isN)d.layers.push(...tiles(0,1350-30,4,1,270,30,BR.nummeros.tiles[st]));else d.layers.push(isoArt(-120,1350-520,520,S0,.8));
+  d.layers.push(k,t,R({name:"Tarjeta del QR",x:(W-cs)/2,y:cy,w:cs,h:cs,fill:"#FFFFFF",rad:isN?36:14,stroke:S0.line,sw:st==="oscuro"?0:3}),
+    Q({name:"QR WhatsApp",x:(W-550)/2,y:cy+35,w:550,data:"https://wa.me/"+WA+"?text="+encodeURIComponent(msg),qr:{type:"whatsapp",f:{num:"+591 690-21969",msg}},fg:isN?"#051F20":"#011230",bg:"#FFFFFF",margin:1,logo:true,mark:isN?"n":"iso"}),
+    T({name:"Dato",x:90,y:cy+cs+36,w:W-180,txt:"WhatsApp +591 690-21969",font:BR[brand].b,size:34,color:S0.ink,align:"center"}),lg);return d}
+async function mockLaptopTpl(brand,st){const S0=BR[brand].st[st],B=brandText(brand,S0),isN=brand==="nummeros",d=newDoc(1920,1080,S0.bg,brand,"Mockup laptop");
+  const k=B.kicker(1290,0,560,isN?"Así se ve tu sistema":"Su portal de clientes",26),t=B.title(1290,0,560,isN?"Ventas, caja e inventario en una sola pantalla":"Sus declaraciones y estados financieros, siempre a mano",isN?64:56),
+    p=B.body(1290,0,560,isN?"Cada empresa tiene su propio sistema, con sus números y su forma de trabajar.":"Revise todo desde su computadora, tablet o celular, cuando lo necesite.",30);k.y=230;stack([k,t,p],[18,24]);
+  const b=B.pill(1290,Math.round(p.y+p.h+40),isN?"Pide tu demo":"Agende una reunión",28);const lg=await logo(brand,isN?"firma":"horizontal",S0.logo,1290,0,isN?280:300);lg.y=1080-80-lg.h;
+  if(isN)d.layers.push(...tiles(0,0,6,1,320,40,BR.nummeros.tiles[st]));else d.layers.push(isoArt(-200,560,640,S0,.7));
+  d.layers.push(Dv({name:"Mockup laptop",kind:"laptop",x:80,y:200,w:1110,h:694,acc:isN?"#235347":"#152644"}),k,t,p,b,lg);return d}
+async function mockPhoneTpl(brand,st){const S0=BR[brand].st[st],B=brandText(brand,S0),isN=brand==="nummeros",d=newDoc(1080,1350,S0.bg,brand,"Mockup celular");
+  const k=B.kicker(80,0,470,isN?"Desde tu celular":"Atención virtual",26),t=B.title(80,0,470,isN?"Tus ventas del día, al instante":"Todo desde su celular",isN?72:68),
+    p=B.body(80,0,470,isN?"Revisa caja, ventas e inventario estés donde estés.":"Envíe sus facturas por WhatsApp y vea sus reportes en su portal.",30);k.y=260;stack([k,t,p],[18,24]);
+  const lg=await logo(brand,isN?"firma":"horizontal",S0.logo,80,0,isN?300:300);lg.y=1350-90-lg.h;
+  if(isN)d.layers.push(...tiles(0,0,4,1,270,40,BR.nummeros.tiles[st]));else d.layers.push(isoArt(560,780,640,S0,.7));
+  d.layers.push(Dv({name:"Mockup celular",kind:"phone",x:600,y:160,w:400,h:816,acc:isN?"#235347":"#152644"}),k,t,p,lg);return d}
+async function guideTpl(brand,st){const S0=BR[brand].st[st],B=brandText(brand,S0),isN=brand==="nummeros",d=newDoc(1240,1754,S0.bg,brand,"Guía paso a paso");d.mm=[210,297];
+  const k=B.kicker(96,90,1048,"Guía rápida",28),t=B.title(96,0,1048,isN?"Cómo registrar una venta":"Cómo ver su declaración en el portal",isN?68:60);stack([k,t],[16]);
+  const steps=isN?[["Abre la pantalla de Ventas","Desde el menú de la izquierda, entra a Ventas y toca «Nueva venta»."],["Agrega los productos","Busca cada producto por nombre o código y escribe la cantidad."],["Cobra y listo","Elige el medio de pago y confirma. La venta queda registrada en la caja del día."]]
+    :[["Ingrese a su portal","Abra el enlace que le enviamos por WhatsApp e ingrese con su usuario."],["Elija el período","En «Declaraciones», seleccione el mes que quiere revisar."],["Descargue el documento","Toque «Descargar» para guardar su declaración en PDF."]];
+  const acc=isN?"#235347":"#152644",Ls=[k,t];let y=t.y+t.h+60;const rowH=430;
+  steps.forEach(([st1,tx],i)=>{const yy=y+i*rowH;Ls.push(Dv({name:"Captura paso "+(i+1),kind:"browser",x:96,y:yy,w:560,h:373,acc}),
+    R({name:"Número (fondo)",x:712,y:yy+6,w:72,h:72,fill:S0.acc,rad:999}),T({name:"Número",x:712,y:yy+20,w:72,txt:String(i+1),font:BR[brand].d,weight:BR[brand].dw,size:38,color:S0.on,align:"center",lh:1.1}),
+    ...(()=>{const a=T({name:"Paso",x:712,y:yy+104,w:432,txt:st1,font:BR[brand].d,weight:BR[brand].dw,size:40,color:S0.ink,lh:1.1});layoutText(a);return[a,T({name:"Explicación",x:712,y:a.y+a.h+14,w:432,txt:tx,font:BR[brand].b,size:28,color:S0.muted,lh:1.4})]})())});
+  const lg=await logo(brand,isN?"firma":"horizontal",S0.logo,96,0,260);lg.y=1754-70-lg.h;Ls.push(R({name:"Línea",x:96,y:1754-70-lg.h-36,w:1048,h:2,fill:S0.line}),lg,
+    T({name:"Pie",x:600,y:lg.y+Math.round(lg.h/2)-16,w:544,txt:isN?"nummeros.contaxbolivia.com":"contaxbolivia.com",font:BR[brand].b,size:24,color:S0.muted,align:"right"}));d.layers.push(...Ls);return d}
 const TPL={
 nummeros:[
  {id:"n-estado-foto",name:"Estado con foto",size:"1080 × 1920",async build(st){const S0=BR.nummeros.st[st],B=brandText("nummeros",S0),d=newDoc(1080,1920,S0.bg,"nummeros","Estado con foto");
@@ -598,7 +701,12 @@ nummeros:[
    const ph=I({name:"Foto",x:0,y:Math.round(p.y+p.h+70),w:1020,h:0,src:"clasicos/pitagoras-senalando.jpg",fy:.3});ph.h=1940-ph.y;
    const ct=T({name:"Contacto",x:90,y:2210,w:840,txt:"nummeros.contaxbolivia.com · WhatsApp +591 690-21969",font:"Questrial",size:30,color:S0.ink,align:"center",lh:1.4});
    const b=B.pill(0,2060,"Pide tu demo",42);layoutText(b);b.x=Math.round((1020-b.w)/2);
-   d.layers.push(lg,k,t,p,ph,...chip(60,ph.y+ph.h-40,"pitagoras",34,S0),R({name:"Franja inferior",x:0,y:1940,w:1020,h:460,fill:S0.soft}),b,ct);return d}}
+   d.layers.push(lg,k,t,p,ph,...chip(60,ph.y+ph.h-40,"pitagoras",34,S0),R({name:"Franja inferior",x:0,y:1940,w:1020,h:460,fill:S0.soft}),b,ct);return d}},
+ {id:"n-portaqr",name:"Porta QR para acrílico",size:"10 × 15 cm · 2 caras",build:st=>qrPortaTpl("nummeros",st)},
+ {id:"n-qrpost",name:"QR para redes",size:"1080 × 1350",build:st=>qrPostTpl("nummeros",st)},
+ {id:"n-mocklaptop",name:"Mockup laptop",size:"1920 × 1080",build:st=>mockLaptopTpl("nummeros",st)},
+ {id:"n-mockphone",name:"Mockup celular",size:"1080 × 1350",build:st=>mockPhoneTpl("nummeros",st)},
+ {id:"n-guia",name:"Guía paso a paso",size:"A4 · con capturas",build:st=>guideTpl("nummeros",st)}
 ],
 contax:[
  {id:"c-estado-foto",name:"Estado con foto",size:"1080 × 1920",async build(st){const S0=BR.contax.st[st],B=brandText("contax",S0),d=newDoc(1080,1920,S0.bg,"contax","Estado con foto");
@@ -662,7 +770,12 @@ contax:[
    const lg=await logo("contax","horizontal",S0.logo,90,130,520);const k=B.kicker(90,Math.round(lg.y+lg.h+110),840,"Atención virtual",30),t=B.title(90,0,840,"Su contabilidad al día, desde donde esté",96),p=B.body(90,0,840,"Contabilidad, declaraciones al SIN y planillas para su empresa.",38);stack([k,t,p],[20,30]);
    const ph=I({name:"Foto",x:0,y:Math.round(p.y+p.h+60),w:1020,h:0,src:cfoto("caminando",st),fy:.25});ph.h=1940-ph.y;
    const b=B.pill(0,2040,"Agende una reunión",40);layoutText(b);b.x=Math.round((1020-b.w)/2);
-   d.layers.push(lg,k,t,p,ph,R({name:"Franja inferior",x:0,y:1940,w:1020,h:460,fill:S0.soft}),b,T({name:"Contacto",x:90,y:2180,w:840,txt:CCONT,font:"Adventor CX",size:28,color:S0.ink,align:"center",lh:1.45}));return d}}
+   d.layers.push(lg,k,t,p,ph,R({name:"Franja inferior",x:0,y:1940,w:1020,h:460,fill:S0.soft}),b,T({name:"Contacto",x:90,y:2180,w:840,txt:CCONT,font:"Adventor CX",size:28,color:S0.ink,align:"center",lh:1.45}));return d}},
+ {id:"c-portaqr",name:"Porta QR para acrílico",size:"10 × 15 cm · 2 caras",build:st=>qrPortaTpl("contax",st)},
+ {id:"c-qrpost",name:"QR para redes",size:"1080 × 1350",build:st=>qrPostTpl("contax",st)},
+ {id:"c-mocklaptop",name:"Mockup laptop",size:"1920 × 1080",build:st=>mockLaptopTpl("contax",st)},
+ {id:"c-mockphone",name:"Mockup celular",size:"1080 × 1350",build:st=>mockPhoneTpl("contax",st)},
+ {id:"c-guia",name:"Guía paso a paso",size:"A4 · con capturas",build:st=>guideTpl("contax",st)}
 ]};
 
 /* ================== storage ================== */
@@ -852,12 +965,12 @@ cv.addEventListener("pointermove",e=>{
     const o=drag.o,k=drag.k;let x=o.x,y=o.y,w=o.w,h=o.h;
     if(k.includes("e"))w=o.w+dx;if(k.includes("w")){w=o.w-dx;x=o.x+dx}
     if(k.includes("s"))h=o.h+dy;if(k.includes("n")){h=o.h-dy;y=o.y+dy}
-    const corner=k.length===2,keep=corner&&(L.t==="img"||L.t==="n"||L.t==="iso"||L.t==="text"||e.shiftKey);
+    const corner=k.length===2,keep=L.t==="qr"||(corner&&(L.t==="img"||L.t==="n"||L.t==="iso"||L.t==="text"||L.t==="dev"||e.shiftKey));
     if(keep){const r=Math.max(w/o.w,h/o.h);const f=Math.abs(dx)>Math.abs(dy)?w/o.w:h/o.h;const s=Math.max(.05,L.t==="text"?w/o.w:f||r);w=o.w*s;h=o.h*s;if(k.includes("w"))x=o.x+o.w-w;if(k.includes("n"))y=o.y+o.h-h}
     w=Math.max(8,w);h=Math.max(8,h);
     if(L.t==="text"){if(corner){const s=w/o.w;L.size=Math.max(6,Math.round(o.size*s));L.px=Math.round((o.px||0)*s);L.py=Math.round((o.py||0)*s);L.w=Math.round(w);if(k.includes("w"))L.x=Math.round(o.x+o.w-L.w);layoutText(L);if(k.includes("n"))L.y=Math.round(o.y+o.h-L.h)}
       else{L.autoW=false;L.w=Math.round(w);L.x=Math.round(x)}}
-    else{L.x=Math.round(x);L.y=Math.round(y);L.w=Math.round(w);L.h=Math.round(h)}
+    else{L.x=Math.round(x);L.y=Math.round(y);L.w=Math.round(w);L.h=Math.round(h);if(L.t==="qr")L.h=L.w}
     requestRender();syncGeom();
   }
 });
@@ -868,7 +981,7 @@ function endDrag(){if(!drag)return;const d=drag;
 cv.addEventListener("pointerup",endDrag);cv.addEventListener("pointercancel",endDrag);
 cv.addEventListener("pointerleave",()=>{if(!drag&&S.hover){S.hover=null;requestRender()}});
 cv.addEventListener("dblclick",e=>{const hit=hitTest(toDoc(e));if(!hit||hit.lock)return;
-  if(hit.t==="text"){setSel([hit.id]);startEdit(hit.id)}else if(hit.t==="img")startCrop(hit.id);else setSel([hit.id])});
+  if(hit.t==="text"){setSel([hit.id]);startEdit(hit.id)}else if(hit.t==="img")startCrop(hit.id);else if(hit.t==="dev"){setSel([hit.id]);openLib("subir");toast("Sube o pega (⌘ + V) la captura: va a la pantalla del dispositivo")}else if(hit.t==="qr"){setSel([hit.id]);openLib("qr")}else setSel([hit.id])});
 cv.addEventListener("wheel",e=>{e.preventDefault();if(e.ctrlKey||e.metaKey){setZoom(S.zoom*(e.deltaY<0?1.1:1/1.1))}else{S.panX=(S.panX||0)-e.deltaX;S.panY=(S.panY||0)-e.deltaY;requestRender()}},{passive:false});
 function setZoom(z){S.zoom=clamp(z,.2,8);requestRender()}
 $("#zin").onclick=()=>setZoom(S.zoom*1.25);$("#zout").onclick=()=>setZoom(S.zoom/1.25);$("#zfit").onclick=()=>{S.zoom=1;S.panX=0;S.panY=0;requestRender()};
@@ -912,7 +1025,7 @@ function setSel(ids,primary){ids=[...new Set(ids)].filter(id=>S.doc.layers.some(
   if(S.crop&&!(ids.length===1&&ids[0]===S.crop)){S.crop=null;commit()}
   if(ids.length<=1){S.multi=[];S.sel=ids[0]||null}else{S.multi=ids;S.sel=primary&&ids.includes(primary)?primary:ids[ids.length-1]}
   if(isCompact()){const m=$("#main");if(ids.length){if(!m.classList.contains("props-open")||S.rpanel==="props"){S.rpanel="props";m.classList.add("props-open")}}else if(S.rpanel==="props")m.classList.remove("props-open")}
-  renderProps();requestRender();if(S.tab==="ia")iaSelUpdate()}
+  renderProps();requestRender();if(S.tab==="ia")iaSelUpdate();if(S.tab==="qr")renderLib()}
 /* clicking an element selects its whole group */
 function select(id){if(!id){setSel([]);return}const L=S.doc.layers.find(l=>l.id===id);if(!L)return;setSel(groupOf(L).map(l=>l.id),id)}
 function addLayer(L,{center=true}={}){if(L.t==="text")layoutText(L);if(center){L.x=Math.round((S.doc.w-L.w)/2);L.y=Math.round((S.doc.h-L.h)/2)}S.doc.layers.push(L);S.multi=[];S.crop=null;S.sel=L.id;commit();renderProps();requestRender();if(isNarrow())setTab("editar")}
@@ -948,6 +1061,7 @@ const isNarrow=()=>window.matchMedia("(max-width:900px)").matches;
 async function addImage(src,o={}){
   const im=await ld(src);if(!im){toast("No se pudo abrir esa imagen.");return}
   const L=selL();
+  if(L&&L.t==="dev"&&!L.lock){L.src=src;L.fx=.5;L.fy=0;commit();renderProps();requestRender();toast("Captura puesta en la pantalla");return}
   if(L&&L.t==="img"&&!L.lock&&!o.forceNew){L.src=src;if(o.fit)L.fit=o.fit;L.fx=.5;L.fy=.5;commit();renderProps();requestRender();toast("Imagen reemplazada");return}
   const a=im.naturalHeight/im.naturalWidth,maxW=S.doc.w*.7,maxH=S.doc.h*.7;let w=maxW,h=w*a;if(h>maxH){h=maxH;w=h/a}
   addLayer(I({name:o.name||"Imagen",w:Math.round(w),h:Math.round(h),src,fit:o.fit||"cover"}));
@@ -1006,9 +1120,13 @@ function renderLib(){
       <button type="button" data-v="frame">${sv('<rect x="8" y="10" width="32" height="28" fill="none" stroke="currentColor" stroke-width="3"/>')}Marco</button>
       <button type="button" data-v="band">${sv('<rect x="0" y="28" width="48" height="12" fill="currentColor"/>')}Franja</button>
       ${b==="nummeros"?`<button type="button" data-v="n"><svg viewBox="0 0 546 728" style="width:32px;height:42px"><path fill="currentColor" d="${NPATH}"/></svg>La N</button><button type="button" data-v="tiles">${sv('<rect x="2" y="10" width="22" height="28" fill="currentColor"/><rect x="24" y="10" width="22" height="28" fill="currentColor" opacity=".45"/>')}Cuadros N</button>`:`<button type="button" data-v="iso"><svg viewBox="0 0 845 980" style="width:36px;height:42px"><path fill="currentColor" opacity=".55" d="${ISO.gris}"/><path fill="currentColor" opacity=".8" d="${ISO.negro}"/><path fill="currentColor" d="${ISO.azul}"/></svg>Isotipo</button>`}
-      </div></div>`;
+      </div>
+      <h3>Dispositivos para capturas</h3><p class="hint">Marcos de laptop, celular, tablet o navegador. Después sube o pega la captura de tu sistema.</p>
+      <div class="shapes">${DEVK.map(([k,n])=>`<button type="button" data-dev="${k}">${DEV_ICON[k]}${n}</button>`).join("")}</div></div>`;
     el.querySelectorAll("[data-v]").forEach(x=>x.onclick=()=>addShape(x.dataset.v));
+    el.querySelectorAll("[data-dev]").forEach(x=>x.onclick=()=>addDevice(x.dataset.dev));
   }
+  else if(S.tab==="qr"){renderQR(el)}
   else if(S.tab==="ia"){renderIA(el)}
   else if(S.tab==="subir"){
     el.innerHTML=`<div class="pane"><h2>Tus imágenes</h2><p class="hint">Sube fotos que generaste en ChatGPT o Gemini. También puedes copiar una imagen y pegarla aquí con Ctrl/⌘ + V, o arrastrarla sobre el lienzo.</p>
@@ -1032,7 +1150,7 @@ async function handleFiles(files){
     let src;
     try{setStatus("Guardando imagen…");src=await keepImage(f)}catch(e){const m={too_large:"La imagen pesa más de 20 MB.",quota_or_state:"No queda espacio para más imágenes.",rate_limited:"Espera unos segundos y vuelve a intentar."}[e&&e.code];toast(m||"No se pudo guardar la imagen.");setStatus("");continue}
     UPS.unshift({src,name:f.name.replace(/\.[a-z0-9]+$/i,"").slice(0,40)||"Imagen",at:Date.now()});
-    await addImage(src,{name:"Imagen subida",forceNew:true});
+    await addImage(src,{name:"Imagen subida",forceNew:!(selL()&&selL().t==="dev")});
   }
   setStatus(S.dirty?"Cambios sin guardar":"");
   try{await store.setUploads(UPS.slice(0,200))}catch(e){}
@@ -1375,6 +1493,8 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();co
   else if(L&&L.t==="img"){
     h=tb("crop",TB.crop+"Recortar","Recortar (doble clic)")+tb("nobg",TB.nobg+"Quitar fondo","Quitar fondo (gratis)")+tb("replace","Cambiar","Cambiar imagen")
       +tb("fit",L.fit==="contain"?"Imagen completa":"Rellenar marco","Cambiar entre rellenar el marco y ver la imagen completa")+common()}
+  else if(L&&L.t==="qr"){h=tb("qredit","Editar QR","Cambiar el contenido del QR")+tb("qfg",chipC(L.fg)+"Color","Color de los cuadros",""," data-pop")+tb("qbg",chipC(L.bg)+"Fondo","Fondo del QR",""," data-pop")+tb("qlogo","Logo","Logo en el centro","",` aria-pressed="${!!L.logo}"`)+common()}
+  else if(L&&L.t==="dev"){h=tb("shot","Cambiar captura","Subir o pegar la captura de pantalla")+tb("dkind",((DEVK.find(d=>d[0]===L.kind)||DEVK[0])[1])+" ▾","Tipo de dispositivo",""," data-pop")+(L.kind==="browser"?"":tb("dframe",chipC(L.frame)+"Marco","Color del marco",""," data-pop"))+common()}
   else if(L){const f=L.t==="iso"?"Color":"Color";h=tb("fill",chipC(L.fill)+f,"Color",""," data-pop")+((L.t==="rect"||L.t==="ellipse")?tb("stroke",chipC(L.sw>0?L.stroke:null)+"Borde","Color del borde",""," data-pop"):"")+common()}
   else{h=`<span class="lbl">Página ${S.doc.pi+1}</span>`+tb("bg",chipC(S.doc.bg)+"Fondo","Color de fondo de la página",""," data-pop")+sep+tb("addtext","+ Texto","Agregar un texto")+tb("addimg","+ Imagen","Agregar una foto o imagen")+tb("addpage","+ Página","Agregar una página")}
   const hb=bar.offsetHeight;bar.innerHTML=h;if(bar.offsetHeight!==hb)requestRender();
@@ -1392,7 +1512,10 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();co
   on("crop",()=>startCrop(L.id));on("nobg",()=>removeBg(L,false));on("replace",()=>{if(isCompact())$("#main").classList.add("lib-open");setTab(L.name&&L.name.startsWith("Logo")?"logos":"fotos");updRails();toast("Elige la nueva imagen en el panel")});
   on("fit",()=>{L.fit=L.fit==="contain"?"cover":"contain";upd()});
   on("fill",b=>colorPop(b,"cx-f",L.fill,L.t==="rect"||L.t==="ellipse",c=>{L.fill=c||null}));on("stroke",b=>colorPop(b,"cx-s",L.stroke,true,c=>{if(c){L.stroke=c;if(!L.sw)L.sw=Math.round(Math.min(S.doc.w,S.doc.h)*.006)}else L.sw=0}));
-  on("bg",b=>colorPop(b,"cx-bg",S.doc.bg,false,c=>{S.doc.bg=c}));on("addtext",()=>addText("title"));on("addpage",()=>addPage(false));
+  on("bg",b=>colorPop(b,"cx-bg",S.doc.bg,false,c=>{S.doc.bg=c}));
+  on("qredit",()=>openLib("qr"));on("qfg",b=>colorPop(b,"cx-qf",L.fg,false,c=>{L.fg=c}));on("qbg",b=>colorPop(b,"cx-qb",L.bg,true,c=>{L.bg=c||null}));on("qlogo",()=>{L.logo=!L.logo;upd()});
+  on("shot",()=>{openLib("subir");toast("Sube o pega (⌘ + V) la captura: va a la pantalla del dispositivo")});on("dframe",b=>colorPop(b,"cx-df",L.frame,false,c=>{L.frame=c}));
+  on("dkind",b=>pop(b,`<div class="chips">${DEVK.map(([k,n])=>`<button type="button" data-dk2="${k}" aria-pressed="${L.kind===k}">${n}</button>`).join("")}</div>`,d=>d.querySelectorAll("[data-dk2]").forEach(x=>x.onclick=()=>{closePop();L.kind=x.dataset.dk2;L.h=Math.round(L.w/devRatio(L.kind));upd()})));on("addtext",()=>addText("title"));on("addpage",()=>addPage(false));
   on("addimg",()=>{if(isCompact())$("#main").classList.add("lib-open");setTab("fotos");updRails()})}
 
 /* ================== vista previa ================== */
@@ -1412,6 +1535,70 @@ async function openPreview(){if(S.editing)endEdit();const d=S.doc;syncPage();awa
   document.addEventListener("fullscreenchange",()=>{const b=v.querySelector('[data-a="fs"]');if(b)b.textContent=document.fullscreenElement?"Salir de pantalla completa":"Pantalla completa"});
   show();v.querySelector('[data-a="close"]').focus();if(v.requestFullscreen)v.requestFullscreen().catch(()=>{})}
 $("#pv-open").onclick=openPreview;
+
+/* ================== SVG ================== */
+const FONTFILES={"Akshar":[[600,"fonts/Akshar-600.woff2"],[700,"fonts/Akshar-700.woff2"]],"Questrial":[[400,"fonts/Questrial-400.woff2"]],"Adventor CX":[[400,"fonts/Adventor-400.woff2"],[700,"fonts/Adventor-700.woff2"]]};
+const FONT64={};
+async function fontB64(path){if(FONT64[path])return FONT64[path];const buf=new Uint8Array(await (await fetch(path)).arrayBuffer());let s="";for(let i=0;i<buf.length;i+=32768)s+=String.fromCharCode.apply(null,buf.subarray(i,i+32768));return FONT64[path]=btoa(s)}
+async function imgDataURL(src){const im=await ld(src);if(!im)return "";const k=Math.min(1,2400/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);const x=c.getContext("2d");x.drawImage(im,0,0,c.width,c.height);
+  const t=document.createElement("canvas");t.width=t.height=48;const tx=t.getContext("2d");tx.drawImage(c,0,0,48,48);const a=tx.getImageData(0,0,48,48).data;let alpha=false;for(let i=3;i<a.length;i+=4)if(a[i]<250){alpha=true;break}
+  return alpha?c.toDataURL("image/png"):c.toDataURL("image/jpeg",.9)}
+function layerPNG(L,k){const c=document.createElement("canvas");c.width=Math.max(1,Math.round(L.w*k));c.height=Math.max(1,Math.round(L.h*k));const x=c.getContext("2d");x.scale(k,k);x.translate(-L.x,-L.y);drawLayer(x,{...L,op:1},null);return c.toDataURL("image/png")}
+const num1=v=>Math.round(v*100)/100;
+function rrPath(x,y,w,h,r){r=Math.max(0,Math.min(r||0,w/2,h/2));if(!r)return`M${num1(x)} ${num1(y)}h${num1(w)}v${num1(h)}h${num1(-w)}Z`;return`M${num1(x+r)} ${num1(y)}H${num1(x+w-r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x+w)} ${num1(y+r)}V${num1(y+h-r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x+w-r)} ${num1(y+h)}H${num1(x+r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x)} ${num1(y+h-r)}V${num1(y+r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x+r)} ${num1(y)}Z`}
+async function toSVG(layers,box,bg){await fontsReady;const out=[],defs=[],fams=new Map();let cid=0;
+  for(const L of layers){if(L.hide)continue;const g=[];
+    if(L.t==="rect"){g.push(`<path d="${rrPath(L.x,L.y,L.w,L.h,L.rad)}" fill="${L.fill||"none"}"${L.sw>0&&L.stroke?` stroke="${L.stroke}" stroke-width="${L.sw}"`:""}/>`)}
+    else if(L.t==="ellipse"){g.push(`<ellipse cx="${num1(L.x+L.w/2)}" cy="${num1(L.y+L.h/2)}" rx="${num1(L.w/2)}" ry="${num1(L.h/2)}" fill="${L.fill||"none"}"${L.sw>0&&L.stroke?` stroke="${L.stroke}" stroke-width="${L.sw}"`:""}/>`)}
+    else if(L.t==="n"){g.push(`<path d="${NPATH}" fill="${L.fill}" transform="translate(${num1(L.x)} ${num1(L.y)}) scale(${L.w/546} ${L.h/728})"/>`)}
+    else if(L.t==="iso"){g.push(`<g transform="translate(${num1(L.x)} ${num1(L.y)}) scale(${L.w/ISO.w} ${L.h/ISO.h})"><path d="${ISO.gris}" fill="${L.fill2}"/><path d="${ISO.negro}" fill="${L.fill3}"/><path d="${ISO.azul}" fill="${L.fill}"/></g>`)}
+    else if(L.t==="img"){const r=imgRect(L);const href=await imgDataURL(L.src);if(r&&href){cid++;defs.push(`<clipPath id="c${cid}"><path d="${rrPath(L.x,L.y,L.w,L.h,L.rad)}"/></clipPath>`);g.push(`<image href="${href}" x="${num1(r.x)}" y="${num1(r.y)}" width="${num1(r.w)}" height="${num1(r.h)}" preserveAspectRatio="none" clip-path="url(#c${cid})"/>`)}}
+    else if(L.t==="qr"){const M=qrMatrix(L.data,L.logo?"H":"M");if(L.bg)g.push(`<path d="${rrPath(L.x,L.y,L.w,L.w,L.rad)}" fill="${L.bg}"/>`);
+      if(M){const q=L.margin??2,cell=L.w/(M.n+2*q);let d="";for(let r=0;r<M.n;r++){let c=0;while(c<M.n){if(M.m[r][c]){let e=c;while(e<M.n&&M.m[r][e])e++;d+=`M${num1(L.x+(c+q)*cell)} ${num1(L.y+(r+q)*cell)}h${num1((e-c)*cell)}v${num1(cell)}h${num1(-(e-c)*cell)}Z`;c=e}else c++}}g.push(`<path d="${d}" fill="${L.fg||"#000000"}" shape-rendering="crispEdges"/>`);
+        if(L.logo){const b=qrLogoBox(L),pad=b.s*.18;g.push(`<path d="${rrPath(b.x,b.y,b.s,b.s,b.s*.18)}" fill="${L.bg||"#FFFFFF"}"/>`);
+          if(L.mark==="iso"){const ih=b.s-2*pad,iw=ih*ISO.w/ISO.h;g.push(`<g transform="translate(${num1(b.x+(b.s-iw)/2)} ${num1(b.y+pad)}) scale(${iw/ISO.w} ${ih/ISO.h})"><path d="${ISO.gris}" fill="#7E9197"/><path d="${ISO.negro}" fill="#000000"/><path d="${ISO.azul}" fill="${L.fg||"#152644"}"/></g>`)}
+          else{const nh=b.s-2*pad,nw=nh*546/728;g.push(`<path d="${NPATH}" fill="${L.fg||"#235347"}" transform="translate(${num1(b.x+(b.s-nw)/2)} ${num1(b.y+pad)}) scale(${nw/546} ${nh/728})"/>`)}}}}
+    else if(L.t==="dev"){await (L.src?ld(L.src):null);g.push(`<image href="${layerPNG(L,2)}" x="${num1(L.x)}" y="${num1(L.y)}" width="${num1(L.w)}" height="${num1(L.h)}"/>`)}
+    else if(L.t==="text"){layoutText(L);const F=FONTS[L.font]||FONTS.Questrial;if(FONTFILES[L.font])(fams.get(L.font)||fams.set(L.font,new Set()).get(L.font)).add(+L.weight);
+      if(L.bg)g.push(`<path d="${rrPath(L.x,L.y,L.w,L.h,L.rad)}" fill="${L.bg}"/>`);
+      const lh=L.size*(L.lh||1.2),px=L.px||0,py=L.py||0,inner=L.w-px*2;
+      L._lines.forEach((ln,i)=>{if(!ln)return;const lw=L._widths[i];let tx=L.x+px;if(L.align==="center")tx=L.x+px+(inner-lw)/2;else if(L.align==="right")tx=L.x+px+inner-lw;
+        const base=L.y+py+i*lh+(lh-L.size)/2+L.size*.8;g.push(`<text x="${num1(tx)}" y="${num1(base)}" font-family="${esc(F.css)}" font-size="${L.size}" font-weight="${L.weight||400}" fill="${L.color}"${L.ls?` letter-spacing="${num1(L.ls*L.size)}"`:""} xml:space="preserve">${esc(ln)}</text>`)})}
+    if(!g.length)continue;out.push((L.op??1)<1?`<g opacity="${L.op}">${g.join("")}</g>`:g.join(""))}
+  let css="";for(const [fam,ws] of fams){for(const [w,path] of FONTFILES[fam]){if(![...ws].some(x=>Math.abs(x-w)<=100))continue;try{css+=`@font-face{font-family:"${fam}";font-weight:${w};src:url(data:font/woff2;base64,${await fontB64(path)}) format("woff2")}`}catch(e){}}}
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${num1(box.w)}" height="${num1(box.h)}" viewBox="${num1(box.x)} ${num1(box.y)} ${num1(box.w)} ${num1(box.h)}">${css?`<style>${css}</style>`:""}${defs.length?`<defs>${defs.join("")}</defs>`:""}${bg?`<rect x="${num1(box.x)}" y="${num1(box.y)}" width="${num1(box.w)}" height="${num1(box.h)}" fill="${bg}"/>`:""}${out.join("")}</svg>`}
+
+/* ================== QR: panel ================== */
+const QRT=[["whatsapp","WhatsApp"],["web","Página web"],["telegram","Telegram"],["email","Correo"],["wifi","Wi-Fi"],["text","Texto"]];
+const QRS={type:"whatsapp",f:{num:"+591 690-21969",msg:"",url:"",user:"",mail:"info@contaxbolivia.com",subj:"",ssid:"",pass:"",sec:"WPA",text:""},logo:true};
+function qrData(t,f){const dg=String(f.num||"").replace(/\D/g,"");
+  if(t==="whatsapp")return dg.length>=8?"https://wa.me/"+dg+(f.msg?"?text="+encodeURIComponent(f.msg):""):"";
+  if(t==="web"){let u=String(f.url||"").trim();if(!u)return "";if(!/^[a-z]+:\/\//i.test(u))u="https://"+u;return u}
+  if(t==="telegram"){const u=String(f.user||"").trim().replace(/^@/,"").replace(/^https?:\/\/t\.me\//i,"");return u?"https://t.me/"+u:""}
+  if(t==="email"){const m=String(f.mail||"").trim();return m?"mailto:"+m+(f.subj?"?subject="+encodeURIComponent(f.subj):""):""}
+  if(t==="wifi"){const e=v=>String(v||"").replace(/([\;,:"])/g,"\\$1");return f.ssid?`WIFI:T:${f.sec||"WPA"};S:${e(f.ssid)};P:${e(f.pass)};;`:""}
+  return String(f.text||"").trim()}
+const QRF={whatsapp:[["num","Número con código de país","+591 690-21969"],["msg","Mensaje inicial (opcional)","Hola, quiero información"]],web:[["url","Dirección de la página","contaxbolivia.com"]],telegram:[["user","Usuario de Telegram","@usuario"]],
+  email:[["mail","Correo","info@contaxbolivia.com"],["subj","Asunto (opcional)","Consulta"]],wifi:[["ssid","Nombre de la red","Oficina"],["pass","Contraseña",""],["sec","Seguridad (WPA, WEP o nopass)","WPA"]],text:[["text","Texto","Escribe el texto"]]};
+function openLib(t){if(isCompact())$("#main").classList.add("lib-open");setTab(t);updRails()}
+function renderQR(el){const L=selL(),edit=L&&L.t==="qr";if(edit&&L.qr&&QRS.lid!==L.id){QRS.type=L.qr.type;Object.assign(QRS.f,L.qr.f);QRS.logo=!!L.logo}QRS.lid=edit?L.id:null;
+  if(!QRS.f.url)QRS.f.url=S.brand==="contax"?"contaxbolivia.com":"nummeros.contaxbolivia.com";
+  el.innerHTML=`<div class="pane"><h2>${edit?"Editar QR":"Código QR"}</h2><p class="hint">${edit?"Cambia el contenido y toca «Actualizar».":"Elige qué abre el QR cuando lo escanean."}</p>
+    <div class="chips" style="margin-bottom:12px">${QRT.map(([k,n])=>`<button type="button" data-qt="${k}" aria-pressed="${QRS.type===k}">${n}</button>`).join("")}</div>
+    ${QRF[QRS.type].map(([k,lbl,ph])=>`<label class="f" style="margin-bottom:10px"><span>${lbl}</span>${k==="text"?`<textarea id="qf-${k}" placeholder="${esc(ph)}">${esc(QRS.f[k]||"")}</textarea>`:`<input type="text" id="qf-${k}" placeholder="${esc(ph)}" value="${esc(QRS.f[k]||"")}">`}</label>`).join("")}
+    <label class="check"><input type="checkbox" id="qf-logo"${QRS.logo?" checked":""}>Logo de ${BR[S.brand].name} en el centro</label>
+    <div class="f" style="margin-top:8px"><span>El QR abrirá</span><code id="qf-out" style="word-break:break-all;font-size:12px;user-select:all;font-family:ui-monospace,Menlo,monospace">${esc(qrData(QRS.type,QRS.f)||"(falta completar)")}</code></div>
+    <button class="btn pri wide" type="button" id="qf-go">${edit?"Actualizar el QR seleccionado":"Agregar QR al diseño"}</button>
+    <p class="hint" style="margin-top:8px">Antes de imprimir, escanéalo con la cámara de tu celular para comprobar que abre lo correcto.</p></div>`;
+  el.querySelectorAll("[data-qt]").forEach(b=>b.onclick=()=>{QRS.type=b.dataset.qt;renderQR(el)});
+  const out=$("#qf-out");QRF[QRS.type].forEach(([k])=>{const i=$("#qf-"+k);i.oninput=()=>{QRS.f[k]=i.value;out.textContent=qrData(QRS.type,QRS.f)||"(falta completar)"}});
+  $("#qf-logo").onchange=e=>QRS.logo=e.target.checked;
+  $("#qf-go").onclick=()=>{const data=qrData(QRS.type,QRS.f);if(!data){toast("Completa los datos del QR.");return}
+    const cur=selL();if(cur&&cur.t==="qr"){cur.data=data;cur.qr={type:QRS.type,f:{...QRS.f}};cur.logo=QRS.logo;commit();renderProps();requestRender();toast("QR actualizado");return}
+    const m=Math.round(Math.min(S.doc.w,S.doc.h)*.42);addLayer(Q({name:"QR "+(QRT.find(t=>t[0]===QRS.type)||["",""])[1],w:m,data,qr:{type:QRS.type,f:{...QRS.f}},logo:QRS.logo,fg:S.brand==="contax"?"#011230":"#051F20",bg:"#FFFFFF",mark:S.brand==="contax"?"iso":"n"}))}}
+const DEV_ICON={laptop:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3"><rect x="9" y="11" width="30" height="20" rx="2"/><path d="M4 37h40" stroke-linecap="round"/></svg>',phone:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3"><rect x="15" y="5" width="18" height="38" rx="4"/></svg>',tablet:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3"><rect x="10" y="6" width="28" height="36" rx="3"/></svg>',browser:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3"><rect x="5" y="9" width="38" height="30" rx="2"/><path d="M5 17h38"/></svg>'};
+function addDevice(k){const W=S.doc.w,H=S.doc.h,r=devRatio(k);let w=Math.round(W*(k==="phone"?.32:.62)),h=Math.round(w/r);if(h>H*.72){h=Math.round(H*.72);w=Math.round(h*r)}
+  addLayer(Dv({name:"Mockup "+(DEVK.find(d=>d[0]===k)||DEVK[0])[1].toLowerCase(),kind:k,w,h,acc:S.brand==="contax"?"#152644":"#235347"}));toast("Ahora sube o pega (⌘ + V) la captura de tu sistema")}
 
 /* ================== quitar fondo ================== */
 let BGR=null,bgBusy=false;
@@ -1508,6 +1695,15 @@ function renderPropsMain(){
       <div class="row">${num("p-rad","Redondeo",L.rad||0,1,0)}</div>`}
   if(L.t==="rect"||L.t==="ellipse"){
     h+=`<h3>Relleno</h3>${swatches("fill",L.fill,true)}<h3>Borde</h3>${swatches("stroke",L.stroke)}<div class="row">${num("p-sw","Grosor del borde",L.sw||0,1,0)}${L.t==="rect"?num("p-rad","Redondeo",L.rad||0,1,0):""}</div>`}
+  if(L.t==="qr")h+=`<h3>Contenido</h3><p class="hint" style="word-break:break-all;user-select:all">${esc(L.data)}</p><button class="btn wide" type="button" id="p-qredit">Editar contenido del QR</button>
+      <h3>Color de los cuadros</h3>${swatches("qfg",L.fg)}<h3>Fondo del QR</h3>${swatches("qbg",L.bg,true)}
+      <div class="row">${rng("p-margin","Margen",L.margin??2,0,6,1)}<label class="check" style="align-self:end"><input type="checkbox" id="p-qlogo"${L.logo?" checked":""}>Logo en el centro</label></div>
+      <p class="hint">Antes de imprimir, escanéalo con tu celular. Se lee mejor con cuadros oscuros sobre fondo claro.</p>`;
+  if(L.t==="dev")h+=`<h3>Dispositivo</h3><div class="chips">${DEVK.map(([k,n])=>`<button type="button" data-dk="${k}" aria-pressed="${(L.kind||"laptop")===k}">${n}</button>`).join("")}</div>
+      <h3>Captura de pantalla</h3><p class="hint">Con el dispositivo seleccionado, sube o pega (⌘ + V) la captura de tu sistema.</p>
+      <div class="actions"><button class="btn" type="button" id="p-shot">Cambiar captura</button><button class="btn" type="button" id="p-noshot"${L.src?"":" disabled"}>Quitar captura</button></div>
+      ${L.src?`<div class="row" style="margin-top:8px">${rng("p-fx","Horizontal",round(L.fx??.5),0,1,.01)}${rng("p-fy","Vertical",round(L.fy??0),0,1,.01)}</div><p class="hint">Mueve «Vertical» para mostrar otra parte de una captura larga.</p>`:""}
+      ${L.kind==="browser"?"":`<h3>Color del marco</h3>${swatches("frame",L.frame)}`}`;
   if(L.t==="n")h+=`<h3>Color de la N</h3>${swatches("fill",L.fill)}`;
   if(L.t==="iso")h+=`<h3>Color principal</h3>${swatches("fill",L.fill)}<h3>Color secundario</h3>${swatches("fill2",L.fill2)}<h3>Color de la punta</h3>${swatches("fill3",L.fill3)}`;
   h+=`<h3>Posición y tamaño</h3><div class="row four">${num("p-x","X",L.x)}${num("p-y","Y",L.y)}${num("p-w","Ancho",L.w,1,4)}${L.t==="text"?`<label class="f"><span>Alto</span><input type="number" value="${round(L.h)}" disabled></label>`:num("p-h","Alto",L.h,1,4)}</div>
@@ -1527,7 +1723,7 @@ function renderPropsMain(){
   on("p-weight","change",e=>{L.weight=+e.target.value;commit();requestRender()});
   document.querySelectorAll("[data-al]").forEach(b=>b.onclick=()=>{L.align=b.dataset.al;commit();renderProps();requestRender()});
   on("p-upper","click",()=>{L.upper=!L.upper;commit();renderProps();requestRender()});
-  ["lh","ls","fx","fy","op","z"].forEach(k=>{on("p-"+k,"input",e=>{live(()=>L[k]=+e.target.value);const o=$("#p-"+k+"-v");if(o)o.textContent=e.target.value});on("p-"+k,"change",commit)});
+  ["lh","ls","fx","fy","op","z","margin"].forEach(k=>{on("p-"+k,"input",e=>{live(()=>L[k]=+e.target.value);const o=$("#p-"+k+"-v");if(o)o.textContent=e.target.value});on("p-"+k,"change",commit)});
   ["px","py","rad","sw"].forEach(k=>{on("p-"+k,"input",e=>live(()=>L[k]=Math.max(0,+e.target.value||0)));on("p-"+k,"change",commit)});
   ["x","y","w","h"].forEach(k=>{on("p-"+k,"input",e=>live(()=>{L[k]=+e.target.value||0;if(k==="w"&&L.t==="text")L.autoW=false}));on("p-"+k,"change",()=>{commit();if(k==="w")renderProps()})});
   on("p-autow","change",e=>{L.autoW=e.target.checked;commit();requestRender();syncGeom()});
@@ -1537,6 +1733,10 @@ function renderPropsMain(){
   bindSw("color",c=>L.color=c);bindSw("tbg",c=>L.bg=c||null,true);bindSw("fill",c=>L.fill=c||null,true);bindSw("stroke",c=>{L.stroke=c;if(!L.sw)L.sw=Math.round(Math.min(S.doc.w,S.doc.h)*.006)},true);bindSw("fill2",c=>L.fill2=c);bindSw("fill3",c=>L.fill3=c);
   document.querySelectorAll("[data-align]").forEach(b=>b.onclick=()=>alignSel(b.dataset.align));
   on("g-all","click",()=>select(L.id));on("g-out","click",()=>{delete L.g;commit();renderProps();requestRender()});
+  on("p-qredit","click",()=>openLib("qr"));on("p-qlogo","change",e=>{L.logo=e.target.checked;commit();requestRender()});
+  bindSw("qfg",c=>L.fg=c);bindSw("qbg",c=>L.bg=c||null,true);bindSw("frame",c=>L.frame=c);
+  document.querySelectorAll("[data-dk]").forEach(b=>b.onclick=()=>{L.kind=b.dataset.dk;L.h=Math.round(L.w/devRatio(L.kind));commit();renderProps();requestRender()});
+  on("p-shot","click",()=>{openLib("subir");toast("Sube o pega (⌘ + V) la captura: va a la pantalla del dispositivo")});on("p-noshot","click",()=>{L.src="";commit();renderProps();requestRender()});
   on("p-crop","click",()=>startCrop(L.id));on("p-cropdone","click",endCrop);
   on("p-cropreset","click",()=>{L.z=1;L.fx=.5;L.fy=.5;commit();renderProps();requestRender()});
   on("p-nobg","click",()=>removeBg(L,false));on("p-nobg-ai","click",()=>removeBg(L,true));
@@ -1549,7 +1749,7 @@ function bindSw(id,fn,rerender){const box=document.querySelector(`[data-sw="${id
   box.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{fn(b.dataset.c);commit();renderProps();requestRender()});
   const cc=box.querySelector("[data-cc]");if(cc){cc.addEventListener("input",e=>{fn(e.target.value.toUpperCase());requestRender()});cc.addEventListener("change",()=>{commit();renderProps()})}}
 function syncGeom(){const L=selL();if(!L)return;["x","y","w"].forEach(k=>{const i=$("#p-"+k);if(i&&document.activeElement!==i)i.value=round(L[k])});const hI=$("#p-h");if(hI&&document.activeElement!==hI)hI.value=round(L.h)}
-const KIND={text:"Texto",img:"Imagen",rect:"Forma",ellipse:"Círculo",n:"La N",iso:"Isotipo"};
+const KIND={text:"Texto",img:"Imagen",rect:"Forma",ellipse:"Círculo",n:"La N",iso:"Isotipo",qr:"QR",dev:"Mockup"};
 const fullPanels=()=>!isCompact();
 function layersHtml(){return fullPanels()?layersBlock():""}
 function layersBlock(){const a=S.doc.layers;return `<h3>Capas (${a.length})</h3><p class="hint" style="margin-top:-4px">Shift + clic para elegir varias.</p><div class="layers">${a.slice().reverse().map(L=>`<div class="layer${selIds().includes(L.id)?" on":""}${L.hide?" off":""}" data-id="${L.id}"><span class="kind">${L.g?"▣ ":""}${KIND[L.t]||""}</span><span class="nm">${esc(L.t==="text"?String(L.txt).split("\n")[0]||L.name:L.name||"")}</span><button type="button" data-hide="${L.id}" aria-label="${L.hide?"Mostrar":"Ocultar"}">${L.hide?ICON.eyeoff:ICON.eye}</button><button type="button" data-lock="${L.id}" aria-label="${L.lock?"Desbloquear":"Bloquear"}">${L.lock?ICON.lock:ICON.unlock}</button></div>`).join("")}</div>`}
@@ -1571,18 +1771,26 @@ $("#undo").onclick=undo;$("#redo").onclick=redo;
 
 /* ================== export ================== */
 const dlBtn=$("#btn-descargar"),dlMenu=$("#menu-descargar");
-dlBtn.onclick=e=>{e.stopPropagation();dlMenu.hidden=!dlMenu.hidden;dlBtn.setAttribute("aria-expanded",String(!dlMenu.hidden))};
+dlBtn.onclick=e=>{e.stopPropagation();const has=selLayers().some(l=>!l.hide);dlMenu.querySelectorAll('[data-fmt^="sel-"]').forEach(b=>b.disabled=!has);dlMenu.hidden=!dlMenu.hidden;dlBtn.setAttribute("aria-expanded",String(!dlMenu.hidden))};
 document.addEventListener("click",e=>{if(!dlMenu.hidden&&!e.target.closest(".menuwrap")){dlMenu.hidden=true;dlBtn.setAttribute("aria-expanded","false")}});
 dlMenu.querySelectorAll("[data-fmt]").forEach(b=>b.onclick=()=>{dlMenu.hidden=true;exportImg(b.dataset.fmt)});
 let JSPDF=null;
 function loadJsPDF(){return JSPDF||(JSPDF=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";sc.onload=()=>res(window.jspdf.jsPDF);sc.onerror=()=>{JSPDF=null;rej()};document.head.appendChild(sc)}))}
-function pageCanvas(d,P,k){const c=document.createElement("canvas");c.width=Math.round(d.w*k);c.height=Math.round(d.h*k);const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers});return c}
+function pageCanvas(d,P,k,noBg){const c=document.createElement("canvas");c.width=Math.round(d.w*k);c.height=Math.round(d.h*k);const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers},null,noBg);return c}
 async function exportImg(fmt){
   if(S.editing)endEdit();
   const d=S.doc;syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
   const base=(d.name||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
   let blob,fname;
-  if(fmt==="pdf"){setStatus("Preparando el PDF…");let J;try{J=await loadJsPDF()}catch(e){setStatus("");toast("No se pudo cargar la herramienta de PDF. Revisa tu internet.");return}
+  if(fmt==="sel-png"||fmt==="sel-svg"){const Ls=selLayers().filter(l=>!l.hide);if(!Ls.length){toast("Primero elige uno o más elementos del diseño.");return}
+    await Promise.all(Ls.filter(l=>l.src).map(l=>ld(l.src)));const b=bbox(Ls),nm=Ls.length===1?(Ls[0].name||"elemento"):"seleccion";
+    const slug=String(nm).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"seleccion";
+    if(fmt==="sel-png"){const k=Math.min(3,Math.max(1,2),4000/Math.max(b.w,b.h));const c=document.createElement("canvas");c.width=Math.max(1,Math.round(b.w*k));c.height=Math.max(1,Math.round(b.h*k));const x=c.getContext("2d");x.scale(k,k);x.translate(-b.x,-b.y);for(const L of Ls)drawLayer(x,L,null);
+      blob=await new Promise(r=>c.toBlob(r,"image/png"));fname=base+"-"+slug+".png"}
+    else{setStatus("Preparando el SVG…");blob=new Blob([await toSVG(Ls,b,null)],{type:"image/svg+xml"});fname=base+"-"+slug+".svg";setStatus("")}}
+  else if(fmt==="svg"){setStatus("Preparando el SVG…");const P=d.pages[d.pi];blob=new Blob([await toSVG(P.layers,{x:0,y:0,w:d.w,h:d.h},P.bg)],{type:"image/svg+xml"});fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+".svg";setStatus("")}
+  else if(fmt==="pngt"){const c=pageCanvas(d,d.pages[d.pi],1,true);blob=await new Promise(r=>c.toBlob(r,"image/png"));fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"-sin-fondo.png"}
+  else if(fmt==="pdf"){setStatus("Preparando el PDF…");let J;try{J=await loadJsPDF()}catch(e){setStatus("");toast("No se pudo cargar la herramienta de PDF. Revisa tu internet.");return}
     const k=d.mm?Math.min(2,4000/Math.max(d.w,d.h)):1;const W=d.mm?d.mm[0]:d.w*.75,H=d.mm?d.mm[1]:d.h*.75,unit=d.mm?"mm":"pt";
     const pdf=new J({orientation:W>H?"landscape":"portrait",unit,format:[W,H],compress:true});
     d.pages.forEach((P,i)=>{if(i)pdf.addPage([W,H],W>H?"landscape":"portrait");pdf.addImage(pageCanvas(d,P,k).toDataURL("image/jpeg",.92),"JPEG",0,0,W,H,undefined,"FAST")});
@@ -1590,9 +1798,9 @@ async function exportImg(fmt){
   else{const c=pageCanvas(d,d.pages[d.pi],1);const type=fmt==="jpg"?"image/jpeg":"image/png";
     try{blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),type,.92))}catch(e){toast("No se pudo preparar la imagen.");return}
     fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"."+fmt}
-  if(store.downloads){try{await store.downloads.save({filename:fname,data:blob});toast(fmt==="pdf"?"PDF descargado":"Imagen descargada");return}catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("Ya hay una descarga esperando tu confirmación.");return}}}
+  if(store.downloads){try{await store.downloads.save({filename:fname,data:blob});toast(fmt==="pdf"?"PDF descargado":"Archivo descargado");return}catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("Ya hay una descarga esperando tu confirmación.");return}}}
   const url=URL.createObjectURL(blob);
-  if(!window.claude||fmt==="pdf"){const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast(fmt==="pdf"?"PDF descargado":"Imagen descargada");return}
+  if(!window.claude||fmt==="pdf"||fmt.includes("svg")){const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast(fmt==="pdf"?"PDF descargado":"Archivo descargado");return}
   showDialog("Tu imagen",`<p class="hint" style="text-align:center;margin-bottom:12px">Para guardarla: clic derecho sobre la imagen → «Guardar imagen como…». En el celular, mantén el dedo sobre ella.</p><img class="preview-img" src="${url}" alt="Diseño listo para guardar">`);
 }
 
