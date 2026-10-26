@@ -770,7 +770,29 @@ async function handleFiles(files){
   try{await store.setUploads(UPS.slice(0,200))}catch(e){}
   if(S.tab==="subir")paintUploads();
 }
-document.addEventListener("paste",e=>{const t=(e.target.tagName||"").toLowerCase();if(t==="input"||t==="textarea")return;const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();handleFiles(files)}});
+/* ---- copy / cut / paste of design elements ----
+   The copied element is kept here and in this browser, so it can be pasted into another design.
+   The system clipboard gets plain text (the text itself, or a short label) so pasting elsewhere stays readable. */
+const CLIP_KEY="ed.clip";let CLIP=lsGet(CLIP_KEY,null);
+const isTyping=e=>{const el=e.target||{};const t=(el.tagName||"").toLowerCase();return t==="input"||t==="textarea"||t==="select"||el.isContentEditable};
+function copySel(cut){const L=selL();if(!L)return null;const plain=L.t==="text"?String(L.txt):`[${KIND[L.t]||"Elemento"} · ${L.name||""}]`;
+  CLIP={layers:[clone(stripL(L))],plain,n:0,doc:S.doc.id};lsSet(CLIP_KEY,CLIP);if(cut){removeSel();toast("Cortado")}else toast("Copiado · pégalo con ⌘ + V");return plain}
+function pasteClip(){const c=CLIP||lsGet(CLIP_KEY,null);if(!c||!c.layers||!c.layers.length){toast("No hay nada copiado todavía.");return}
+  if(c.doc!==S.doc.id){c.doc=S.doc.id;c.n=0}c.n=(c.n||0)+1;const off=c.n*30;let last=null;
+  for(const src of c.layers){const L=clone(src);L.id=uid();L.lock=false;L.hide=false;
+    const clash=S.doc.layers.some(x=>x.x===L.x&&x.y===L.y);if(clash||c.n>1){L.x+=off;L.y+=off}
+    if(L.x>S.doc.w-20||L.y>S.doc.h-20){L.x=Math.round((S.doc.w-L.w)/2);L.y=Math.round((S.doc.h-(L.h||100))/2)}
+    S.doc.layers.push(L);last=L}
+  CLIP=c;lsSet(CLIP_KEY,c);S.sel=last.id;commit();renderProps();requestRender();if(S.tab==="ia")iaSelUpdate()}
+function pasteText(t){const S0=curStyle(),B=brandText(S.brand,S0),W=Math.min(S.doc.w-160,900),k=S.doc.w/1080;
+  const short=t.length<=40&&!t.includes("\n");const L=short?B.title(0,0,W,t.trim(),Math.round(72*k)):B.body(0,0,W,t.trim(),Math.round(38*k));L.autoW=false;addLayer(L)}
+document.addEventListener("copy",e=>{if(isTyping(e)||S.editing||!selL())return;e.preventDefault();const plain=copySel(false);try{e.clipboardData.setData("text/plain",plain)}catch(_){}});
+document.addEventListener("cut",e=>{if(isTyping(e)||S.editing||!selL())return;e.preventDefault();const L=selL();if(L.lock){toast("Ese elemento está bloqueado.");return}const plain=copySel(true);try{e.clipboardData.setData("text/plain",plain)}catch(_){}});
+document.addEventListener("paste",e=>{if(isTyping(e)||S.editing)return;
+  const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();handleFiles(files);return}
+  const t=e.clipboardData?e.clipboardData.getData("text/plain"):"";const c=CLIP||lsGet(CLIP_KEY,null);
+  if(c&&(!t||t===c.plain)){e.preventDefault();pasteClip();return}
+  if(t&&t.trim()){e.preventDefault();pasteText(t)}});
 stage.addEventListener("dragover",e=>{if([...e.dataTransfer.types].includes("Files")){e.preventDefault();if(!stage.querySelector(".dropveil")){const v=document.createElement("div");v.className="dropveil";v.textContent="Suelta la imagen para agregarla";stage.appendChild(v)}}});
 stage.addEventListener("dragleave",e=>{if(e.target.classList?.contains("dropveil"))e.target.remove()});
 stage.addEventListener("drop",e=>{e.preventDefault();stage.querySelector(".dropveil")?.remove();if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files)});
@@ -1032,11 +1054,13 @@ function renderProps(){
   if(!L){const d=S.doc;
     el.innerHTML=`<div class="pane"><h2>Página</h2><p class="hint">Haz clic en un elemento del diseño para editarlo.</p>
       <h3>Color de fondo</h3>${swatches("bg",d.bg)}
+      <div class="actions" style="margin-top:14px"><button class="btn" type="button" id="p-paste">Pegar</button></div>
       <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div>
       <div class="row">${num("p-W","Ancho (px)",d.w,1,50)}${num("p-H","Alto (px)",d.h,1,50)}</div>
       <p class="hint">Al cambiar el tamaño, los elementos se quedan donde están; muévelos a su lugar.</p>
       ${layersHtml()}</div>`;
     bindSw("bg",c=>{d.bg=c;requestRender()},true);
+    $("#p-paste").onclick=pasteClip;
     $("#p-size").onchange=e=>{const s=SIZES.find(s=>s[0]===e.target.value);if(s){d.w=s[2];d.h=s[3];commit();renderProps();requestRender()}};
     ["W","H"].forEach(k=>$("#p-"+k).onchange=e=>{const v=Math.max(50,Math.min(6000,+e.target.value||0));d[k.toLowerCase()]=v;commit();renderProps();requestRender()});
     bindLayers();return}
@@ -1064,7 +1088,7 @@ function renderProps(){
   h+=`<h3>Posición y tamaño</h3><div class="row four">${num("p-x","X",L.x)}${num("p-y","Y",L.y)}${num("p-w","Ancho",L.w,1,4)}${L.t==="text"?`<label class="f"><span>Alto</span><input type="number" value="${round(L.h)}" disabled></label>`:num("p-h","Alto",L.h,1,4)}</div>
     <div class="actions" style="margin-bottom:8px"><button class="btn" type="button" id="p-ch">Centrar horizontal</button><button class="btn" type="button" id="p-cv">Centrar vertical</button></div>
     <div class="row one">${rng("p-op","Transparencia",L.op??1,0,1,.01)}</div>
-    <h3>Acciones</h3><div class="actions"><button class="btn" type="button" id="p-dup">Duplicar</button><button class="btn" type="button" id="p-lock">${L.lock?"Desbloquear":"Bloquear"}</button>
+    <h3>Acciones</h3><div class="actions"><button class="btn" type="button" id="p-copy">Copiar</button><button class="btn" type="button" id="p-paste">Pegar</button><button class="btn" type="button" id="p-dup">Duplicar</button><button class="btn" type="button" id="p-lock">${L.lock?"Desbloquear":"Bloquear"}</button>
       <button class="btn" type="button" id="p-up">Subir capa</button><button class="btn" type="button" id="p-down">Bajar capa</button>
       <button class="btn" type="button" id="p-top">Al frente</button><button class="btn" type="button" id="p-bottom">Al fondo</button>
       <button class="btn danger" type="button" id="p-del" style="grid-column:1/-1">Eliminar</button></div>
@@ -1088,7 +1112,7 @@ function renderProps(){
   bindSw("color",c=>L.color=c);bindSw("tbg",c=>L.bg=c||null,true);bindSw("fill",c=>L.fill=c||null,true);bindSw("stroke",c=>{L.stroke=c;if(!L.sw)L.sw=Math.round(Math.min(S.doc.w,S.doc.h)*.006)},true);bindSw("fill2",c=>L.fill2=c);bindSw("fill3",c=>L.fill3=c);
   on("p-ch","click",()=>{L.x=Math.round((S.doc.w-L.w)/2);commit();renderProps();requestRender()});
   on("p-cv","click",()=>{if(L.t==="text")layoutText(L);L.y=Math.round((S.doc.h-L.h)/2);commit();renderProps();requestRender()});
-  on("p-dup","click",duplicate);on("p-del","click",removeSel);
+  on("p-paste","click",pasteClip);on("p-dup","click",duplicate);on("p-copy","click",()=>{let ok=false;try{ok=document.execCommand("copy")}catch(_){}if(!ok)copySel(false)});on("p-del","click",removeSel);
   on("p-lock","click",()=>{L.lock=!L.lock;commit();renderProps();requestRender()});
   on("p-up","click",()=>reorder("up"));on("p-down","click",()=>reorder("down"));on("p-top","click",()=>reorder("top"));on("p-bottom","click",()=>reorder("bottom"));
   bindLayers();
