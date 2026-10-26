@@ -7,6 +7,10 @@ Editor de piezas de marketing para **NUMMEROS** y **CONTAX**, parecido a Canva p
 - **Plantillas** de cada marca en versión clara y oscura: estado de WhatsApp, publicación 4:5 y cuadrada, comunicado, portada de Facebook, colaboración, foto de perfil de WhatsApp, folleto A4, tríptico (2 páginas), banner web y banner roll-up 85 × 200 cm.
 - **Páginas**: un diseño puede tener varias páginas (agregar, duplicar, mover, eliminar). Se descarga la página actual en PNG/JPG o todas juntas en **PDF** (las piezas de imprenta salen a su tamaño real en cm).
 - **Modo claro, oscuro o según el sistema**, con el botón de la barra superior.
+- **Barras distribuidas**: arriba del lienzo, las opciones rápidas del elemento elegido (letra, tamaño, color, recortar, quitar fondo, agrupar…); abajo, las páginas, la vista previa y el zoom.
+- **Paneles automáticos** (botón en la barra superior): a los lados quedan solo los íconos; los paneles se abren al tocar un ícono, y al tocar un elemento del diseño se abren sus opciones.
+- **Vista previa en pantalla completa**, con flechas para pasar las páginas.
+- El lienzo no se escapa de la pantalla: el diseño queda centrado y solo se desplaza cuando está ampliado.
 - **Edición libre**: mover, agrandar, cambiar textos, letras, colores, encuadre de fotos, transparencia y orden de capas.
 - **Copiar, cortar y pegar** elementos con ⌘ + C, ⌘ + X y ⌘ + V (también entre diseños distintos). Pegar texto copiado de otra app crea un texto nuevo.
 - **Varios a la vez**: Shift + clic o arrastrar un recuadro para elegir varios; moverlos, escalarlos, alinearlos, **agrupar** (⌘ + G) o **unir en una sola imagen**.
