@@ -557,8 +557,8 @@ const BR={
     logo:(t,v)=>`png/contax-${t}-${v}.png`}
 };
 const LOGOS={
-  nummeros:[["firma","Con firma"],["horizontal","Horizontal"],["apilado","Apilado"],["isotipo","Isotipo (la N)"],["vertical","Vertical"]].flatMap(([t,n])=>[["principal","verde",0],["claro","claro",1],["blanco","blanco",1]].map(([v,vn,dark])=>({src:BR.nummeros.logo(t,v),name:n+" · "+vn,dark}))),
-  contax:[["horizontal","Horizontal"],["vertical","Vertical"],["descriptor","Con descriptor"],["isotipo","Isotipo"]].flatMap(([t,n])=>[["color","color",0],["azul","azul",0],["negativo","negativo",1],["blanco","blanco",1]].map(([v,vn,dark])=>({src:BR.contax.logo(t,v),name:n+" · "+vn,dark})))
+  nummeros:[["firma","Con firma"],["horizontal","Horizontal"],["apilado","Apilado"],["isotipo","Isotipo (la N)"],["vertical","Vertical"]].flatMap(([t,n])=>[["principal","verde",0],["negro","negro",0],["claro","claro",1],["blanco","blanco",1]].map(([v,vn,dark])=>({src:BR.nummeros.logo(t,v),name:n+" · "+vn,dark}))),
+  contax:[["horizontal","Horizontal"],["vertical","Vertical"],["descriptor","Con descriptor"],["consultora","Consultora"],["isotipo","Isotipo"]].flatMap(([t,n])=>[["color","color",0],["azul","azul",0],["negro","negro",0],["negativo","negativo",1],["blanco","blanco",1]].map(([v,vn,dark])=>({src:BR.contax.logo(t,v),name:n+" · "+vn,dark})))
 };
 function photoGroups(brand){
   if(brand==="nummeros")return[
