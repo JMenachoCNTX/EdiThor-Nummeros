@@ -11,7 +11,8 @@ service cloud.firestore {
         && request.auth.token.email in [
           'jhonnymenacho04@gmail.com',
           'info@contaxbolivia.com',
-          'sol@contaxbolivia.com'
+          'sol@contaxbolivia.com',
+          'contaxcontabilidad5@gmail.com'
         ];
     }
 

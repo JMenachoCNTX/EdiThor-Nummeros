@@ -44,7 +44,7 @@ Las claves se guardan solo en el navegador de quien las pega. No están en este 
 - **En línea:** https://edithornummeros.contaxbolivia.com (GitHub Pages con dominio propio).
 - Se entra con una cuenta de Google autorizada. Los diseños y las imágenes se guardan en **Firebase** (proyecto «EdiThor Nummeros»), así se ven desde cualquier computadora.
 - **Diseños compartidos**: todos los usuarios ven y pueden cambiar los diseños de todos. Cada diseño guarda quién lo creó y quién lo cambió por última vez. Si dos personas cambian el mismo diseño al mismo tiempo, queda el último que se guardó.
-- Usuarios con acceso: jhonnymenacho04@gmail.com, info@contaxbolivia.com y sol@contaxbolivia.com.
+- Usuarios con acceso: jhonnymenacho04@gmail.com, info@contaxbolivia.com, sol@contaxbolivia.com y contaxcontabilidad5@gmail.com.
 - Sin internet o sin entrar, el editor guarda en el navegador; después, en «Mis diseños», se suben a la nube con un clic.
 - También existe una versión dentro de Claude (artifact), sin IA.
 
