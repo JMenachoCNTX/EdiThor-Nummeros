@@ -4,6 +4,7 @@
 
 ## Qué hace
 
+- **Diseños** (menú izquierdo, debajo de Inicio): los diseños del equipo ordenados en **secciones** (WhatsApp, Facebook, Instagram, TikTok, Impresos, Web y sistemas) y, dentro de cada una, **apartados** (por ejemplo WhatsApp → Estados, Canal de WhatsApp, Para enviar por chat). Se puede crear, renombrar y eliminar secciones y apartados; mover un diseño arrastrándolo a un apartado o con «Mover a»; y crear un diseño nuevo directo en un apartado. Las secciones son las mismas para todo el equipo (Firestore `meta/carpetas`); cada diseño guarda su apartado en el campo `sec`. Al eliminar un apartado, sus diseños pasan a «Sin clasificar».
 - **Inicio**: bienvenida con una foto de los clásicos de NUMMEROS, accesos rápidos a las plantillas y los diseños del equipo con un filtro por persona.
 - **Se ve como los demás sistemas de NUMMEROS**: menú lateral menta, verde principal, Akshar en los títulos y Questrial en los textos (modo claro y oscuro).
 - **Al entrar** aparece la pantalla de espera «los clásicos trabajando» del kit de marca durante unos 3 segundos.

@@ -297,8 +297,8 @@ body{font:13.5px/1.45 var(--ui)}
 .rail button{color:var(--menu-ink);border-radius:10px;padding:9px 2px 7px;font-size:11.5px}
 .rail button:hover{background:rgba(35,83,71,.09);color:var(--menu-ink)}
 .rail button[aria-selected="true"]{background:var(--acc);color:var(--on-acc);font-weight:400}
-.rail button[data-tab="inicio"]{margin-bottom:6px;position:relative}
-.rail button[data-tab="inicio"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-6px;height:1px;background:rgba(35,83,71,.18)}
+.rail button[data-tab="disenos"]{margin-bottom:6px;position:relative}
+.rail button[data-tab="disenos"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-6px;height:1px;background:rgba(35,83,71,.18)}
 .main.compact .rrail{background:var(--menu);border-left:0}
 .rrail button{color:var(--menu-ink);border-radius:10px}
 .rrail button[aria-selected="true"]{background:var(--acc);color:var(--on-acc);font-weight:400}
@@ -316,8 +316,8 @@ body{font:13.5px/1.45 var(--ui)}
 .note,.cloudnote{border-radius:14px}
 /* the home view takes the place of the panels and the canvas */
 .home{display:none;min-height:0;overflow:auto;background:var(--bg)}
-.main[data-tab="inicio"] .lib,.main[data-tab="inicio"] .stage,.main[data-tab="inicio"] .props,.main[data-tab="inicio"] .rrail{display:none!important}
-.main[data-tab="inicio"] .home{display:block;grid-column:2/-1}
+.main[data-tab="inicio"] .lib,.main[data-tab="inicio"] .stage,.main[data-tab="inicio"] .props,.main[data-tab="inicio"] .rrail,.main[data-tab="disenos"] .lib,.main[data-tab="disenos"] .stage,.main[data-tab="disenos"] .props,.main[data-tab="disenos"] .rrail{display:none!important}
+.main[data-tab="inicio"] .home,.main[data-tab="disenos"] .home{display:block;grid-column:2/-1}
 body.on-home #nombre,body.on-home #undo,body.on-home #redo,body.on-home #btn-descargar,body.on-home .status{display:none}
 body.on-home .top .spacer{flex:1}
 .home-in{max-width:1180px;margin:0 auto;padding:28px 28px 48px;display:grid;gap:28px}
@@ -357,8 +357,41 @@ body.on-home .top .spacer{flex:1}
 .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hempty{border:1.5px dashed var(--line);border-radius:16px;padding:28px;text-align:center;color:var(--muted)}
 @media (max-width:1100px){.quick{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:42px}}
-@media (max-width:900px){.main[data-tab="inicio"] .home{order:3;grid-column:auto}.rail button[data-tab="inicio"]::after{display:none}.rail button[data-tab="inicio"]{margin-bottom:0}.home-in{padding:18px 16px 36px;gap:20px}.hero{grid-template-columns:1fr}.hero-txt{padding:26px 22px}.hero-pic{min-height:220px;order:-1}.hero h1{font-size:38px}}
+@media (max-width:900px){.main[data-tab="inicio"] .home,.main[data-tab="disenos"] .home{order:3;grid-column:auto}.rail button[data-tab="disenos"]::after{display:none}.rail button[data-tab="disenos"]{margin-bottom:0}.home-in{padding:18px 16px 36px;gap:20px}.hero{grid-template-columns:1fr}.hero-txt{padding:26px 22px}.hero-pic{min-height:220px;order:-1}.hero h1{font-size:38px}}
 @media (max-width:520px){.quick{grid-template-columns:1fr}}
+/* Diseños: secciones (WhatsApp, Facebook…) con apartados para clasificar los diseños */
+.cx{max-width:1280px;margin:0 auto;padding:24px 28px 48px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
+.cx-side{position:sticky;top:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:14px 10px;display:grid;gap:2px}
+.cx-side h2{font:700 22px/1.1 var(--head);margin:4px 8px 10px;color:var(--ink)}
+.cx-it{display:flex;align-items:center;gap:8px;width:100%;border:0;background:transparent;border-radius:10px;padding:7px 10px;font-size:14px;color:var(--ink);text-align:left;cursor:pointer}
+.cx-it:hover{background:var(--hover)}
+.cx-it[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
+.cx-it .n{margin-left:auto;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cx-it[aria-pressed="true"] .n{color:inherit;opacity:.8}
+.cx-it svg{width:18px;height:18px;flex:none}
+.cx-sec{margin-top:8px}
+.cx-sec>.cx-it{font:600 15px/1.2 var(--head);letter-spacing:.01em}
+.cx-sub{padding-left:18px}
+.cx-sub .cx-it{font-size:13.5px;padding:6px 10px}
+.cx-it.drop{outline:2px dashed var(--acc);outline-offset:-2px;background:var(--field)}
+.cx-tools{display:flex;gap:6px;flex-wrap:wrap;margin:12px 8px 2px}
+.cx-tools .btn{font-size:12.5px;height:32px;padding:0 10px}
+.cx-main{min-width:0;display:grid;gap:22px}
+.cx-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cx-head h2{font:700 30px/1.1 var(--head);margin:0;color:var(--ink)}
+.cx-head p{margin:4px 0 0;color:var(--muted)}
+.cx-head .acts{display:flex;gap:6px;flex-wrap:wrap}
+.cx-head .acts .btn{height:36px;font-size:13px}
+.cx-grp h3{font:600 13px/1.2 var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.cx-grp h3 small{font:400 12px var(--body,inherit);letter-spacing:0;text-transform:none}
+.cx .dcard{cursor:default}
+.cx .dcard[draggable="true"] .pic{cursor:grab}
+.cx .dcard.dragging{opacity:.45}
+.cx .dcard .mv{display:flex;gap:6px;padding:0 10px 10px;align-items:center}
+.cx .dcard .mv select{flex:1;min-width:0;border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:8px;padding:5px 6px;font-size:12px}
+.cx-tag{display:inline-block;font-size:10.5px;padding:2px 7px;border-radius:999px;background:var(--field);color:var(--muted);margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cx-chips{display:none}
+@media (max-width:900px){.cx-sec:not(.open) .cx-sub{display:none}.cx{grid-template-columns:1fr;padding:16px 14px 36px;gap:16px}.cx-side{position:static}.cx-head h2{font-size:24px}}
 /* sign-in page: light background with the soft N pattern and the stacked logo */
 .login{position:fixed;inset:0;z-index:45;background:var(--bg);display:grid;place-items:center;padding:24px;overflow:auto}
 .login::before{content:"";position:absolute;inset:0;background:url(graficos/pat-patron-n.png) center/420px repeat;opacity:.07;pointer-events:none}
@@ -467,6 +500,7 @@ body.on-home .top .spacer{flex:1}
   <div class="main" id="main" data-tab="inicio">
     <nav class="rail" role="tablist" aria-label="Herramientas">
       <button role="tab" type="button" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg>Inicio</button>
+      <button role="tab" type="button" data-tab="disenos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7.5V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9.5a2 2 0 0 0-2-2h-7L10 5H5a2 2 0 0 0-2 2.5Z"/><path d="M8 13h8M8 16.5h5"/></svg>Diseños</button>
       <button role="tab" type="button" data-tab="plantillas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Plantillas</button>
       <button role="tab" type="button" data-tab="fotos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/></svg>Fotos</button>
       <button role="tab" type="button" data-tab="logos"><svg viewBox="0 0 546 728" fill="currentColor"><path d="M0 427 L0 728 L136 728 L136 634 Z M410 0 L410 85 L546 292 L546 0 Z M0 0 L148 0 L410 458.5 L410 341 L546 548 L546 728 L401.71 728 L136 263 L136 379 L0 172 Z" transform="translate(91 64) scale(.82)"/></svg>Logos</button>
@@ -946,7 +980,7 @@ const IDB={p:null,
   async del(k){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
 const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   col(){return this.db.collection("data/users/"+this.uid)},
-  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||""}})}
+  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||""}})}
     if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
     if(this.idb)return(await IDB.get("index"))||[];
     return lsGet("ed.designs",[])},
@@ -956,10 +990,23 @@ const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
     return lsGet("ed.designs",[]).find(x=>x.id===id)||null},
   async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages||[{id:"p1",bg:d.bg,layers:d.layers||[]}],thumb:d.thumb||"",updated:Date.now()};
     /* every design is shared with the whole team: it keeps who created it and who changed it last */
-    if(this.kind==="fb"){const me=fbMe();await FB.m.setDoc(fbDoc("designs",d.id),{name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,by:d.by||me.email,byName:d.by?(d.byName||""):me.name,ed:me.email,edName:me.name,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds})});return}
-    if(this.kind==="db"){await this.col().doc(d.id).set(rec);return}
-    if(this.idb){await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated});await IDB.set("index",idx);return}
+    /* "sec" = section/apartado where the design is filed; the editor's saves leave it as it is (merge), only moving it or duplicating sets it */
+    const hasSec=typeof d.sec==="string";
+    if(this.kind==="fb"){const me=fbMe();const o={name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,by:d.by||me.email,byName:d.by?(d.byName||""):me.name,ed:me.email,edName:me.name,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds})};if(hasSec)o.sec=d.sec;await FB.m.setDoc(fbDoc("designs",d.id),o,{merge:true});return}
+    if(this.kind==="db"){if(hasSec)rec.sec=d.sec;await this.col().doc(d.id).set(rec,{merge:true});return}
+    if(this.idb){const old=await IDB.get("d:"+d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,sec:rec.sec});await IDB.set("index",idx);return}
+    {const old=lsGet("ed.designs",[]).find(x=>x.id===d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||""}
     const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));localStorage.setItem("ed.designs",JSON.stringify(all.slice(0,30)))},
+  async move(id,sec){if(this.kind==="fb"){await FB.m.updateDoc(fbDoc("designs",id),{sec});return}
+    if(this.kind==="db"){await this.col().doc(id).update({sec});return}
+    if(this.idb){const d=await IDB.get("d:"+id);if(d){d.sec=sec;await IDB.set("d:"+id,d)}const idx=(await IDB.get("index"))||[];const it=idx.find(x=>x.id===id);if(it){it.sec=sec;await IDB.set("index",idx)}return}
+    const all=lsGet("ed.designs",[]);const it=all.find(x=>x.id===id);if(it){it.sec=sec;localStorage.setItem("ed.designs",JSON.stringify(all))}},
+  async secciones(){if(this.kind==="fb"){const x=await FB.m.getDoc(fbDoc("meta","carpetas"));return x.exists()?(x.data().secs||null):null}
+    if(this.kind==="db"){const x=await this.col().doc("carpetas").get();return x.exists?(x.data().secs||null):null}
+    if(this.idb)return(await IDB.get("carpetas"))||null;return lsGet("ed.carpetas",null)},
+  async setSecciones(secs){if(this.kind==="fb"){await FB.m.setDoc(fbDoc("meta","carpetas"),{secs,updated:Date.now(),by:fbMe().email});return}
+    if(this.kind==="db"){await this.col().doc("carpetas").set({secs});return}
+    if(this.idb){await IDB.set("carpetas",secs);return}lsSet("ed.carpetas",secs)},
   async del(id){if(this.kind==="fb"){await FB.m.deleteDoc(fbDoc("designs",id));return}
     if(this.kind==="db"){await this.col().doc(id).delete();return}
     if(this.idb){await IDB.del("d:"+id);await IDB.set("index",((await IDB.get("index"))||[]).filter(x=>x.id!==id));return}
@@ -1086,9 +1133,9 @@ function scheduleSave(){clearTimeout(S.saveTimer);setStatus("Cambios sin guardar
 async function saveNow(){
   clearTimeout(S.saveTimer);if(!S.dirty)return;
   const d=S.doc,ver=S.ver;if(store.kind==="fb"&&FB.user&&!d.by){const me=fbMe();d.by=me.email;d.byName=me.name}
-  const rec={id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:pagesOut(d),by:d.by||"",byName:d.byName||""};
+  const rec={id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:pagesOut(d),by:d.by||"",byName:d.byName||""};if(d.secNew)rec.sec=d.sec||"";
   setStatus("Guardando…");
-  try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);
+  try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);if(rec.sec!==undefined)delete d.secNew;
     if(S.doc===d&&S.ver===ver){S.dirty=false;setStatus(store.kind==="fb"?"Guardado en la nube":store.kind==="db"?"Guardado":"Guardado en este navegador")}}
   catch(e){setStatus(e&&(e.code==="quota_exceeded"||e.name==="QuotaExceededError")?"No se pudo guardar: no queda espacio. Elimina diseños viejos.":"No se pudo guardar. Revisa tu conexión.",true)}
 }
@@ -1260,7 +1307,7 @@ function endEdit(){if(!S.editing)return;const t=ta;ta=null;S.editing=null;if(t)t
 
 /* keyboard */
 document.addEventListener("keydown",e=>{
-  if(S.tab==="inicio"||$("#fblogin")||$("#nmCargando"))return;
+  if(S.tab==="inicio"||S.tab==="disenos"||$("#fblogin")||$("#nmCargando"))return;
   const tag=(e.target.tagName||"").toLowerCase();const typing=tag==="input"||tag==="textarea"||tag==="select"||e.target.isContentEditable;
   const mod=e.metaKey||e.ctrlKey;
   if(mod&&e.key.toLowerCase()==="z"&&!typing){e.preventDefault();e.shiftKey?redo():undo();return}
@@ -1331,12 +1378,13 @@ async function addImage(src,o={}){
 /* ================== tabs / library ================== */
 document.querySelectorAll(".rail button, .rrail button").forEach(b=>{if(!b.title)b.title=b.textContent.trim()});
 document.querySelectorAll(".rail button").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.tab;
-  if(t==="inicio"){$("#main").classList.remove("lib-open","props-open");HV.lib=false;setTab(t);updRails();return}
+  if(t==="inicio"||t==="disenos"){$("#main").classList.remove("lib-open","props-open");HV.lib=false;setTab(t);updRails();return}
   if(isCompact()){const m=$("#main");if(HV.lib){HV.lib=false;if(S.tab!==t)setTab(t);updRails();return}if(S.tab===t&&m.classList.contains("lib-open")){m.classList.remove("lib-open");updRails();return}m.classList.add("lib-open");setTab(t);updRails();return}setTab(t)}));
-function setTab(t){const was=S.tab;S.tab=t;$("#main").dataset.tab=t;document.body.classList.toggle("on-home",t==="inicio");document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
-  if(t==="inicio"){if(S.editing)endEdit();renderHome();return}
+function setTab(t){const was=S.tab;S.tab=t;$("#main").dataset.tab=t;document.body.classList.toggle("on-home",t==="inicio"||t==="disenos");document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
+  if(t==="inicio"){if(S.editing)endEdit();CX.newSec="";renderHome();return}
+  if(t==="disenos"){if(S.editing)endEdit();if(S.dirty)saveNow();renderCarpetas();return}
   if(t!=="editar")S.libTab=t;
-  if(was==="inicio"){resize();requestAnimationFrame(()=>{resize();requestRender()})}
+  if(was==="inicio"||was==="disenos"){resize();requestAnimationFrame(()=>{resize();requestRender()})}
   if(t!=="editar")renderLib();else renderProps()}
 /* leave the home view and go to the editor (with the library tab used last) */
 function toEditor(tab){setTab(tab||S.libTab||"plantillas");if(isCompact())updRails()}
@@ -1443,7 +1491,7 @@ function pasteText(t){const S0=curStyle(),B=brandText(S.brand,S0),W=Math.min(S.d
   const short=t.length<=40&&!t.includes("\n");const L=short?B.title(0,0,W,t.trim(),Math.round(72*k)):B.body(0,0,W,t.trim(),Math.round(38*k));L.autoW=false;addLayer(L)}
 document.addEventListener("copy",e=>{if(isTyping(e)||S.editing||!selIds().length)return;e.preventDefault();const plain=copySel(false);try{e.clipboardData.setData("text/plain",plain)}catch(_){}});
 document.addEventListener("cut",e=>{if(isTyping(e)||S.editing||!selIds().length)return;e.preventDefault();if(selLayers().some(l=>l.lock)){toast("Hay un elemento bloqueado en lo seleccionado.");return}const plain=copySel(true);try{e.clipboardData.setData("text/plain",plain)}catch(_){}});
-document.addEventListener("paste",e=>{if(isTyping(e)||S.editing||S.tab==="inicio")return;
+document.addEventListener("paste",e=>{if(isTyping(e)||S.editing||S.tab==="inicio"||S.tab==="disenos")return;
   const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();handleFiles(files);return}
   const t=e.clipboardData?e.clipboardData.getData("text/plain"):"";const c=CLIP||lsGet(CLIP_KEY,null);
   if(c&&(!t||t===c.plain)){e.preventDefault();pasteClip();return}
@@ -1900,7 +1948,7 @@ const HV={lib:false,props:false,t:null,c:null};
 function overAny(...els){return els.some(el=>el&&el.matches(":hover"))}
 if(CAN_HOVER){
   const rail=document.querySelector(".rail"),lib=$("#lib"),rrail=$("#rrail"),props=$("#props"),m=$("#main");
-  document.querySelectorAll(".rail button").forEach(b=>{b.addEventListener("mouseenter",()=>{clearTimeout(HV.t);HV.t=setTimeout(()=>{const t=b.dataset.tab;if(t==="editar"||t==="inicio"||S.tab==="inicio")return;
+  document.querySelectorAll(".rail button").forEach(b=>{b.addEventListener("mouseenter",()=>{clearTimeout(HV.t);HV.t=setTimeout(()=>{const t=b.dataset.tab;if(t==="editar"||t==="inicio"||t==="disenos"||S.tab==="inicio"||S.tab==="disenos")return;
       if(isCompact()){if(!m.classList.contains("lib-open")){m.classList.add("lib-open");HV.lib=true}}if(S.tab!==t)setTab(t);updRails()},170)});
     b.addEventListener("mouseleave",()=>clearTimeout(HV.t))});
   document.querySelectorAll(".rrail [data-rp]").forEach(b=>{b.addEventListener("mouseenter",()=>{clearTimeout(HV.t);HV.t=setTimeout(()=>{if(!isCompact())return;const k=b.dataset.rp;
@@ -2079,12 +2127,12 @@ function bindLayers(){document.querySelectorAll(".layer").forEach(r=>r.addEventL
   document.querySelectorAll("[data-lock]").forEach(b=>b.onclick=()=>{const L=S.doc.layers.find(l=>l.id===b.dataset.lock);L.lock=!L.lock;commit();renderProps();requestRender()})}
 
 /* ================== open / brand ================== */
-async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=normDoc(await t.build(st));await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
+async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=normDoc(await t.build(st));if(CX.newSec){d.sec=CX.newSec;d.secNew=true;CX.newSec=""}await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
 function openDoc(d,fresh){if(S.dirty)saveNow();normDoc(d);S.doc=d;S.sel=null;S.multi=[];S.crop=null;S.zoom=1;S.panX=0;S.panY=0;S.dirty=false;if(d.brand&&d.brand!==S.brand)setBrand(d.brand,true);
   $("#nombre").value=d.name;resetHistory();renderProps();requestRender();renderPageBar();if(fresh)setStatus("Plantilla abierta · se guarda sola cuando la cambies");if(isNarrow())window.scrollTo({top:0,behavior:"smooth"})}
 function setBrand(b,keep){S.brand=b;lsSet("ed.brand",b);document.documentElement.dataset.marca=b;
   document.querySelectorAll(".seg [data-marca]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.marca===b)));
-  renderLib();if(S.doc)renderProps();if(S.tab==="inicio"&&!keep)renderHome()}
+  renderLib();if(S.doc)renderProps();if(S.tab==="inicio"&&!keep)renderHome();if(S.tab==="disenos"&&!keep)renderCarpetas()}
 document.querySelectorAll(".seg [data-marca]").forEach(x=>x.onclick=()=>setBrand(x.dataset.marca));
 $("#nombre").addEventListener("change",e=>{S.doc.name=e.target.value.trim()||"Diseño sin nombre";e.target.value=S.doc.name;commit()});
 $("#undo").onclick=undo;$("#redo").onclick=redo;
@@ -2163,13 +2211,101 @@ function paintHomeList(list){const box=$("#h-list"),pp=$("#h-people");if(!box)re
   box.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
   box.querySelector("#h-more")?.addEventListener("click",e=>{e.preventDefault();$("#btn-disenos").click()})}
 
+
+/* ================== diseños: secciones y apartados ================== */
+/* Each design can be filed in one apartado ("seccion/apartado"). The sections are shared by the whole team. */
+const SEC_DEF=[
+  {id:"whatsapp",name:"WhatsApp",subs:[{id:"estados",name:"Estados"},{id:"canal",name:"Canal de WhatsApp"},{id:"chat",name:"Para enviar por chat"}]},
+  {id:"facebook",name:"Facebook",subs:[{id:"publicaciones",name:"Publicaciones"},{id:"historias",name:"Historias"},{id:"portadas",name:"Portadas"}]},
+  {id:"instagram",name:"Instagram",subs:[{id:"publicaciones",name:"Publicaciones"},{id:"historias",name:"Historias"}]},
+  {id:"tiktok",name:"TikTok",subs:[{id:"videos",name:"Portadas de videos"}]},
+  {id:"impresos",name:"Impresos",subs:[{id:"folletos",name:"Folletos y trípticos"},{id:"qr",name:"Porta QR"},{id:"banners",name:"Banners y roll-ups"},{id:"papeleria",name:"Papelería"}]},
+  {id:"web",name:"Web y sistemas",subs:[{id:"banners",name:"Banners web"},{id:"guias",name:"Guías y manuales"}]}];
+const CX={secs:null,sel:"all",list:null,who:"all"};
+const SEC_ICON={whatsapp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 18.8Z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.6l1.2-1.2 1.8.8c-.3 1.1-1.2 1.8-2.3 1.7-3.5-.4-6.3-3.2-6.6-6.6 0-1.1.6-2 1.7-2.3l.8 1.8Z"/></svg>',
+  facebook:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M15.5 8h-1.8A1.7 1.7 0 0 0 12 9.7V21M9.5 13h5"/></svg>',
+  instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".8" fill="currentColor"/></svg>',
+  tiktok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.4 2.6 2.1 4.2 4.5 4.5"/></svg>',
+  impresos:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 8V3h10v5"/><rect x="3" y="8" width="18" height="9" rx="2"/><path d="M7 14h10v7H7Z"/></svg>',
+  web:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/></svg>'};
+const IC_FOLDER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7.5V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9.5a2 2 0 0 0-2-2h-7L10 5H5a2 2 0 0 0-2 2.5Z"/></svg>';
+const IC_ALL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+const IC_INBOX='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v6H3v-6Z"/></svg>';
+const slugId=t=>String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,30)||uid();
+async function loadSecs(){if(CX.secs)return CX.secs;let s=null;try{s=await store.secciones()}catch(e){}CX.secs=Array.isArray(s)&&s.length?s:clone(SEC_DEF);return CX.secs}
+async function saveSecs(){try{await store.setSecciones(CX.secs)}catch(e){toast("No se pudieron guardar las secciones. Revisa tu conexión.")}}
+function secLabel(sec){if(!sec)return"Sin clasificar";const [a,b]=sec.split("/");const S1=(CX.secs||[]).find(x=>x.id===a);if(!S1)return"Sin clasificar";const S2=S1.subs.find(x=>x.id===b);return S2?S1.name+" · "+S2.name:S1.name}
+function secValid(sec){if(!sec)return"";const [a,b]=sec.split("/");const S1=(CX.secs||[]).find(x=>x.id===a);return S1&&S1.subs.some(x=>x.id===b)?sec:""}
+function secOptions(cur){return`<option value=""${cur?"":" selected"}>Sin clasificar</option>`+CX.secs.map(S1=>`<optgroup label="${esc(S1.name)}">${S1.subs.map(S2=>{const v=S1.id+"/"+S2.id;return`<option value="${esc(v)}"${v===cur?" selected":""}>${esc(S2.name)}</option>`}).join("")}</optgroup>`).join("")}
+async function moveDesign(id,sec){const d=CX.list&&CX.list.find(x=>x.id===id);if(!d||(d.sec||"")===sec)return;
+  try{await store.move(id,sec)}catch(e){toast("No se pudo mover. Revisa tu conexión.");return}
+  d.sec=sec;if(S.doc&&S.doc.id===id)S.doc.sec=sec;if(HOME.list){const h=HOME.list.find(x=>x.id===id);if(h)h.sec=sec}
+  toast(sec?"Movido a "+secLabel(sec):"Movido a Sin clasificar");paintCarpetas()}
+async function renderCarpetas(){const el=$("#home");if(!el)return;
+  el.innerHTML=`<div class="cx"><aside class="cx-side" id="cx-side"><h2>Diseños</h2><div class="hint" style="padding:0 8px">Cargando…</div></aside><main class="cx-main" id="cx-main"></main></div>`;
+  await loadSecs();try{const l=await store.list();l.sort((a,b)=>(b.updated||0)-(a.updated||0));CX.list=l}catch(e){CX.list=CX.list||[];toast("No se pudieron cargar los diseños. Revisa tu conexión.")}
+  if(S.tab!=="disenos")return;paintCarpetas()}
+function cxCount(fn){return(CX.list||[]).filter(fn).length}
+function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!main)return;const L=CX.list||[],isFB=store.kind==="fb";
+  const inSec=(d,a)=>secValid(d.sec||"").split("/")[0]===a,inSub=(d,v)=>secValid(d.sec||"")===v,none=d=>!secValid(d.sec||"");
+  if(CX.sel!=="all"&&CX.sel!=="none"){const [a,b]=CX.sel.split("/");const S1=CX.secs.find(x=>x.id===a);if(!S1||(b&&!S1.subs.some(x=>x.id===b)))CX.sel="all"}
+  const it=(key,icon,name,n,drop)=>`<button type="button" class="cx-it" data-sel="${esc(key)}"${drop?` data-drop="${esc(drop)}"`:""} aria-pressed="${CX.sel===key}">${icon||""}<span>${esc(name)}</span><span class="n">${n}</span></button>`;
+  side.innerHTML=`<h2>Diseños</h2>${it("all",IC_ALL,"Todos",L.length)}${it("none",IC_INBOX,"Sin clasificar",cxCount(none),"__none")}
+    ${CX.secs.map(S1=>`<div class="cx-sec${CX.sel===S1.id||CX.sel.startsWith(S1.id+"/")?" open":""}">${it(S1.id,SEC_ICON[S1.id]||IC_FOLDER,S1.name,cxCount(d=>inSec(d,S1.id)))}<div class="cx-sub">${S1.subs.map(S2=>it(S1.id+"/"+S2.id,"",S2.name,cxCount(d=>inSub(d,S1.id+"/"+S2.id)),S1.id+"/"+S2.id)).join("")}</div></div>`).join("")}
+    <div class="cx-tools"><button class="btn" type="button" id="cx-addsec">+ Sección</button></div>
+    <p class="hint" style="padding:0 8px;margin:6px 0 0;font-size:11.5px">Arrastra un diseño hasta un apartado para moverlo, o usa «Mover a» en cada diseño.</p>`;
+  side.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{CX.sel=b.dataset.sel;paintCarpetas()});
+  side.querySelectorAll("[data-drop]").forEach(b=>{b.addEventListener("dragover",e=>{if(!CX.drag)return;e.preventDefault();b.classList.add("drop")});b.addEventListener("dragleave",()=>b.classList.remove("drop"));
+    b.addEventListener("drop",e=>{e.preventDefault();b.classList.remove("drop");const id=CX.drag;CX.drag=null;if(id)moveDesign(id,b.dataset.drop==="__none"?"":b.dataset.drop)})});
+  side.querySelector("#cx-addsec").onclick=()=>secDialog();
+  /* main column */
+  let title,sub,groups,S1=null;
+  if(CX.sel==="all"){title="Todos los diseños";sub="Todos los diseños del equipo, del más reciente al más antiguo.";groups=[{name:"",items:L}]}
+  else if(CX.sel==="none"){title="Sin clasificar";sub="Diseños que todavía no están en ningún apartado. Muévelos para tenerlos ordenados.";groups=[{name:"",items:L.filter(none)}]}
+  else{const [a,b]=CX.sel.split("/");S1=CX.secs.find(x=>x.id===a);
+    if(b){const S2=S1.subs.find(x=>x.id===b);title=S2.name;sub=S1.name;groups=[{name:"",items:L.filter(d=>inSub(d,a+"/"+b))}]}
+    else{title=S1.name;sub=`${S1.subs.length} apartado${S1.subs.length===1?"":"s"}`;groups=S1.subs.map(S2=>({name:S2.name,key:a+"/"+S2.id,items:L.filter(d=>inSub(d,a+"/"+S2.id))}))}}
+  const isSub=CX.sel.includes("/");
+  const card=d=>`<div class="dcard" draggable="true" data-id="${esc(d.id)}"><button type="button" class="pic" data-open="${esc(d.id)}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}</button>
+      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${CX.sel==="all"?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${whoLine(d)}</div>
+      <label class="mv"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap">Mover a</span><select data-mv="${esc(d.id)}" aria-label="Mover ${esc(d.name)} a otro apartado">${secOptions(secValid(d.sec||""))}</select></label></div>`;
+  main.innerHTML=`<div class="cx-head"><div><h2>${esc(title)}</h2><p>${esc(sub)}</p></div><div class="acts">
+      ${S1?`<button class="btn" type="button" id="cx-addsub">+ Apartado</button><button class="btn" type="button" id="cx-ren">Cambiar nombre</button><button class="btn" type="button" id="cx-delsec">Eliminar${isSub?" apartado":" sección"}</button>`:""}
+      <button class="btn pri" type="button" id="cx-new">Nuevo diseño${isSub?" aquí":""}</button></div></div>
+    ${groups.map(g=>`<section class="cx-grp">${g.name?`<h3 data-sel="${esc(g.key)}" style="cursor:pointer">${esc(g.name)} <small>${g.items.length} diseño${g.items.length===1?"":"s"}</small></h3>`:""}
+      ${g.items.length?`<div class="dgrid">${g.items.map(card).join("")}</div>`:`<div class="hempty"${g.key?` data-drop="${esc(g.key)}"`:""}>${g.name?"Todavía no hay diseños en este apartado.":isSub?"Todavía no hay diseños aquí. Arrastra uno desde «Todos» o «Sin clasificar», o crea uno nuevo.":CX.sel==="none"?"Todo está clasificado.":"Todavía no hay diseños guardados."}</div>`}</section>`).join("")}`;
+  main.querySelectorAll("h3[data-sel]").forEach(h=>h.onclick=()=>{CX.sel=h.dataset.sel;paintCarpetas()});
+  main.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
+  main.querySelectorAll("[data-mv]").forEach(x=>x.onchange=()=>moveDesign(x.dataset.mv,x.value));
+  main.querySelectorAll(".dcard[draggable]").forEach(c=>{c.addEventListener("dragstart",e=>{CX.drag=c.dataset.id;c.classList.add("dragging");try{e.dataTransfer.setData("text/plain",c.dataset.id);e.dataTransfer.effectAllowed="move"}catch(err){}});c.addEventListener("dragend",()=>{c.classList.remove("dragging");setTimeout(()=>{CX.drag=null},50)})});
+  main.querySelectorAll(".hempty[data-drop]").forEach(b=>{b.addEventListener("dragover",e=>{if(CX.drag){e.preventDefault();b.classList.add("drop")}});b.addEventListener("dragleave",()=>b.classList.remove("drop"));b.addEventListener("drop",e=>{e.preventDefault();b.classList.remove("drop");const id=CX.drag;CX.drag=null;if(id)moveDesign(id,b.dataset.drop)})});
+  main.querySelector("#cx-new").onclick=()=>{CX.newSec=isSub?CX.sel:"";toEditor("plantillas");if(isSub)toast("Elige una plantilla: el diseño se guardará en "+secLabel(CX.sel))};
+  if(S1){main.querySelector("#cx-addsub").onclick=()=>subDialog(S1);
+    main.querySelector("#cx-ren").onclick=()=>{if(isSub){const S2=S1.subs.find(x=>S1.id+"/"+x.id===CX.sel);subDialog(S1,S2)}else secDialog(S1)};
+    main.querySelector("#cx-delsec").onclick=()=>delSecDialog(S1,isSub?S1.subs.find(x=>S1.id+"/"+x.id===CX.sel):null)}}
+function nameDialog(title,label,val,ok){const v=showDialog(title,`<label class="f"><span>${esc(label)}</span><input type="text" id="cx-name" value="${esc(val||"")}" maxlength="40"></label><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="cx-ok">Guardar</button></div>`);
+  const i=v.querySelector("#cx-name");i.focus();i.select();const go=async()=>{const t=i.value.trim();if(!t){i.focus();return}v.remove();await ok(t)};v.querySelector("#cx-ok").onclick=go;i.onkeydown=e=>{if(e.key==="Enter")go()};return v}
+function secDialog(S1){nameDialog(S1?"Cambiar nombre de la sección":"Nueva sección","Nombre de la sección (por ejemplo: Instagram, LinkedIn)",S1?S1.name:"",async t=>{
+  if(S1){S1.name=t}else{let id=slugId(t);while(CX.secs.some(x=>x.id===id))id+="-"+uid().slice(0,3);CX.secs.push({id,name:t,subs:[{id:"general",name:"General"}]});CX.sel=id}
+  await saveSecs();paintCarpetas()})}
+function subDialog(S1,S2){nameDialog(S2?"Cambiar nombre del apartado":"Nuevo apartado en "+S1.name,"Nombre del apartado (por ejemplo: Promociones)",S2?S2.name:"",async t=>{
+  if(S2){S2.name=t}else{let id=slugId(t);while(S1.subs.some(x=>x.id===id))id+="-"+uid().slice(0,3);S1.subs.push({id,name:t});CX.sel=S1.id+"/"+id}
+  await saveSecs();paintCarpetas()})}
+function delSecDialog(S1,S2){const pre=S2?S1.id+"/"+S2.id:S1.id+"/",n=(CX.list||[]).filter(d=>S2?(d.sec||"")===pre:(d.sec||"").startsWith(pre)).length;
+  if(!S2&&CX.secs.length<=1){toast("Debe quedar al menos una sección.");return}
+  if(S2&&S1.subs.length<=1){toast("Una sección necesita al menos un apartado. Puedes eliminar la sección completa.");return}
+  const v=showDialog(S2?"Eliminar apartado":"Eliminar sección",`<p>¿Eliminar ${S2?"el apartado":"la sección"} <b>${esc(S2?S2.name:S1.name)}</b>?</p><p class="hint">${n?`Sus ${n} diseño${n===1?"":"s"} no se borra${n===1?"":"n"}: pasa${n===1?"":"n"} a «Sin clasificar».`:"No tiene diseños."}</p><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="cx-yes">Sí, eliminar</button></div>`);
+  v.querySelector("#cx-yes").onclick=async()=>{v.remove();
+    for(const d of (CX.list||[]).filter(d=>S2?(d.sec||"")===pre:(d.sec||"").startsWith(pre))){try{await store.move(d.id,"");d.sec="";if(S.doc&&S.doc.id===d.id)S.doc.sec=""}catch(e){}}
+    if(S2)S1.subs=S1.subs.filter(x=>x!==S2);else CX.secs=CX.secs.filter(x=>x!==S1);CX.sel=S2?S1.id:"all";await saveSecs();paintCarpetas()}}
+
 /* ================== dialogs: my designs ================== */
 function showDialog(title,body){const v=document.createElement("div");v.className="veil";v.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><h2>${esc(title)}</h2><button class="btn" type="button" data-close>Cerrar</button></header><div class="body">${body}</div></div>`;
   document.body.appendChild(v);const close=()=>v.remove();v.addEventListener("click",e=>{if(e.target===v||e.target.closest("[data-close]"))close()});
   v.addEventListener("keydown",e=>{if(e.key==="Escape")close()});v.querySelector("[data-close]").focus();return v}
 $("#btn-disenos").onclick=async()=>{
   if(S.dirty)await saveNow();
-  const v=showDialog(store.kind==="fb"?"Diseños del equipo":"Mis diseños",`<div class="empty">Cargando diseños…</div>`);let who=HOME.who||"all";{const mo=new MutationObserver(()=>{if(!v.isConnected){mo.disconnect();if(S.tab==="inicio")renderHome()}});mo.observe(document.body,{childList:true})}const body=v.querySelector(".body");
+  const v=showDialog(store.kind==="fb"?"Diseños del equipo":"Mis diseños",`<div class="empty">Cargando diseños…</div>`);let who=HOME.who||"all";{const mo=new MutationObserver(()=>{if(!v.isConnected){mo.disconnect();if(S.tab==="inicio")renderHome();if(S.tab==="disenos")renderCarpetas()}});mo.observe(document.body,{childList:true})}const body=v.querySelector(".body");
   let list=[];try{list=await store.list()}catch(e){body.innerHTML=`<div class="empty">No se pudieron cargar tus diseños. Revisa tu conexión y vuelve a abrir.</div>`;return}
   list.sort((a,b)=>(b.updated||0)-(a.updated||0));
   const locals=store.kind==="fb"&&!lsGet("ed.migrated",false)?await localDesigns():[];
