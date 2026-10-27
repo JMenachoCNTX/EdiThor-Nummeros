@@ -1475,6 +1475,11 @@ const CLAUDE_MODEL="claude-sonnet-5-5";
 const PROV={openai:"OpenAI",gemini:"Gemini"};
 function aiCfg(){return Object.assign({claude:"",openai:"",gemini:"",imgModel:"gpt-image-2",gemModel:"gemini-nano-banana-2.1",quality:"medium",prov:""},lsGet(AI_KEYS,{}))}
 function aiSave(c){lsSet(AI_KEYS,c)}
+/* the team's AI keys also live in Firestore (only the accounts in firestore.rules can read them), so they follow you to any browser */
+const AI_FIELDS=["claude","openai","gemini"];
+async function aiCloudLoad(){if(store.kind!=="fb")return;try{const x=await FB.m.getDoc(fbDoc("secrets","ia"));if(!x.exists()){const k=aiCfg();if(AI_FIELDS.some(f=>k[f]))await aiCloudSave(k);return}const v=x.data(),k=aiCfg();let ch=false;
+  for(const f of AI_FIELDS)if(typeof v[f]==="string"&&v[f]!==k[f]){k[f]=v[f];ch=true}if(ch){aiSave(k);if(S.tab==="ia")renderLib()}}catch(e){}}
+async function aiCloudSave(k){if(store.kind!=="fb")return false;const me=fbMe();const o={by:me.email,at:Date.now()};AI_FIELDS.forEach(f=>o[f]=k[f]||"");await FB.m.setDoc(fbDoc("secrets","ia"),o);return true}
 function aiProv(){const c=aiCfg();if(c.prov&&c[c.prov])return c.prov;return c.openai?"openai":c.gemini?"gemini":(c.prov||"openai")}
 const IA={idea:"",prompt:"",ask:"",fix:"",fmt:"auto",busy:false,gen:[]};
 const BRAND_GUIDE={
@@ -1500,7 +1505,7 @@ async function callClaude(system,content,maxTokens){
   let r;try{r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":c.claude,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
     body:JSON.stringify({model:CLAUDE_MODEL,max_tokens:maxTokens||1500,system,messages:[{role:"user",content}]})})}catch(e){throw{msg:"No se pudo conectar con Claude. Revisa tu internet."}}
   const j=await r.json().catch(()=>({}));
-  if(!r.ok){const m=(j.error&&j.error.message)||"";throw{msg:r.status===401?"La clave de Claude no es válida. Revísala en «Configurar claves».":/credit|balance/i.test(m)?"Tu cuenta de la API de Claude no tiene saldo. Carga crédito en console.anthropic.com → Billing.":r.status===429?"Claude está ocupado. Espera unos segundos y vuelve a intentar.":"Claude respondió con un error: "+(m||r.status)}}
+  if(!r.ok){const m=(j.error&&j.error.message)||"";throw{msg:r.status===401?"La clave de Claude no es válida. Revísala en «Configurar claves».":/credit|balance/i.test(m)?"Tu cuenta de la API de Claude no tiene saldo. Carga crédito en platform.claude.com → Billing.":r.status===429?"Claude está ocupado. Espera unos segundos y vuelve a intentar.":"Claude respondió con un error: "+(m||r.status)}}
   return (j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("").trim()}
 
 /* OpenAI: generate (no image) or edit (with image blob) */
@@ -1685,16 +1690,17 @@ function renderIA(el){
   $("#ia-btn-prompt").onclick=iaWritePrompt;$("#ia-btn-gen").onclick=iaGenerate;$("#ia-btn-text").onclick=iaWriteText;$("#ia-btn-cfix").onclick=iaClaudeFix;$("#ia-btn-fix").onclick=iaImprove;
   iaButtons();renderIAGen();iaSelUpdate()}
 function iaKeysDialog(){const c=aiCfg();
-  const v=showDialog("Claves de IA",`<p class="hint">Las claves se guardan solo en este navegador. Nunca se suben a GitHub ni las ve otra persona que abra el link. No hace falta tener las tres: basta Claude más OpenAI o Gemini.</p>
-    <label class="f"><span>Clave de la API de Claude</span><input type="password" id="k-claude" autocomplete="off" placeholder="sk-ant-…" value="${esc(c.claude)}"><small class="k">Se crea en console.anthropic.com → API Keys. Escribe prompts y textos.</small></label>
+  const v=showDialog("Claves de IA",`<p class="hint">${store.kind==="fb"?"Las claves se guardan en la nube de EdiThor: aparecen solas en cualquier navegador donde entres, y solo las pueden usar las cuentas autorizadas. Nunca se suben a GitHub.":"Las claves se guardan solo en este navegador. Nunca se suben a GitHub ni las ve otra persona que abra el link."} No hace falta tener las tres: basta Claude más OpenAI o Gemini.</p>
+    <label class="f"><span>Clave de la API de Claude</span><input type="password" id="k-claude" autocomplete="off" placeholder="sk-ant-…" value="${esc(c.claude)}"><small class="k">Se crea en platform.claude.com → API Keys. Escribe prompts y textos.</small></label>
     <label class="f"><span>Clave de la API de OpenAI</span><input type="password" id="k-openai" autocomplete="off" placeholder="sk-…" value="${esc(c.openai)}"><small class="k">Se crea en platform.openai.com → API keys.</small></label>
     <label class="f"><span>Modelo de OpenAI</span><select id="k-model">${IMG_MODELS.map(([m,n])=>`<option value="${m}"${c.imgModel===m?" selected":""}>${n}</option>`).join("")}</select></label>
     <label class="f"><span>Clave de la API de Gemini</span><input type="password" id="k-gemini" autocomplete="off" placeholder="AIza…" value="${esc(c.gemini)}"><small class="k">Se crea en aistudio.google.com → Get API key. Para imágenes hay que activar la facturación.</small></label>
     <label class="f"><span>Modelo de Gemini</span><select id="k-gmodel">${GEM_MODELS.map(([m,n])=>`<option value="${m}"${c.gemModel===m?" selected":""}>${n}</option>`).join("")}</select><small class="k">Si el modelo elegido no está en tu cuenta, el editor prueba solo con el siguiente.</small></label>
     <div class="row-end"><button class="btn danger" type="button" id="k-clear">Borrar claves</button><button class="btn pri" type="button" id="k-save">Guardar</button></div>`);
   v.querySelector(".dlg").style.width="min(520px,100%)";
-  v.querySelector("#k-save").onclick=()=>{const k=aiCfg();k.claude=v.querySelector("#k-claude").value.trim();k.openai=v.querySelector("#k-openai").value.trim();k.gemini=v.querySelector("#k-gemini").value.trim();k.imgModel=v.querySelector("#k-model").value;k.gemModel=v.querySelector("#k-gmodel").value;aiSave(k);v.remove();toast("Claves guardadas en este navegador");if(S.tab==="ia")renderLib()};
-  v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";k.gemini="";aiSave(k);v.remove();toast("Claves borradas");if(S.tab==="ia")renderLib()}}
+  v.querySelector("#k-save").onclick=()=>{const k=aiCfg();k.claude=v.querySelector("#k-claude").value.trim();k.openai=v.querySelector("#k-openai").value.trim();k.gemini=v.querySelector("#k-gemini").value.trim();k.imgModel=v.querySelector("#k-model").value;k.gemModel=v.querySelector("#k-gmodel").value;aiSave(k);v.remove();if(S.tab==="ia")renderLib();
+    aiCloudSave(k).then(ok=>toast(ok?"Claves guardadas en la nube para todo el equipo":"Claves guardadas en este navegador")).catch(()=>toast("Se guardaron en este navegador, pero no en la nube. Revisa tu conexión."))};
+  v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";k.gemini="";aiSave(k);v.remove();aiCloudSave(k).catch(()=>{});toast("Claves borradas");if(S.tab==="ia")renderLib()}}
 
 /* ================== páginas ================== */
 function renderPageBar(){const d=S.doc;if(!d||!d.pages)return;const n=d.pages.length,P=d.pages[d.pi];
@@ -2192,7 +2198,7 @@ const fontsReady=(async()=>{try{await Promise.all(["600 40px Akshar","700 40px A
   await initStore();
   const last=lsGet("ed.last",null);
   if(last){try{const x=await store.get(last);if(x&&!S.dirty&&S.hi===0){openDoc(fromRecord(last,x));setStatus("Seguiste donde te quedaste")}}catch(e){}}
-  splash(false);if(S.tab==="inicio")renderHome();
+  aiCloudLoad();splash(false);if(S.tab==="inicio")renderHome();
   document.fonts&&document.fonts.addEventListener&&document.fonts.addEventListener("loadingdone",()=>{requestRender();refreshThumbs()});
 })();
 window.addEventListener("beforeunload",()=>{if(S.dirty)saveNow()});

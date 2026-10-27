@@ -33,11 +33,11 @@
 
 En la pestaña **IA → Configurar claves** se pegan las claves. Basta Claude más OpenAI o Gemini:
 
-- **Claude**: se crea en console.anthropic.com → API Keys (la API se paga aparte de la suscripción de Claude).
+- **Claude**: se crea en platform.claude.com → API Keys. Con el plan Max vienen USD 100 de crédito al mes para la API.
 - **OpenAI**: se crea en platform.openai.com → API keys (la API se paga aparte de ChatGPT). OpenAI puede pedir verificar la organización antes de generar imágenes.
 - **Gemini**: se crea en aistudio.google.com → Get API key. Los modelos de imagen de Gemini no tienen nivel gratis en la API: hay que activar la facturación.
 
-Las claves se guardan solo en el navegador de quien las pega. No están en este repositorio.
+Con la nube activa, las claves se guardan en Firestore (`secrets/ia`): aparecen solas en cualquier navegador y solo las leen las cuentas autorizadas en `firestore.rules`. Nunca están en este repositorio: un secreto de GitHub no sirve para esto, porque la página corre en el navegador y no tiene servidor.
 
 ## Dónde se usa
 
