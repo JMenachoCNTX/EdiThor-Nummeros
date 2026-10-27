@@ -4,6 +4,9 @@
 
 ## Qué hace
 
+- **Inicio**: bienvenida con una foto de los clásicos de NUMMEROS, accesos rápidos a las plantillas y los diseños del equipo con un filtro por persona.
+- **Se ve como los demás sistemas de NUMMEROS**: menú lateral menta, verde principal, Akshar en los títulos y Questrial en los textos (modo claro y oscuro).
+- **Al entrar** aparece la pantalla de espera «los clásicos trabajando» del kit de marca durante unos 3 segundos.
 - **Plantillas** de cada marca en versión clara y oscura: estado de WhatsApp, publicación 4:5 y cuadrada, comunicado, portada de Facebook, colaboración, foto de perfil de WhatsApp, folleto A4, tríptico (2 páginas), banner web y banner roll-up 85 × 200 cm.
 - **QR**: pestaña QR para crear códigos de WhatsApp, página web, Telegram, correo, Wi-Fi o texto, con el logo de la marca en el centro. Plantillas de **porta QR para acrílico** (10 × 15 cm, 2 caras) y **QR para redes**.
 - **Mockups**: marcos de laptop, celular, tablet y navegador para mostrar capturas de los sistemas; plantillas de mockup laptop, mockup celular y **guía paso a paso** (A4) para manuales.
@@ -21,7 +24,7 @@
 - **Varios a la vez**: Shift + clic o arrastrar un recuadro para elegir varios; moverlos, escalarlos, alinearlos, **agrupar** (⌘ + G) o **unir en una sola imagen**.
 - **Recortar**: doble clic sobre una imagen; se arrastra la imagen dentro del marco y se mueven los bordes.
 - **Quitar fondo**: gratis en el navegador (herramienta de IMG.LY, la primera vez descarga unos 40 MB) o con IA de OpenAI.
-- **Fotos y logos de marca**: los clásicos de los números, el Contador Virtual, íconos en relieve, la N y el isotipo de CONTAX en vector.
+- **Fotos y gráficos de marca**: los clásicos de los números y el Contador Virtual; ilustraciones, íconos en relieve, elementos y patrones de NUMMEROS; ilustraciones, íconos en relieve blanco y azul noche, elementos, pasos, recortes del isotipo y tramas de CONTAX; la N y el isotipo de CONTAX en vector. En la pestaña Fotos hay atajos para saltar a cada grupo.
 - **Subir imágenes** propias (por ejemplo las que se generan en ChatGPT o Gemini), también pegándolas con ⌘ + V.
 - **IA** (solo en la versión de GitHub): Claude escribe el prompt de la imagen y los textos con la voz de cada marca. OpenAI o Gemini (a elección) crean la imagen y la ponen directo en el diseño. También pueden **mejorar** una imagen ya puesta (subida, de la marca o generada); Claude puede mirarla y preparar la instrucción.
 - **Descargar** en PNG o JPG.
@@ -40,6 +43,8 @@ Las claves se guardan solo en el navegador de quien las pega. No están en este 
 
 - **En línea:** https://edithornummeros.contaxbolivia.com (GitHub Pages con dominio propio).
 - Se entra con una cuenta de Google autorizada. Los diseños y las imágenes se guardan en **Firebase** (proyecto «EdiThor Nummeros»), así se ven desde cualquier computadora.
+- **Diseños compartidos**: todos los usuarios ven y pueden cambiar los diseños de todos. Cada diseño guarda quién lo creó y quién lo cambió por última vez. Si dos personas cambian el mismo diseño al mismo tiempo, queda el último que se guardó.
+- Usuarios con acceso: jhonnymenacho04@gmail.com, info@contaxbolivia.com y sol@contaxbolivia.com.
 - Sin internet o sin entrar, el editor guarda en el navegador; después, en «Mis diseños», se suben a la nube con un clic.
 - También existe una versión dentro de Claude (artifact), sin IA.
 
@@ -58,6 +63,8 @@ Las claves se guardan solo en el navegador de quien las pega. No están en este 
 | `clasicos/`, `colaboracion/`, `mini/` | Fotos de NUMMEROS y sus miniaturas |
 | `graficos/` | Ilustraciones, íconos en relieve, elementos y patrones de NUMMEROS |
 | `fotos-web/`, `objetos-web/` | Fotos del Contador Virtual y objetos 3D de CONTAX |
+| `graficos-contax/` | Ilustraciones, íconos en relieve, elementos, pasos, recortes y tramas de CONTAX (exportados del kit Marca CONTAX) |
+| `marca/` | Logotipos SVG de NUMMEROS para la interfaz, favicon e ícono de la app |
 | `png/` | Logos de ambas marcas |
 | `fonts/` | Letras: Akshar, Questrial y Adventor (reemplazo de Century Gothic) |
 | `firebase-config.js`, `firestore.rules` | Conexión con Firebase y reglas de acceso |
