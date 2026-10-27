@@ -1652,7 +1652,7 @@ function iaSelUpdate(){const box=$("#ia-sel");if(!box)return;const L=selL();
   const f=$("#ia-fmt");if(f&&f.options[0])f.options[0].textContent="Según el diseño ("+frameFmt()+")";
   const g=$("#ia-gen-hint");if(g)g.textContent=L&&L.t==="img"?"Tienes una imagen seleccionada: la nueva la reemplaza en el mismo marco.":"Sin imagen seleccionada: la nueva se agrega como capa aparte."}
 function renderIA(el){
-  if(window.claude){el.innerHTML=`<div class="pane"><h2>IA</h2><div class="note">La IA funciona en la versión de GitHub del editor:<br><b style="user-select:all">jmenachocntx.github.io/Sistema-Edici-n-MKT</b><br><br>Esta versión dentro de Claude no tiene permiso para conectarse con Claude, OpenAI ni Gemini.</div></div>`;return}
+  if(window.claude){el.innerHTML=`<div class="pane"><h2>IA</h2><div class="note">La IA funciona en la versión en línea del editor:<br><b style="user-select:all">edithornummeros.contaxbolivia.com</b><br><br>Esta versión dentro de Claude no tiene permiso para conectarse con Claude, OpenAI ni Gemini.</div></div>`;return}
   const c=aiCfg(),prov=aiProv(),fmt=frameFmt();
   el.innerHTML=`<div class="pane"><h2>IA</h2><p class="hint">Claude escribe los prompts y los textos. OpenAI o Gemini crean y mejoran las imágenes.</p>
     <div class="keyrow"><span class="pill${c.claude?" on":""}"><i></i>Claude</span><span class="pill${c.openai?" on":""}"><i></i>OpenAI</span><span class="pill${c.gemini?" on":""}"><i></i>Gemini</span><button class="btn" type="button" id="ia-keys" style="margin-left:auto">Configurar claves</button></div>
