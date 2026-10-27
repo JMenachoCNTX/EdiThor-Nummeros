@@ -570,7 +570,7 @@ function photoGroups(brand){
     {t:"Contador Virtual · fondo gris",items:CFOT.map(([k,n])=>({src:`fotos-web/contax-foto-${k}.jpg`,name:n}))},
     {t:"Contador Virtual · azul noche",items:CFOT.map(([k,n])=>({src:`fotos-web/contax-foto-${k}-noche.jpg`,name:n,dark:1}))},
     {t:"Objetos 3D",contain:true,items:[{src:"objetos-web/contax-objeto-escudo.png",name:"Escudo"},{src:"objetos-web/contax-objeto-nube.png",name:"Nube"}]},
-    ...CGRA.map(([t,...it])=>({t,contain:t!=="Tramas",items:it.map(([k,n])=>({src:"graficos-contax/"+k+".png",th:"mini/"+k+".jpg",name:n}))})),
+    ...CGRA.map(([t,...it])=>({t,contain:t!=="Tramas",items:it.map(([k,n])=>({src:"graficos-contax/"+k+".png",th:"graficos-contax/mini/"+k+".jpg",name:n}))})),
     {t:"Colaboración CONTAX × NUMMEROS",items:COL.map(([k,d])=>({src:"colaboracion/"+k+".jpg",th:"mini/"+k+".jpg",name:d}))}];
 }
 const SIZES=[["estado","Estado de WhatsApp",1080,1920],["post45","Publicación 4:5",1080,1350],["post11","Publicación cuadrada",1080,1080],["perfil","Foto de perfil",1080,1080],["portada","Portada de Facebook",1640,624],["bannerweb","Banner web",1920,600],["slide","Presentación 16:9",1920,1080],
@@ -2130,7 +2130,7 @@ async function renderHome(){const el=$("#home");if(!el)return;const b=S.brand,is
   if(!HOME.pic){const c=CLA[Math.floor(Math.random()*CLA.length)];HOME.pic={src:"clasicos/"+c[0]+".jpg",cap:PER[c[1]][0]+" · "+c[2]}}
   const hi=me&&me.name?`Hola, ${esc(firstName(me.name))}.`:"Bienvenido.";
   const Q=b==="nummeros"?[["n-estado-foto","Estado de WhatsApp","1080 × 1920","mini/rel-app-claro.jpg"],["n-post-foto","Publicación","Con foto · 4:5","mini/rel-reportes-claro.jpg"],["n-portaqr","Porta QR","Acrílico 10 × 15 cm","mini/rel-aprobado-claro.jpg"],["n-guia","Guía con capturas","A4 paso a paso","mini/rel-factura-claro.jpg"]]
-    :[["c-estado-foto","Estado de WhatsApp","1080 × 1920","mini/rel-whatsapp-claro.jpg"],["c-post-foto","Publicación","Con foto · 4:5","mini/rel-desde-el-celular-claro.jpg"],["c-portaqr","Porta QR","Acrílico 10 × 15 cm","mini/rel-todo-digital-claro.jpg"],["c-guia","Guía con capturas","A4 paso a paso","mini/rel-declaracion-claro.jpg"]];
+    :[["c-estado-foto","Estado de WhatsApp","1080 × 1920","graficos-contax/mini/rel-whatsapp-claro.jpg"],["c-post-foto","Publicación","Con foto · 4:5","graficos-contax/mini/rel-desde-el-celular-claro.jpg"],["c-portaqr","Porta QR","Acrílico 10 × 15 cm","graficos-contax/mini/rel-todo-digital-claro.jpg"],["c-guia","Guía con capturas","A4 paso a paso","graficos-contax/mini/rel-declaracion-claro.jpg"]];
   const cur=S.doc&&S.hi>=0?S.doc:null;
   el.innerHTML=`<div class="home-in">
     <div class="hcard hero"><svg class="hero-wm" viewBox="0 0 546 728" aria-hidden="true"><path d="${NPATH}"/></svg>
