@@ -392,6 +392,54 @@ body.on-home .top .spacer{flex:1}
 .cx-tag{display:inline-block;font-size:10.5px;padding:2px 7px;border-radius:999px;background:var(--field);color:var(--muted);margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cx-chips{display:none}
 @media (max-width:900px){.cx-sec:not(.open) .cx-sub{display:none}.cx{grid-template-columns:1fr;padding:16px 14px 36px;gap:16px}.cx-side{position:static}.cx-head h2{font-size:24px}}
+
+/* candado: un diseño guardado se abre bloqueado */
+.lockpill{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:5;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:7px 14px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);cursor:pointer;white-space:nowrap;max-width:calc(100% - 24px)}
+.lockpill svg{width:16px;height:16px;flex:none;color:var(--acc)}
+.lockpill b{color:var(--acc)}
+body.locked .lockpill{display:inline-flex}
+body.locked #ctxbar{display:none!important}
+body.locked #cv{cursor:not-allowed}
+body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
+#btn-lock svg{width:16px;height:16px}
+#btn-lock.on{background:var(--field);color:var(--acc);border-color:var(--acc)}
+/* diseños: acciones de cada tarjeta y selección de varios */
+.cx .dcard{position:relative}
+.cx .dcard .ck{position:absolute;top:8px;left:8px;z-index:2;width:22px;height:22px;border-radius:6px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow)}
+.cx .dcard .ck input{width:15px;height:15px;margin:0;accent-color:var(--acc);cursor:pointer}
+.cx .dcard.picked{outline:2px solid var(--acc);outline-offset:-2px}
+.cx .dcard .size{position:absolute;top:8px;right:8px;z-index:2;background:rgba(5,31,32,.7);color:#fff;border-radius:999px;font-size:10.5px;padding:2px 8px}
+.cx .dcard .acts2{display:flex;gap:4px;padding:0 10px 10px}
+.cx .dcard .acts2 select,.cx .dcard .acts2 button{border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:8px;padding:5px 6px;font-size:12px;min-width:0}
+.cx .dcard .acts2 select{flex:1}
+.cx .dcard .acts2 button{flex:none;display:inline-grid;place-items:center}
+.cx .dcard .acts2 button svg{width:15px;height:15px}
+.cx .dcard .acts2 button.del:hover{color:#B3261E;border-color:#B3261E}
+.cx .famtag{border:0;background:var(--field);color:var(--acc);border-radius:999px;font-size:10.5px;padding:2px 8px;cursor:pointer;justify-self:start;margin-top:2px}
+.cxbar{position:sticky;top:0;z-index:6;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--acc);color:var(--on-acc);border-radius:14px;padding:10px 12px;box-shadow:var(--shadow-lg)}
+.cxbar b{font:600 15px var(--head);margin-right:4px}
+.cxbar select,.cxbar .btn{height:34px;font-size:13px;border-radius:9px}
+.cxbar select{border:0;padding:0 8px;background:var(--panel);color:var(--ink)}
+.cxbar .btn{background:var(--panel);color:var(--ink);border:0}
+.cxbar .sp{flex:1}
+/* compartir */
+.shfmt{display:grid;gap:6px;margin:6px 0 14px}
+.shfmt label{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.shfmt label:has(input:checked){border-color:var(--acc);background:var(--field)}
+.shfmt small{color:var(--muted);display:block}
+.shbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shbtns .btn{height:46px;font:600 15px var(--head)}
+.shbtns .wa{background:#1F8F4E;color:#fff;border-color:#1F8F4E}.shbtns .tg{background:#2A8BC8;color:#fff;border-color:#2A8BC8}
+/* buscar imágenes */
+.srch{display:flex;gap:6px}.srch input{flex:1;min-width:0;border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:10px;padding:9px 10px;font:inherit}
+.srch .btn{height:38px}
+.sgrid{columns:2;column-gap:8px;margin-top:10px}
+.sgrid button{display:block;width:100%;border:1px solid var(--line);background:var(--field);border-radius:10px;padding:0;margin:0 0 8px;overflow:hidden;cursor:pointer;break-inside:avoid;position:relative}
+.sgrid img{display:block;width:100%;height:auto;min-height:40px}
+.sgrid button:hover{border-color:var(--acc)}
+.sgrid button.busy::after{content:"Agregando…";position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,31,32,.55);color:#fff;font-size:12px}
+.extlinks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.extlinks a{text-align:center;text-decoration:none}
 /* sign-in page: light background with the soft N pattern and the stacked logo */
 .login{position:fixed;inset:0;z-index:45;background:var(--bg);display:grid;place-items:center;padding:24px;overflow:auto}
 .login::before{content:"";position:absolute;inset:0;background:url(graficos/pat-patron-n.png) center/420px repeat;opacity:.07;pointer-events:none}
@@ -464,6 +512,7 @@ body.on-home .top .spacer{flex:1}
       <button type="button" id="m-contax" data-marca="contax">CONTAX</button>
     </div>
     <input id="nombre" type="text" aria-label="Nombre del diseño" value="Diseño sin nombre">
+    <button class="btn" id="btn-lock" type="button" hidden data-lockok></button>
     <div class="spacer"></div>
     <span class="status" id="status" aria-live="polite"></span>
     <div class="menuwrap" id="acct" hidden>
@@ -490,6 +539,9 @@ body.on-home .top .spacer{flex:1}
         <button type="button" data-fmt="pngt">PNG sin fondo<small>Página actual con fondo transparente</small></button>
         <button type="button" data-fmt="svg">SVG<small>Página actual · para webs y sistemas</small></button>
         <button type="button" data-fmt="pdf">PDF<small>Todas las páginas · para imprimir o enviar</small></button>
+        <button type="button" data-fmt="pptx">PowerPoint (.pptx)<small>Todas las páginas · se abre en PowerPoint o Google Slides</small></button>
+        <span class="menu-sep">Enviar</span>
+        <button type="button" id="dl-share">Compartir por WhatsApp o Telegram<small>Como imagen JPG, archivo PNG, PDF o SVG</small></button>
         <span class="menu-sep">Solo lo seleccionado</span>
         <button type="button" data-fmt="sel-png">PNG sin fondo<small>Recortado justo a lo que elegiste</small></button>
         <button type="button" data-fmt="sel-svg">SVG<small>Recortado justo a lo que elegiste</small></button>
@@ -508,6 +560,7 @@ body.on-home .top .spacer{flex:1}
       <button role="tab" type="button" data-tab="formas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="10" height="10" rx="1.5"/><circle cx="16" cy="8" r="5"/></svg>Formas</button>
       <button role="tab" type="button" data-tab="qr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h1M20 14h1" stroke-linecap="round"/></svg>QR</button>
       <button role="tab" type="button" data-tab="subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir</button>
+      <button role="tab" type="button" data-tab="buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Buscar</button>
       <button role="tab" type="button" data-tab="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>IA</button>
       <button role="tab" type="button" data-tab="editar" class="only-mobile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Editar</button>
     </nav>
@@ -516,6 +569,7 @@ body.on-home .top .spacer{flex:1}
     <section class="stage" id="stage" aria-label="Lienzo">
       <canvas id="cv" tabindex="0" aria-label="Diseño. Haz clic en un elemento para seleccionarlo y arrástralo para moverlo."></canvas>
       <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Opciones del elemento"></div>
+      <button class="lockpill" id="lockpill" type="button" data-lockok><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Diseño bloqueado · <b>Desbloquear para editar</b></span></button>
       <div class="bottombar">
       <div class="pagebar" id="pagebar">
         <button class="btn" type="button" id="pg-prev" aria-label="Página anterior">‹</button>
@@ -983,7 +1037,7 @@ const IDB={p:null,
   async del(k){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
 const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   col(){return this.db.collection("data/users/"+this.uid)},
-  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||""}})}
+  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",fam:v.fam||"",by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||""}})}
     if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
     if(this.idb)return(await IDB.get("index"))||[];
     return lsGet("ed.designs",[])},
@@ -994,12 +1048,16 @@ const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages||[{id:"p1",bg:d.bg,layers:d.layers||[]}],thumb:d.thumb||"",updated:Date.now()};
     /* every design is shared with the whole team: it keeps who created it and who changed it last */
     /* "sec" = section/apartado where the design is filed; the editor's saves leave it as it is (merge), only moving it or duplicating sets it */
-    const hasSec=typeof d.sec==="string";
-    if(this.kind==="fb"){const me=fbMe();const o={name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,by:d.by||me.email,byName:d.by?(d.byName||""):me.name,ed:me.email,edName:me.name,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds})};if(hasSec)o.sec=d.sec;await FB.m.setDoc(fbDoc("designs",d.id),o,{merge:true});return}
-    if(this.kind==="db"){if(hasSec)rec.sec=d.sec;await this.col().doc(d.id).set(rec,{merge:true});return}
-    if(this.idb){const old=await IDB.get("d:"+d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,sec:rec.sec});await IDB.set("index",idx);return}
-    {const old=lsGet("ed.designs",[]).find(x=>x.id===d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||""}
+    const hasSec=typeof d.sec==="string",hasFam=typeof d.fam==="string"&&!!d.fam;
+    if(this.kind==="fb"){const me=fbMe();const o={name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,by:d.by||me.email,byName:d.by?(d.byName||""):me.name,ed:me.email,edName:me.name,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds})};if(hasSec)o.sec=d.sec;if(hasFam)o.fam=d.fam;await FB.m.setDoc(fbDoc("designs",d.id),o,{merge:true});return}
+    if(this.kind==="db"){if(hasSec)rec.sec=d.sec;if(hasFam)rec.fam=d.fam;await this.col().doc(d.id).set(rec,{merge:true});return}
+    if(this.idb){const old=await IDB.get("d:"+d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||"";await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,sec:rec.sec,fam:rec.fam});await IDB.set("index",idx);return}
+    {const old=lsGet("ed.designs",[]).find(x=>x.id===d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||""}
     const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));localStorage.setItem("ed.designs",JSON.stringify(all.slice(0,30)))},
+  async patch(id,o){if(this.kind==="fb"){await FB.m.updateDoc(fbDoc("designs",id),o);return}
+    if(this.kind==="db"){await this.col().doc(id).update(o);return}
+    if(this.idb){const d=await IDB.get("d:"+id);if(d){Object.assign(d,o);await IDB.set("d:"+id,d)}const idx=(await IDB.get("index"))||[];const it=idx.find(x=>x.id===id);if(it){Object.assign(it,o);await IDB.set("index",idx)}return}
+    const all=lsGet("ed.designs",[]);const it=all.find(x=>x.id===id);if(it){Object.assign(it,o);localStorage.setItem("ed.designs",JSON.stringify(all))}},
   async move(id,sec){if(this.kind==="fb"){await FB.m.updateDoc(fbDoc("designs",id),{sec});return}
     if(this.kind==="db"){await this.col().doc(id).update({sec});return}
     if(this.idb){const d=await IDB.get("d:"+id);if(d){d.sec=sec;await IDB.set("d:"+id,d)}const idx=(await IDB.get("index"))||[];const it=idx.find(x=>x.id===id);if(it){it.sec=sec;await IDB.set("index",idx)}return}
@@ -1339,7 +1397,7 @@ function setSel(ids,primary){ids=[...new Set(ids)].filter(id=>S.doc.layers.some(
   renderProps();requestRender();if(S.tab==="ia")iaSelUpdate();if(S.tab==="qr")renderLib()}
 /* clicking an element selects its whole group */
 function select(id){if(!id){setSel([]);return}const L=S.doc.layers.find(l=>l.id===id);if(!L)return;setSel(groupOf(L).map(l=>l.id),id)}
-function addLayer(L,{center=true}={}){if(L.t==="text")layoutText(L);if(center){L.x=Math.round((S.doc.w-L.w)/2);L.y=Math.round((S.doc.h-L.h)/2)}S.doc.layers.push(L);S.multi=[];S.crop=null;S.sel=L.id;commit();renderProps();requestRender();if(isNarrow())setTab("editar")}
+function addLayer(L,{center=true}={}){if(S.locked){lockPrompt();return}if(L.t==="text")layoutText(L);if(center){L.x=Math.round((S.doc.w-L.w)/2);L.y=Math.round((S.doc.h-L.h)/2)}S.doc.layers.push(L);S.multi=[];S.crop=null;S.sel=L.id;commit();renderProps();requestRender();if(isNarrow())setTab("editar")}
 function removeSel(){const ids=new Set(selLayers().filter(l=>!l.lock).map(l=>l.id));if(!ids.size){toast("Lo seleccionado está bloqueado.");return}S.doc.layers=S.doc.layers.filter(l=>!ids.has(l.id));S.multi=[];S.sel=null;S.crop=null;commit();renderProps();requestRender()}
 /* copies of layers with fresh ids; grouped copies get a new group of their own */
 function cloneSet(Ls,off){const gmap={};return Ls.map(L=>{const c=clone(stripL(L));c.id=uid();c.x+=off;c.y+=off;c.lock=false;c.hide=false;if(c.g)c.g=gmap[c.g]||(gmap[c.g]="g"+uid());return c})}
@@ -1369,7 +1427,7 @@ async function flattenSel(){const Ls=selLayers().filter(l=>!l.hide);if(Ls.length
   a.splice(at+1,0,N);const ids=new Set(Ls.map(l=>l.id));S.doc.layers=a.filter(l=>!ids.has(l.id));S.multi=[];S.sel=N.id;commit();renderProps();requestRender();setStatus("");toast("Unidos en una sola imagen · ⌘ + Z para deshacer")}
 const isNarrow=()=>window.matchMedia("(max-width:900px)").matches;
 
-async function addImage(src,o={}){
+async function addImage(src,o={}){if(S.locked){lockPrompt();return}
   const im=await ld(src);if(!im){toast("No se pudo abrir esa imagen.");return}
   const L=selL();
   if(L&&L.t==="dev"&&!L.lock){L.src=src;L.fx=.5;L.fy=0;commit();renderProps();requestRender();toast("Captura puesta en la pantalla");return}
@@ -1449,6 +1507,7 @@ function renderLib(){
   }
   else if(S.tab==="qr"){renderQR(el)}
   else if(S.tab==="ia"){renderIA(el)}
+  else if(S.tab==="buscar"){renderBuscar(el)}
   else if(S.tab==="subir"){
     el.innerHTML=`<div class="pane"><h2>Tus imágenes</h2><p class="hint">Sube fotos que generaste en ChatGPT o Gemini. También puedes copiar una imagen y pegarla aquí con Ctrl/⌘ + V, o arrastrarla sobre el lienzo.</p>
       <div class="drop" id="drop"><span>Arrastra imágenes aquí</span><button class="btn pri" type="button" id="pick">Elegir imágenes</button></div>
@@ -1764,7 +1823,7 @@ function delPage(){const d=S.doc;if(d.pages.length<2){toast("El diseño necesita
 function movePage(dir){const d=S.doc,j=d.pi+dir;if(j<0||j>=d.pages.length)return;syncPage();const [P]=d.pages.splice(d.pi,1);d.pages.splice(j,0,P);d.pi=j;commit();renderProps();renderPageBar()}
 function pagesHtml(){return fullPanels()?pagesBlock():""}
 function pagesBlock(){const d=S.doc;return `<h3>Páginas (${d.pages.length})</h3><div class="pages">${d.pages.map((P,i)=>`<button type="button" class="pg" data-pg="${i}" aria-current="${i===d.pi}"><canvas width="10" height="10"></canvas>${i+1}${P.name?" · "+esc(P.name):""}</button>`).join("")}</div>
-  <div class="actions"><button class="btn" type="button" id="pg-new">Agregar página</button><button class="btn" type="button" id="pg-dup">Duplicar página</button><button class="btn" type="button" id="pg-left"${d.pi<=0?" disabled":""}>Mover antes</button><button class="btn" type="button" id="pg-right"${d.pi>=d.pages.length-1?" disabled":""}>Mover después</button><button class="btn danger" type="button" id="pg-del" style="grid-column:1/-1"${d.pages.length<2?" disabled":""}>Eliminar esta página</button><button class="btn pri" type="button" id="pg-adapt" style="grid-column:1/-1">Copiar a otros tamaños…</button></div>`}
+  <div class="actions"><button class="btn" type="button" id="pg-new">Agregar página</button><button class="btn" type="button" id="pg-dup">Duplicar página</button><button class="btn" type="button" id="pg-left"${d.pi<=0?" disabled":""}>Mover antes</button><button class="btn" type="button" id="pg-right"${d.pi>=d.pages.length-1?" disabled":""}>Mover después</button><button class="btn danger" type="button" id="pg-del" style="grid-column:1/-1"${d.pages.length<2?" disabled":""}>Eliminar esta página</button><button class="btn pri" type="button" id="pg-adapt" data-lockok style="grid-column:1/-1">Copiar a otros tamaños…</button></div>`}
 function bindPages(){const d=S.doc;syncPage();document.querySelectorAll(".pg").forEach(b=>{const P=d.pages[+b.dataset.pg],c=b.querySelector("canvas"),k=96/Math.max(d.w,d.h);c.width=Math.max(1,Math.round(d.w*k));c.height=Math.max(1,Math.round(d.h*k));const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers});b.onclick=()=>goPage(+b.dataset.pg)});
   const on=(id,fn)=>{const x=$("#"+id);if(x)x.onclick=fn};on("pg-new",()=>addPage(false));on("pg-dup",()=>addPage(true));on("pg-del",delPage);on("pg-left",()=>movePage(-1));on("pg-right",()=>movePage(1));on("pg-adapt",adaptDialog)}
 $("#pg-prev").onclick=()=>goPage(S.doc.pi-1);$("#pg-next").onclick=()=>goPage(S.doc.pi+1);$("#pg-add").onclick=()=>addPage(false);
@@ -2031,7 +2090,7 @@ function renderPropsMain(){
     el.innerHTML=`<div class="pane"><h2>Página ${d.pi+1}${d.pages.length>1?` de ${d.pages.length}`:""}${d.pages[d.pi].name?` · ${esc(d.pages[d.pi].name)}`:""}</h2><p class="hint">Haz clic en un elemento del diseño para editarlo.</p>
       <h3>Color de fondo</h3>${swatches("bg",d.bg)}
       <div class="actions" style="margin-top:14px"><button class="btn" type="button" id="p-paste">Pegar</button></div>
-      <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div><button class="btn" type="button" id="p-adapt" style="width:100%;margin-top:6px">Copiar a otros tamaños…</button>
+      <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div><button class="btn" type="button" id="p-adapt" data-lockok style="width:100%;margin-top:6px">Copiar a otros tamaños…</button>
       <div class="row">${num("p-W","Ancho (px)",d.w,1,50)}${num("p-H","Alto (px)",d.h,1,50)}</div>
       <p class="hint">El tamaño es el mismo para todas las páginas. Al cambiarlo, los elementos se quedan donde están; muévelos a su lugar.${d.mm?` Tamaño de impresión: ${d.mm[0]/10} × ${d.mm[1]/10} cm.`:""}</p>
       ${pagesHtml()}
@@ -2133,7 +2192,7 @@ function bindLayers(){document.querySelectorAll(".layer").forEach(r=>r.addEventL
 
 /* ================== open / brand ================== */
 async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=normDoc(await t.build(st));if(CX.newSec){d.sec=CX.newSec;d.secNew=true;CX.newSec=""}await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
-function openDoc(d,fresh){if(S.dirty)saveNow();normDoc(d);S.doc=d;S.sel=null;S.multi=[];S.crop=null;S.zoom=1;S.panX=0;S.panY=0;S.dirty=false;if(d.brand&&d.brand!==S.brand)setBrand(d.brand,true);
+function openDoc(d,fresh){if(S.dirty)saveNow();normDoc(d);setLock(false);S.doc=d;S.sel=null;S.multi=[];S.crop=null;S.zoom=1;S.panX=0;S.panY=0;S.dirty=false;if(d.brand&&d.brand!==S.brand)setBrand(d.brand,true);
   $("#nombre").value=d.name;resetHistory();renderProps();requestRender();renderPageBar();if(fresh)setStatus("Plantilla abierta · se guarda sola cuando la cambies");if(isNarrow())window.scrollTo({top:0,behavior:"smooth"})}
 function setBrand(b,keep){S.brand=b;lsSet("ed.brand",b);document.documentElement.dataset.marca=b;
   document.querySelectorAll(".seg [data-marca]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.marca===b)));
@@ -2147,9 +2206,32 @@ const dlBtn=$("#btn-descargar"),dlMenu=$("#menu-descargar");
 dlBtn.onclick=e=>{e.stopPropagation();const has=selLayers().some(l=>!l.hide);dlMenu.querySelectorAll('[data-fmt^="sel-"]').forEach(b=>b.disabled=!has);dlMenu.hidden=!dlMenu.hidden;dlBtn.setAttribute("aria-expanded",String(!dlMenu.hidden))};
 document.addEventListener("click",e=>{if(!dlMenu.hidden&&!e.target.closest(".menuwrap")){dlMenu.hidden=true;dlBtn.setAttribute("aria-expanded","false")}});
 dlMenu.querySelectorAll("[data-fmt]").forEach(b=>b.onclick=()=>{dlMenu.hidden=true;exportImg(b.dataset.fmt)});
+$("#dl-share").onclick=()=>{dlMenu.hidden=true;if(S.editing)endEdit();syncPage();const d=S.doc;shareDialog(d.name,fmt=>buildExport(d,fmt))};
 let JSPDF=null;
 function loadJsPDF(){return JSPDF||(JSPDF=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";sc.onload=()=>res(window.jspdf.jsPDF);sc.onerror=()=>{JSPDF=null;rej()};document.head.appendChild(sc)}))}
 function pageCanvas(d,P,k,noBg){const c=document.createElement("canvas");c.width=Math.round(d.w*k);c.height=Math.round(d.h*k);const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers},null,noBg);return c}
+async function buildExport(d,fmt){
+  await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.src).map(l=>ld(l.src)));await fontsReady;
+  const base=(d.name||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
+  let blob,fname;
+  if(fmt==="svg"){setStatus("Preparando el SVG…");const P=d.pages[d.pi];blob=new Blob([await toSVG(P.layers,{x:0,y:0,w:d.w,h:d.h},P.bg)],{type:"image/svg+xml"});fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+".svg";setStatus("")}
+  else if(fmt==="pngt"){const c=pageCanvas(d,d.pages[d.pi],1,true);blob=await new Promise(r=>c.toBlob(r,"image/png"));fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"-sin-fondo.png"}
+  else if(fmt==="pdf"){setStatus("Preparando el PDF…");let J;try{J=await loadJsPDF()}catch(e){setStatus("");toast("No se pudo cargar la herramienta de PDF. Revisa tu internet.");return null}
+    const k=d.mm?Math.min(2,4000/Math.max(d.w,d.h)):1;const W=d.mm?d.mm[0]:d.w*.75,H=d.mm?d.mm[1]:d.h*.75,unit=d.mm?"mm":"pt";
+    const pdf=new J({orientation:W>H?"landscape":"portrait",unit,format:[W,H],compress:true});
+    d.pages.forEach((P,i)=>{if(i)pdf.addPage([W,H],W>H?"landscape":"portrait");pdf.addImage(pageCanvas(d,P,k).toDataURL("image/jpeg",.92),"JPEG",0,0,W,H,undefined,"FAST")});
+    blob=pdf.output("blob");fname=base+".pdf";setStatus("")}
+  else if(fmt==="pptx"){setStatus("Preparando el PowerPoint…");try{blob=await toPPTX(d);fname=base+".pptx"}catch(e){console.error(e);setStatus("");toast("No se pudo preparar el PowerPoint. Revisa tu internet.");return null}setStatus("")}
+  else{const c=pageCanvas(d,d.pages[d.pi],1);const type=fmt==="jpg"?"image/jpeg":"image/png";
+    try{blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),type,.92))}catch(e){toast("No se pudo preparar la imagen.");return null}
+    fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"."+fmt}
+  return blob?{blob,fname}:null}
+async function saveBlob(blob,fname,fmt){fmt=fmt||fname.split('.').pop();
+  if(store.downloads){try{await store.downloads.save({filename:fname,data:blob});toast(fmt==="pdf"?"PDF descargado":"Archivo descargado");return}catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("Ya hay una descarga esperando tu confirmación.");return}}}
+  const url=URL.createObjectURL(blob);
+  if(!window.claude||fmt==="pdf"||fmt.includes("svg")){const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast(fmt==="pdf"?"PDF descargado":"Archivo descargado");return}
+  showDialog("Tu imagen",`<p class="hint" style="text-align:center;margin-bottom:12px">Para guardarla: clic derecho sobre la imagen → «Guardar imagen como…». En el celular, mantén el dedo sobre ella.</p><img class="preview-img" src="${url}" alt="Diseño listo para guardar">`);
+}
 async function exportImg(fmt){
   if(S.editing)endEdit();
   const d=S.doc;syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
@@ -2161,20 +2243,8 @@ async function exportImg(fmt){
     if(fmt==="sel-png"){const k=Math.min(3,Math.max(1,2),4000/Math.max(b.w,b.h));const c=document.createElement("canvas");c.width=Math.max(1,Math.round(b.w*k));c.height=Math.max(1,Math.round(b.h*k));const x=c.getContext("2d");x.scale(k,k);x.translate(-b.x,-b.y);for(const L of Ls)drawLayer(x,L,null);
       blob=await new Promise(r=>c.toBlob(r,"image/png"));fname=base+"-"+slug+".png"}
     else{setStatus("Preparando el SVG…");blob=new Blob([await toSVG(Ls,b,null)],{type:"image/svg+xml"});fname=base+"-"+slug+".svg";setStatus("")}}
-  else if(fmt==="svg"){setStatus("Preparando el SVG…");const P=d.pages[d.pi];blob=new Blob([await toSVG(P.layers,{x:0,y:0,w:d.w,h:d.h},P.bg)],{type:"image/svg+xml"});fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+".svg";setStatus("")}
-  else if(fmt==="pngt"){const c=pageCanvas(d,d.pages[d.pi],1,true);blob=await new Promise(r=>c.toBlob(r,"image/png"));fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"-sin-fondo.png"}
-  else if(fmt==="pdf"){setStatus("Preparando el PDF…");let J;try{J=await loadJsPDF()}catch(e){setStatus("");toast("No se pudo cargar la herramienta de PDF. Revisa tu internet.");return}
-    const k=d.mm?Math.min(2,4000/Math.max(d.w,d.h)):1;const W=d.mm?d.mm[0]:d.w*.75,H=d.mm?d.mm[1]:d.h*.75,unit=d.mm?"mm":"pt";
-    const pdf=new J({orientation:W>H?"landscape":"portrait",unit,format:[W,H],compress:true});
-    d.pages.forEach((P,i)=>{if(i)pdf.addPage([W,H],W>H?"landscape":"portrait");pdf.addImage(pageCanvas(d,P,k).toDataURL("image/jpeg",.92),"JPEG",0,0,W,H,undefined,"FAST")});
-    blob=pdf.output("blob");fname=base+".pdf";setStatus("")}
-  else{const c=pageCanvas(d,d.pages[d.pi],1);const type=fmt==="jpg"?"image/jpeg":"image/png";
-    try{blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),type,.92))}catch(e){toast("No se pudo preparar la imagen.");return}
-    fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"."+fmt}
-  if(store.downloads){try{await store.downloads.save({filename:fname,data:blob});toast(fmt==="pdf"?"PDF descargado":"Archivo descargado");return}catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("Ya hay una descarga esperando tu confirmación.");return}}}
-  const url=URL.createObjectURL(blob);
-  if(!window.claude||fmt==="pdf"||fmt.includes("svg")){const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();toast(fmt==="pdf"?"PDF descargado":"Archivo descargado");return}
-  showDialog("Tu imagen",`<p class="hint" style="text-align:center;margin-bottom:12px">Para guardarla: clic derecho sobre la imagen → «Guardar imagen como…». En el celular, mantén el dedo sobre ella.</p><img class="preview-img" src="${url}" alt="Diseño listo para guardar">`);
+  else{const r=await buildExport(d,fmt);if(!r)return;blob=r.blob;fname=r.fname}
+  await saveBlob(blob,fname,fmt);
 }
 
 /* ================== inicio: bienvenida y diseños del equipo ================== */
@@ -2184,7 +2254,7 @@ function whoLine(d){if(store.kind!=="fb")return"";const by=d.by||"",ed=d.ed||by;
   const parts=[by?`De ${esc(personName(by,d.byName))}`:"",ed&&ed!==by?`editado por ${esc(personName(ed,d.edName))}`:""].filter(Boolean).join(" · ");
   return`<span class="who">${avatar(ed||by,d.edName||d.byName)}<span>${parts}</span></span>`}
 async function homeData(force){if(HOME.list&&!force)return HOME.list;try{const l=await store.list();l.sort((a,b)=>(b.updated||0)-(a.updated||0));HOME.list=l}catch(e){HOME.list=HOME.list||[]}return HOME.list}
-async function openStored(id){let d;try{d=await store.get(id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return false}openDoc(fromRecord(id,d));return true}
+async function openStored(id){let d;try{d=await store.get(id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return false}openDoc(fromRecord(id,d));setLock(true);return true}
 async function renderHome(){const el=$("#home");if(!el)return;const b=S.brand,isFB=store.kind==="fb",me=isFB?fbMe():null;
   if(!HOME.pic){const c=CLA[Math.floor(Math.random()*CLA.length)];HOME.pic={src:"clasicos/"+c[0]+".jpg",cap:PER[c[1]][0]+" · "+c[2]}}
   const hi=me&&me.name?`Hola, ${esc(firstName(me.name))}.`:"Bienvenido.";
@@ -2226,7 +2296,11 @@ const SEC_DEF=[
   {id:"tiktok",name:"TikTok",subs:[{id:"videos",name:"Portadas de videos"}]},
   {id:"impresos",name:"Impresos",subs:[{id:"folletos",name:"Folletos y trípticos"},{id:"qr",name:"Porta QR"},{id:"banners",name:"Banners y roll-ups"},{id:"papeleria",name:"Papelería"}]},
   {id:"web",name:"Web y sistemas",subs:[{id:"banners",name:"Banners web"},{id:"guias",name:"Guías y manuales"}]}];
-const CX={secs:null,sel:"all",list:null,who:"all"};
+const CX={secs:null,sel:"all",list:null,who:"all",picked:new Set()};
+const IC_SIZES='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="7" width="9" height="13" rx="1.5"/><rect x="14" y="4" width="7" height="9" rx="1.5"/><rect x="14" y="15" width="7" height="5" rx="1"/></svg>';
+const IC_DL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+const IC_SHARE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>';
+const IC_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
 const SEC_ICON={whatsapp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 18.8Z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.6l1.2-1.2 1.8.8c-.3 1.1-1.2 1.8-2.3 1.7-3.5-.4-6.3-3.2-6.6-6.6 0-1.1.6-2 1.7-2.3l.8 1.8Z"/></svg>',
   facebook:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M15.5 8h-1.8A1.7 1.7 0 0 0 12 9.7V21M9.5 13h5"/></svg>',
   instagram:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r=".8" fill="currentColor"/></svg>',
@@ -2251,11 +2325,14 @@ async function renderCarpetas(){const el=$("#home");if(!el)return;
   await loadSecs();try{const l=await store.list();l.sort((a,b)=>(b.updated||0)-(a.updated||0));CX.list=l}catch(e){CX.list=CX.list||[];toast("No se pudieron cargar los diseños. Revisa tu conexión.")}
   if(S.tab!=="disenos")return;paintCarpetas()}
 function cxCount(fn){return(CX.list||[]).filter(fn).length}
+function cxFams(){const m=new Map();for(const d of CX.list||[]){if(!d.fam)continue;if(!m.has(d.fam))m.set(d.fam,[]);m.get(d.fam).push(d)}return[...m.entries()].filter(([,a])=>a.length>1).map(([f,a])=>({fam:f,items:a.sort((x,y)=>(x.id===f?-1:y.id===f?1:(x.w/x.h)-(y.w/y.h)))}))}
 function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!main)return;const L=CX.list||[],isFB=store.kind==="fb";
   const inSec=(d,a)=>secValid(d.sec||"").split("/")[0]===a,inSub=(d,v)=>secValid(d.sec||"")===v,none=d=>!secValid(d.sec||"");
-  if(CX.sel!=="all"&&CX.sel!=="none"){const [a,b]=CX.sel.split("/");const S1=CX.secs.find(x=>x.id===a);if(!S1||(b&&!S1.subs.some(x=>x.id===b)))CX.sel="all"}
+  const FAMS=cxFams();if(CX.sel.startsWith("fam:")&&!FAMS.some(f=>"fam:"+f.fam===CX.sel))CX.sel="fams";
+  CX.picked=new Set([...CX.picked].filter(id=>L.some(d=>d.id===id)));
+  if(CX.sel!=="all"&&CX.sel!=="none"&&CX.sel!=="fams"&&!CX.sel.startsWith("fam:")){const [a,b]=CX.sel.split("/");const S1=CX.secs.find(x=>x.id===a);if(!S1||(b&&!S1.subs.some(x=>x.id===b)))CX.sel="all"}
   const it=(key,icon,name,n,drop)=>`<button type="button" class="cx-it" data-sel="${esc(key)}"${drop?` data-drop="${esc(drop)}"`:""} aria-pressed="${CX.sel===key}">${icon||""}<span>${esc(name)}</span><span class="n">${n}</span></button>`;
-  side.innerHTML=`<h2>Diseños</h2>${it("all",IC_ALL,"Todos",L.length)}${it("none",IC_INBOX,"Sin clasificar",cxCount(none),"__none")}
+  side.innerHTML=`<h2>Diseños</h2>${it("all",IC_ALL,"Todos",L.length)}${it("none",IC_INBOX,"Sin clasificar",cxCount(none),"__none")}${it("fams",IC_SIZES,"En varios tamaños",FAMS.length)}
     ${CX.secs.map(S1=>`<div class="cx-sec${CX.sel===S1.id||CX.sel.startsWith(S1.id+"/")?" open":""}">${it(S1.id,SEC_ICON[S1.id]||IC_FOLDER,S1.name,cxCount(d=>inSec(d,S1.id)))}<div class="cx-sub">${S1.subs.map(S2=>it(S1.id+"/"+S2.id,"",S2.name,cxCount(d=>inSub(d,S1.id+"/"+S2.id)),S1.id+"/"+S2.id)).join("")}</div></div>`).join("")}
     <div class="cx-tools"><button class="btn" type="button" id="cx-addsec">+ Sección</button></div>
     <p class="hint" style="padding:0 8px;margin:6px 0 0;font-size:11.5px">Arrastra un diseño hasta un apartado para moverlo, o usa «Mover a» en cada diseño.</p>`;
@@ -2266,22 +2343,38 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   /* main column */
   let title,sub,groups,S1=null;
   if(CX.sel==="all"){title="Todos los diseños";sub="Todos los diseños del equipo, del más reciente al más antiguo.";groups=[{name:"",items:L}]}
+  else if(CX.sel==="fams"){title="En varios tamaños";sub="Cada diseño junto a sus copias en otras medidas, para encontrarlas sin buscar en cada apartado.";groups=FAMS.map(f=>({name:f.items[0].name.replace(/ · [^·]+$/,""),fam:f.fam,items:f.items}));if(!groups.length)groups=[{name:"",items:[],empty:"Todavía no hay copias. Abre un diseño y usa «Copiar a otros tamaños» en Páginas."}]}
+  else if(CX.sel.startsWith("fam:")){const f=FAMS.find(f=>"fam:"+f.fam===CX.sel);title=f.items[0].name.replace(/ · [^·]+$/,"");sub=`El mismo diseño en ${f.items.length} tamaños`;groups=[{name:"",items:f.items}]}
   else if(CX.sel==="none"){title="Sin clasificar";sub="Diseños que todavía no están en ningún apartado. Muévelos para tenerlos ordenados.";groups=[{name:"",items:L.filter(none)}]}
   else{const [a,b]=CX.sel.split("/");S1=CX.secs.find(x=>x.id===a);
     if(b){const S2=S1.subs.find(x=>x.id===b);title=S2.name;sub=S1.name;groups=[{name:"",items:L.filter(d=>inSub(d,a+"/"+b))}]}
     else{title=S1.name;sub=`${S1.subs.length} apartado${S1.subs.length===1?"":"s"}`;groups=S1.subs.map(S2=>({name:S2.name,key:a+"/"+S2.id,items:L.filter(d=>inSub(d,a+"/"+S2.id))}))}}
   const isSub=CX.sel.includes("/");
-  const card=d=>`<div class="dcard" draggable="true" data-id="${esc(d.id)}"><button type="button" class="pic" data-open="${esc(d.id)}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}</button>
-      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${CX.sel==="all"?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${whoLine(d)}</div>
-      <label class="mv"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap">Mover a</span><select data-mv="${esc(d.id)}" aria-label="Mover ${esc(d.name)} a otro apartado">${secOptions(secValid(d.sec||""))}</select></label></div>`;
-  main.innerHTML=`<div class="cx-head"><div><h2>${esc(title)}</h2><p>${esc(sub)}</p></div><div class="acts">
+  const famN=f=>{const x=FAMS.find(x=>x.fam===f);return x?x.items.length:0},isFamView=CX.sel==="fams"||CX.sel.startsWith("fam:");
+  const card=d=>{const fn=d.fam?famN(d.fam):0;return`<div class="dcard${CX.picked.has(d.id)?" picked":""}" draggable="true" data-id="${esc(d.id)}"><label class="ck" title="Seleccionar"><input type="checkbox" data-pick="${esc(d.id)}"${CX.picked.has(d.id)?" checked":""} aria-label="Seleccionar ${esc(d.name)}"></label><span class="size">${esc(isFamView?sizeName(d):`${d.w}×${d.h}`)}</span><button type="button" class="pic" data-open="${esc(d.id)}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}</button>
+      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}</div>
+      <label class="mv"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap">Mover a</span><select data-mv="${esc(d.id)}" aria-label="Mover ${esc(d.name)} a otro apartado">${secOptions(secValid(d.sec||""))}</select></label>
+      <div class="acts2"><select data-dl="${esc(d.id)}" aria-label="Descargar ${esc(d.name)}"><option value="">Descargar…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select><button type="button" data-share="${esc(d.id)}" title="Compartir por WhatsApp o Telegram" aria-label="Compartir">${IC_SHARE}</button><button type="button" class="del" data-del="${esc(d.id)}" title="Eliminar diseño" aria-label="Eliminar">${IC_TRASH}</button></div></div>`};
+  const shown=[...new Set(groups.flatMap(g=>g.items.map(d=>d.id)))],np=CX.picked.size;
+  main.innerHTML=(np?`<div class="cxbar"><b>${np} seleccionado${np>1?"s":""}</b><select id="cxb-dl" aria-label="Descargar seleccionados"><option value="">Descargar como…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}${np>1?" (en un ZIP)":""}</option>`).join("")}</select><select id="cxb-mv" aria-label="Mover seleccionados"><option value="-">Mover a…</option>${secOptions("__")}</select><button class="btn" type="button" id="cxb-del">${IC_TRASH.replace('<svg','<svg style="width:15px;height:15px"')}Eliminar</button><span class="sp"></span><button class="btn" type="button" id="cxb-all">Elegir todos (${shown.length})</button><button class="btn" type="button" id="cxb-none">Quitar selección</button></div>`:"")+`<div class="cx-head"><div><h2>${esc(title)}</h2><p>${esc(sub)}</p></div><div class="acts">
       ${S1?`<button class="btn" type="button" id="cx-addsub">+ Apartado</button><button class="btn" type="button" id="cx-ren">Cambiar nombre</button><button class="btn" type="button" id="cx-delsec">Eliminar${isSub?" apartado":" sección"}</button>`:""}
       <button class="btn pri" type="button" id="cx-new">Nuevo diseño${isSub?" aquí":""}</button></div></div>
-    ${groups.map(g=>`<section class="cx-grp">${g.name?`<h3 data-sel="${esc(g.key)}" style="cursor:pointer">${esc(g.name)} <small>${g.items.length} diseño${g.items.length===1?"":"s"}</small></h3>`:""}
-      ${g.items.length?`<div class="dgrid">${g.items.map(card).join("")}</div>`:`<div class="hempty"${g.key?` data-drop="${esc(g.key)}"`:""}>${g.name?"Todavía no hay diseños en este apartado.":isSub?"Todavía no hay diseños aquí. Arrastra uno desde «Todos» o «Sin clasificar», o crea uno nuevo.":CX.sel==="none"?"Todo está clasificado.":"Todavía no hay diseños guardados."}</div>`}</section>`).join("")}`;
+    ${groups.map(g=>`<section class="cx-grp">${g.name?`<h3 data-sel="${esc(g.key||("fam:"+g.fam))}" style="cursor:pointer">${esc(g.name)} <small>${g.fam?g.items.length+" tamaños":g.items.length+" diseño"+(g.items.length===1?"":"s")}</small></h3>`:""}
+      ${g.items.length?`<div class="dgrid">${g.items.map(card).join("")}</div>`:`<div class="hempty"${g.key?` data-drop="${esc(g.key)}"`:""}>${g.empty?g.empty:g.name?"Todavía no hay diseños en este apartado.":isSub?"Todavía no hay diseños aquí. Arrastra uno desde «Todos» o «Sin clasificar», o crea uno nuevo.":CX.sel==="none"?"Todo está clasificado.":"Todavía no hay diseños guardados."}</div>`}</section>`).join("")}`;
   main.querySelectorAll("h3[data-sel]").forEach(h=>h.onclick=()=>{CX.sel=h.dataset.sel;paintCarpetas()});
   main.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
   main.querySelectorAll("[data-mv]").forEach(x=>x.onchange=()=>moveDesign(x.dataset.mv,x.value));
+  main.querySelectorAll("[data-fam]").forEach(x=>x.onclick=()=>{CX.sel="fam:"+x.dataset.fam;paintCarpetas()});
+  main.querySelectorAll("[data-pick]").forEach(x=>x.onchange=()=>{x.checked?CX.picked.add(x.dataset.pick):CX.picked.delete(x.dataset.pick);paintCarpetas()});
+  main.querySelectorAll("[data-dl]").forEach(x=>x.onchange=async()=>{const f=x.value;x.value="";if(!f)return;x.disabled=true;const r=await exportStored(x.dataset.dl,f);x.disabled=false;if(r)await saveBlob(r.blob,r.fname,f)});
+  main.querySelectorAll("[data-share]").forEach(x=>x.onclick=()=>{const d=L.find(d=>d.id===x.dataset.share);if(d)shareDialog(d.name,f=>exportStored(d.id,f))});
+  main.querySelectorAll("[data-del]").forEach(x=>x.onclick=()=>deleteDesigns([x.dataset.del],paintCarpetas));
+  if(np){const ids=()=>[...CX.picked];
+    main.querySelector("#cxb-dl").onchange=async e=>{const f=e.target.value;e.target.value="";if(!f)return;e.target.disabled=true;await downloadMany(ids(),f);e.target.disabled=false};
+    main.querySelector("#cxb-mv").onchange=async e=>{const v=e.target.value;if(v==="-")return;for(const id of ids()){const d=L.find(x=>x.id===id);if(!d||(d.sec||"")===v)continue;try{await store.move(id,v);d.sec=v;if(S.doc&&S.doc.id===id)S.doc.sec=v}catch(err){}}toast(`Movidos a ${secLabel(v)}`);CX.picked.clear();paintCarpetas()};
+    main.querySelector("#cxb-del").onclick=()=>deleteDesigns(ids(),paintCarpetas);
+    main.querySelector("#cxb-all").onclick=()=>{shown.forEach(id=>CX.picked.add(id));paintCarpetas()};
+    main.querySelector("#cxb-none").onclick=()=>{CX.picked.clear();paintCarpetas()}}
   main.querySelectorAll(".dcard[draggable]").forEach(c=>{c.addEventListener("dragstart",e=>{CX.drag=c.dataset.id;c.classList.add("dragging");try{e.dataTransfer.setData("text/plain",c.dataset.id);e.dataTransfer.effectAllowed="move"}catch(err){}});c.addEventListener("dragend",()=>{c.classList.remove("dragging");setTimeout(()=>{CX.drag=null},50)})});
   main.querySelectorAll(".hempty[data-drop]").forEach(b=>{b.addEventListener("dragover",e=>{if(CX.drag){e.preventDefault();b.classList.add("drop")}});b.addEventListener("dragleave",()=>b.classList.remove("drop"));b.addEventListener("drop",e=>{e.preventDefault();b.classList.remove("drop");const id=CX.drag;CX.drag=null;if(id)moveDesign(id,b.dataset.drop)})});
   main.querySelector("#cx-new").onclick=()=>{CX.newSec=isSub?CX.sel:"";toEditor("plantillas");if(isSub)toast("Elige una plantilla: el diseño se guardará en "+secLabel(CX.sel))};
@@ -2336,15 +2429,149 @@ async function adaptDialog(){const d=S.doc;if(S.editing)endEdit();syncPage();awa
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="ad-go">Crear copias</button></div>`);
   v.querySelector("#ad-go").onclick=async()=>{const pick=[...v.querySelectorAll('input[type=checkbox][value]:checked')].map(i=>SIZES.find(z=>z[0]===i.value));if(!pick.length){toast("Elige al menos un tamaño.");return}
     const all=!v.querySelector("#ad-all")||v.querySelector("#ad-all").checked,src=all?pagesOut(d):[pagesOut(d)[d.pi]];
-    const btn=v.querySelector("#ad-go");btn.disabled=true;btn.textContent="Creando…";const made=[];const me=store.kind==="fb"&&FB.user?fbMe():null;
+    const btn=v.querySelector("#ad-go");btn.disabled=true;btn.textContent="Creando…";const made=[];
+    /* the original and its copies share one family id, to see them together in Diseños → En varios tamaños */
+    if(!d.fam){d.fam=d.id;if(S.dirty)await saveNow();try{await store.patch(d.id,{fam:d.fam})}catch(e){try{S.dirty=true;await saveNow()}catch(e2){}}}const me=store.kind==="fb"&&FB.user?fbMe():null;
     for(const z of pick){const nd=newDoc(z[2],z[3],d.bg,d.brand,`${d.name} · ${z[1]}`);
       const pages=src.map(P=>({id:"p"+uid(),name:P.name||"",bg:P.bg,layers:adaptLayers(P.layers,d.w,d.h,z[2],z[3])}));
       let sec=SIZE_SEC[z[0]]||d.sec||"";if(CX.secs&&!secValid(sec))sec=secValid(d.sec||"");
-      const rec={id:nd.id,name:nd.name,brand:d.brand,w:z[2],h:z[3],mm:z[4]||null,folds:z[0]==="triptico"?[1/3,2/3]:null,pages,by:me?me.email:"",byName:me?me.name:"",sec};
+      const rec={id:nd.id,name:nd.name,brand:d.brand,w:z[2],h:z[3],mm:z[4]||null,folds:z[0]==="triptico"?[1/3,2/3]:null,pages,by:me?me.email:"",byName:me?me.name:"",sec,fam:d.fam};
       try{rec.thumb=await makeThumb(rec,220);await store.put(rec);made.push(rec)}catch(e){toast("No se pudo crear la copia "+z[1]+". Revisa tu conexión.")}}
     HOME.list=null;CX.list=null;v.remove();if(!made.length)return;
     const r=showDialog("Copias listas",`<p class="hint" style="margin-top:0">${made.length} diseño${made.length>1?"s":""} nuevo${made.length>1?"s":""}. Ábrelos para revisar y ajustar.</p><div class="dgrid">${made.map(m=>`<div class="dcard"><button type="button" class="pic" data-op="${m.id}">${m.thumb?`<img src="${m.thumb}" alt="">`:""}</button><div class="meta"><b>${esc(m.name)}</b><small>${m.w} × ${m.h}${m.sec&&CX.secs?" · "+esc(secLabel(m.sec)):""}</small></div></div>`).join("")}</div>`);
     r.querySelectorAll("[data-op]").forEach(b=>b.onclick=async()=>{if(await openStored(b.dataset.op)){r.remove();if(S.tab==="inicio"||S.tab==="disenos")toEditor()}})}}
+
+
+/* ================== candado: los diseños guardados se abren bloqueados ================== */
+const LOCK_ICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+const UNLOCK_ICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.7"/></svg>';
+function setLock(v){S.locked=!!v;document.body.classList.toggle("locked",S.locked);const b=$("#btn-lock");
+  if(b){b.hidden=false;b.classList.toggle("on",S.locked);b.innerHTML=(S.locked?LOCK_ICO:UNLOCK_ICO)+`<span class="hide-narrow">${S.locked?"Bloqueado":"Desbloqueado"}</span>`;b.title=S.locked?"Diseño bloqueado: toca para desbloquear y editar":"Toca para volver a bloquear el diseño"}
+  const n=$("#nombre");if(n)n.readOnly=S.locked;
+  if(S.locked&&S.doc){if(S.editing)endEdit();S.crop=null;if(S.sel||S.multi.length){S.sel=null;S.multi=[]}renderProps();requestRender()}}
+let LOCKDLG=null;
+function lockPrompt(){if(LOCKDLG&&LOCKDLG.isConnected)return;
+  LOCKDLG=showDialog("Diseño bloqueado",`<p style="margin-top:0">Este diseño está protegido para que nadie lo mueva ni lo borre por accidente.</p><p class="hint">¿Quieres desbloquearlo para editarlo? Se vuelve a bloquear la próxima vez que se abra.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Solo mirar</button><button class="btn pri" type="button" id="unlock-go">${LOCK_ICO.replace('<svg','<svg style="width:16px;height:16px"')}Desbloquear</button></div>`);
+  LOCKDLG.querySelector("#unlock-go").onclick=()=>{LOCKDLG.remove();setLock(false);toast("Diseño desbloqueado: ya puedes editar")};LOCKDLG.querySelector("#unlock-go").focus()}
+$("#btn-lock").onclick=()=>{if(S.locked)lockPrompt();else{setLock(true);toast("Diseño bloqueado")}};
+$("#lockpill").onclick=()=>lockPrompt();
+/* while locked, anything that would change the design asks to unlock first */
+const LOCK_ZONES="#cv,#ctxbar,#props,#pg-add,#undo,#redo,#nombre,#stage .dropveil";
+function lockBlocks(t){if(!S.locked||S.tab==="inicio"||S.tab==="disenos")return false;if(!t||!t.closest)return false;
+  if(t.closest(".veil,[data-lockok],.pg"))return false;
+  return!!t.closest(LOCK_ZONES)}
+["pointerdown","mousedown","click","dblclick","dragstart"].forEach(ev=>document.addEventListener(ev,e=>{if(lockBlocks(e.target)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(ev==="pointerdown")lockPrompt()}},true));
+["dragover","drop"].forEach(ev=>document.addEventListener(ev,e=>{if(S.locked&&S.tab!=="inicio"&&S.tab!=="disenos"&&e.target.closest&&e.target.closest("#stage")){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(ev==="drop")lockPrompt()}},true));
+document.addEventListener("keydown",e=>{if(!S.locked||S.tab==="inicio"||S.tab==="disenos")return;const t=e.target;if(t.closest&&t.closest(".veil"))return;
+  const tag=(t.tagName||"").toLowerCase(),typing=tag==="input"||tag==="textarea"||tag==="select"||t.isContentEditable;
+  if(typing&&!(t.closest&&t.closest(LOCK_ZONES)))return;const mod=e.metaKey||e.ctrlKey,k=(e.key||"").toLowerCase();
+  if(mod&&["c","s","p","+","-","=","0"].includes(k))return;if(k==="escape")return;
+  if(typing||["delete","backspace","enter","arrowleft","arrowright","arrowup","arrowdown"].includes(k)||(mod&&["z","y","x","v","g","d","a","b","i","u","j"].includes(k))){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();lockPrompt()}},true);
+document.addEventListener("paste",e=>{if(!S.locked||S.tab==="inicio"||S.tab==="disenos")return;const t=e.target;if(t.closest&&t.closest(".veil"))return;
+  const tag=(t.tagName||"").toLowerCase();if((tag==="input"||tag==="textarea")&&!(t.closest&&t.closest(LOCK_ZONES))&&S.tab!=="buscar")return;
+  e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();lockPrompt()},true);
+
+/* ================== compartir por WhatsApp o Telegram ================== */
+const SHARE_FMT=[["jpg","Imagen JPG","Se ve directo en el chat (WhatsApp la comprime un poco)"],["png","Archivo PNG","Máxima calidad, se envía como documento"],["pdf","PDF","Todas las páginas en un solo archivo"],["svg","Archivo SVG","Vectorial, para webs y sistemas"]];
+function shareDialog(name,getFile){let ready=null,job=0;
+  const v=showDialog("Compartir",`<p class="hint" style="margin-top:0">Elige cómo enviar «${esc(name)}».</p><div class="shfmt">${SHARE_FMT.map(([k,n,d],i)=>`<label><input type="radio" name="shf" value="${k}"${i===0?" checked":""}><span><b>${n}</b><small>${d}</small></span></label>`).join("")}</div>
+    <p class="hint" id="sh-st" style="min-height:1.2em">Preparando…</p>
+    <div class="shbtns"><button class="btn wa" type="button" data-to="wa" disabled>WhatsApp</button><button class="btn tg" type="button" data-to="tg" disabled>Telegram</button></div>
+    <button class="btn" type="button" data-to="dl" style="width:100%;margin-top:8px" disabled>Solo descargar</button>`);
+  const st=v.querySelector("#sh-st"),btns=[...v.querySelectorAll("[data-to]")];
+  const prep=async()=>{const my=++job,fmt=v.querySelector('input[name=shf]:checked').value;ready=null;btns.forEach(b=>b.disabled=true);st.textContent="Preparando el archivo…";
+    let r=null;try{r=await getFile(fmt)}catch(e){}if(my!==job)return;if(!r){st.textContent="No se pudo preparar el archivo.";return}
+    ready=r;btns.forEach(b=>b.disabled=false);st.textContent=`Listo: ${r.fname} · ${Math.max(1,Math.round(r.blob.size/1024))} KB`};
+  v.querySelectorAll('input[name=shf]').forEach(i=>i.onchange=prep);prep();
+  btns.forEach(b=>b.onclick=async()=>{if(!ready)return;const {blob,fname}=ready,to=b.dataset.to;
+    if(to==="dl"){await saveBlob(blob,fname);return}
+    const file=new File([blob],fname,{type:blob.type||"application/octet-stream"});
+    /* phones and Safari/Chrome on Mac open the share menu, where WhatsApp and Telegram appear */
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});v.remove();return}catch(e){if(e&&e.name==="AbortError")return}}
+    /* without a share menu: download the file and open the app so it can be attached */
+    await saveBlob(blob,fname);window.open(to==="wa"?"https://web.whatsapp.com/":"https://web.telegram.org/","_blank","noopener");
+    st.innerHTML=`El archivo se descargó. En ${to==="wa"?"WhatsApp":"Telegram"}, abre el chat y adjúntalo con el clip (o arrástralo a la conversación).`})}
+
+/* ================== PowerPoint (.pptx): textos y formas editables ================== */
+let PPTXJS=null;
+function loadPptx(){return PPTXJS||(PPTXJS=new Promise((res,rej)=>{if(window.PptxGenJS)return res(window.PptxGenJS);const sc=document.createElement("script");sc.src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js";sc.onload=()=>res(window.PptxGenJS);sc.onerror=()=>{PPTXJS=null;rej()};document.head.appendChild(sc)}))}
+const PPT_FONT={"Akshar":"Akshar","Questrial":"Questrial","Adventor CX":"Century Gothic","Arimo":"Arimo"};
+function hex6(c){c=String(c||"").trim();let m=c.match(/^#([0-9a-f]{6})$/i);if(m)return m[1].toUpperCase();m=c.match(/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i);if(m)return(m[1]+m[1]+m[2]+m[2]+m[3]+m[3]).toUpperCase();return null}
+async function toPPTX(d){const Pptx=await loadPptx(),P=new Pptx(),k=1/144;
+  P.defineLayout({name:"EDITHOR",width:d.w*k,height:d.h*k});P.layout="EDITHOR";P.title=d.name||"Presentación";
+  for(const Pg of d.pages){const sl=P.addSlide();const bg=hex6(Pg.bg);if(bg)sl.background={color:bg};
+    else if(Pg.bg){const c=document.createElement("canvas");c.width=Math.round(d.w/2);c.height=Math.round(d.h/2);const x=c.getContext("2d");x.scale(.5,.5);drawDesign(x,{w:d.w,h:d.h,bg:Pg.bg,layers:[]});sl.background={data:c.toDataURL("image/png")}}
+    for(const L of Pg.layers){if(L.hide)continue;const box={x:L.x*k,y:L.y*k,w:Math.max(.01,L.w*k),h:Math.max(.01,L.h*k)};const tr=Math.round((1-(L.op??1))*100);
+      if(L.t==="text"){layoutText(L);box.h=Math.max(.01,L.h*k);const col=hex6(L.color)||"000000",fb=hex6(L.bg);
+        sl.addText(L.upper?String(L.txt).toUpperCase():String(L.txt),Object.assign({},box,{fontFace:PPT_FONT[L.font]||L.font,fontSize:Math.max(1,L.size/2),color:col,bold:(+L.weight||400)>=600,
+          align:L.align==="justify"?"justify":(L.align||"left"),valign:"top",lineSpacingMultiple:L.lh||1.2,charSpacing:L.ls?L.ls*L.size/2:0,margin:[(L.px||0)/2,(L.px||0)/2,(L.py||0)/2,(L.py||0)/2].map(v=>Math.max(0,v)),
+          fit:"none",wrap:true,isTextBox:true},fb?{fill:{color:fb}}:{}));continue}
+      const fill=hex6(L.fill);
+      if(L.t==="rect"&&!L.rad&&fill){sl.addShape(P.ShapeType.rect,Object.assign({},box,{fill:{color:fill,transparency:tr},line:L.sw>0&&hex6(L.stroke)?{color:hex6(L.stroke),width:L.sw/2}:{type:"none"}}));continue}
+      if(L.t==="ellipse"&&fill){sl.addShape(P.ShapeType.ellipse,Object.assign({},box,{fill:{color:fill,transparency:tr},line:L.sw>0&&hex6(L.stroke)?{color:hex6(L.stroke),width:L.sw/2}:{type:"none"}}));continue}
+      /* photos, logos, QR and the rest go in as pictures */
+      if(L.src)await ld(L.src);const kk=Math.min(2,3000/Math.max(L.w,L.h,1));
+      sl.addImage(Object.assign({},box,{data:layerPNG(L,kk),transparency:tr||undefined}))}}
+  return await P.write({outputType:"blob"})}
+
+/* ================== buscar imágenes en internet ================== */
+const SRCH={q:"",src:"openverse",res:[],busy:false,err:""};
+async function searchImages(q,src){q=q.trim();if(!q)return[];
+  if(src==="wiki"){const u=`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q+" filetype:bitmap")}&gsrnamespace=6&gsrlimit=40&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1600&format=json&origin=*`;
+    const j=await (await fetch(u)).json();const pages=Object.values((j.query&&j.query.pages)||{}).sort((a,b)=>(a.index||0)-(b.index||0));
+    return pages.map(p=>{const ii=(p.imageinfo||[])[0]||{},m=ii.extmetadata||{};const big=ii.thumburl||ii.url;return big?{full:big,thumb:big.replace(/\/\d+px-/,"/320px-"),title:(p.title||"").replace(/^File:|\.[a-z0-9]+$/gi,""),credit:((m.Artist&&m.Artist.value)||"").replace(/<[^>]+>/g,"").trim(),lic:(m.LicenseShortName&&m.LicenseShortName.value)||"",page:ii.descriptionurl||""}:null}).filter(Boolean)}
+  const j=await (await fetch(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(q)}&page_size=40&mature=false`)).json();
+  return(j.results||[]).map(r=>({full:r.url,thumb:r.thumbnail||r.url,title:r.title||"",credit:r.creator||"",lic:(r.license||"").toUpperCase(),page:r.foreign_landing_url||""}))}
+async function blobFromUrl(urls){for(const u of urls){if(!u)continue;try{const r=await fetch(u,{mode:"cors"});if(!r.ok)continue;const b=await r.blob();if(/^image\//.test(b.type)&&b.size>500)return b}catch(e){}}return null}
+async function addFromWeb(urls,name,el){if(el)el.classList.add("busy");const b=await blobFromUrl(urls);if(el)el.classList.remove("busy");
+  if(!b){toast("Esa imagen no se puede traer directo. Ábrela, cópiala (clic derecho → Copiar imagen) y pégala con ⌘ + V.");return}
+  let src;try{src=await keepImage(b)}catch(e){toast("No se pudo guardar la imagen.");return}
+  UPS.unshift({src,name:(name||"Imagen de internet").slice(0,40),at:Date.now()});try{await store.setUploads(UPS.slice(0,200))}catch(e){}
+  await addImage(src,{name:name||"Imagen de internet",forceNew:true});toast("Imagen agregada · también queda en «Subir»")}
+function renderBuscar(el){
+  el.innerHTML=`<div class="pane"><h2>Buscar imágenes</h2><p class="hint">Fotos libres para usar en tus diseños. Toca una para agregarla. Funciona mejor si buscas en inglés (por ejemplo: <i>office</i>, <i>calculator</i>, <i>money</i>).</p>
+    <form class="srch" id="s-form"><input type="search" id="s-q" placeholder="¿Qué imagen buscas?" value="${esc(SRCH.q)}" autocomplete="off"><button class="btn pri" type="submit">Buscar</button></form>
+    <div class="chips" style="margin-top:8px">${[["openverse","Openverse"],["wiki","Wikimedia"]].map(([k,n])=>`<button type="button" data-src="${k}" aria-pressed="${SRCH.src===k}">${n}</button>`).join("")}</div>
+    <h3 style="margin-top:14px">En Google o Pinterest</h3><p class="hint" style="margin-bottom:4px">Se abre en otra pestaña. Copia la imagen (clic derecho → Copiar imagen) y pégala aquí con ⌘ + V.</p>
+    <div class="extlinks"><a class="btn" id="s-g" target="_blank" rel="noopener">Google Imágenes ↗</a><a class="btn" id="s-p" target="_blank" rel="noopener">Pinterest ↗</a></div>
+    <h3 style="margin-top:14px">Con un enlace</h3><form class="srch" id="s-url"><input type="url" id="s-u" placeholder="Pega el enlace de una imagen" autocomplete="off"><button class="btn" type="submit">Agregar</button></form>
+    <div id="s-res"></div></div>`;
+  const setLinks=()=>{const q=encodeURIComponent($("#s-q").value.trim()||"contabilidad");$("#s-g").href="https://www.google.com/search?tbm=isch&q="+q;$("#s-p").href="https://www.pinterest.com/search/pins/?q="+q};
+  $("#s-q").addEventListener("input",setLinks);setLinks();
+  const paint=()=>{const box=$("#s-res");if(!box)return;
+    if(SRCH.busy){box.innerHTML='<p class="hint" style="margin-top:12px">Buscando…</p>';return}
+    if(SRCH.err){box.innerHTML=`<p class="hint" style="margin-top:12px">${esc(SRCH.err)}</p>`;return}
+    if(!SRCH.q){box.innerHTML="";return}
+    if(!SRCH.res.length){box.innerHTML='<p class="hint" style="margin-top:12px">Sin resultados. Prueba con otra palabra o en inglés.</p>';return}
+    box.innerHTML=`<div class="sgrid">${SRCH.res.map((r,i)=>`<button type="button" data-i="${i}" title="${esc(r.title)}${r.credit?" · "+esc(r.credit):""}${r.lic?" · "+esc(r.lic):""}"><img src="${esc(r.thumb)}" alt="${esc(r.title)}" loading="lazy" referrerpolicy="no-referrer"></button>`).join("")}</div><p class="hint" style="font-size:11px">Imágenes con licencia libre. Pasa el cursor sobre una para ver su autor y licencia.</p>`;
+    box.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{const r=SRCH.res[+b.dataset.i];addFromWeb([r.full,r.thumb],r.title,b)})};
+  const run=async()=>{SRCH.q=$("#s-q").value.trim();if(!SRCH.q)return;SRCH.busy=true;SRCH.err="";paint();try{SRCH.res=await searchImages(SRCH.q,SRCH.src)}catch(e){SRCH.res=[];SRCH.err="No se pudo buscar. Revisa tu internet."}SRCH.busy=false;if(S.tab==="buscar")paint()};
+  $("#s-form").onsubmit=e=>{e.preventDefault();run()};
+  el.querySelectorAll("[data-src]").forEach(b=>b.onclick=()=>{SRCH.src=b.dataset.src;el.querySelectorAll("[data-src]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));if(SRCH.q)run()});
+  $("#s-url").onsubmit=e=>{e.preventDefault();const u=$("#s-u").value.trim();if(u)addFromWeb([u],"Imagen de internet")};
+  paint()}
+
+/* ================== diseños: descargar, compartir, eliminar y elegir varios ================== */
+const DL_FMT=[["png","PNG"],["jpg","JPG"],["pdf","PDF"],["svg","SVG"],["pptx","PowerPoint"]];
+const sizeName=d=>{const z=SIZES.find(z=>z[2]===d.w&&z[3]===d.h);return z?z[1]:`${d.w} × ${d.h}`};
+const fileBase=n=>(n||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
+async function storedDoc(id){let x=null;try{x=await store.get(id)}catch(e){}if(!x)return null;const d=fromRecord(id,x);d.pi=0;normDoc(d);return d}
+async function exportStored(id,fmt){if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();setStatus("Preparando la descarga…");const d=await storedDoc(id);if(!d){setStatus("");toast("No se pudo abrir ese diseño.");return null}
+  const r=await buildExport(d,fmt);setStatus("");return r}
+let JSZIPP=null;
+function loadZip(){return JSZIPP||(JSZIPP=new Promise((res,rej)=>{if(window.JSZip)return res(window.JSZip);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";sc.onload=()=>res(window.JSZip);sc.onerror=()=>{JSZIPP=null;rej()};document.head.appendChild(sc)}))}
+async function downloadMany(ids,fmt){if(!ids.length)return;if(ids.length===1){const r=await exportStored(ids[0],fmt);if(r)await saveBlob(r.blob,r.fname,fmt);return}
+  let Z;try{Z=await loadZip()}catch(e){toast("No se pudo cargar la herramienta para comprimir. Revisa tu internet.");return}
+  const zip=new Z(),used=new Set();let n=0;
+  for(const id of ids){setStatus(`Preparando ${n+1} de ${ids.length}…`);const r=await exportStored(id,fmt);if(!r)continue;let f=r.fname,i=2;while(used.has(f)){f=r.fname.replace(/(\.[a-z0-9]+)$/i,`-${i++}$1`)}used.add(f);zip.file(f,r.blob);n++}
+  setStatus("Comprimiendo…");const blob=await zip.generateAsync({type:"blob"});setStatus("");
+  await saveBlob(blob,`edithor-${n}-disenos-${fmt}.zip`,"zip")}
+function deleteDesigns(ids,after){const L=(CX.list||[]).filter(d=>ids.includes(d.id));if(!L.length)return;
+  const v=showDialog(L.length>1?"Eliminar diseños":"Eliminar diseño",`<p style="margin-top:0">${L.length>1?`¿Eliminar estos <b>${L.length} diseños</b>?`:`¿Eliminar <b>${esc(L[0].name)}</b>?`}</p><p class="hint">Se borra${L.length>1?"n":""} para todo el equipo y no se puede${L.length>1?"n":""} recuperar.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="button" id="del-yes">Sí, eliminar</button></div>`);
+  v.querySelector("#del-yes").onclick=async()=>{v.remove();let n=0;for(const d of L){try{await store.del(d.id);n++;if(S.doc&&S.doc.id===d.id){S.dirty=false;clearTimeout(S.saveTimer)}if(lsGet("ed.last",null)===d.id)lsSet("ed.last",null)}catch(e){}}
+    CX.list=(CX.list||[]).filter(d=>!ids.includes(d.id));HOME.list=null;ids.forEach(id=>CX.picked.delete(id));toast(n===L.length?(n>1?`${n} diseños eliminados`:"Diseño eliminado"):"Algunos no se pudieron eliminar. Revisa tu conexión.");after&&after()}}
 
 /* ================== dialogs: my designs ================== */
 function showDialog(title,body){const v=document.createElement("div");v.className="veil";v.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><h2>${esc(title)}</h2><button class="btn" type="button" data-close>Cerrar</button></header><div class="body">${body}</div></div>`;
@@ -2380,7 +2607,7 @@ const fontsReady=(async()=>{try{await Promise.all(["600 40px Akshar","700 40px A
   renderLib();
   await initStore();
   const last=lsGet("ed.last",null);
-  if(last){try{const x=await store.get(last);if(x&&!S.dirty&&S.hi===0){openDoc(fromRecord(last,x));setStatus("Seguiste donde te quedaste")}}catch(e){}}
+  if(last){try{const x=await store.get(last);if(x&&!S.dirty&&S.hi===0){openDoc(fromRecord(last,x));setLock(true);setStatus("Seguiste donde te quedaste")}}catch(e){}}
   aiCloudLoad();splash(false);if(S.tab==="inicio")renderHome();
   document.fonts&&document.fonts.addEventListener&&document.fonts.addEventListener("loadingdone",()=>{requestRender();refreshThumbs()});
 })();
