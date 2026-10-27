@@ -645,18 +645,21 @@ function layoutText(L){
   const raw=L.upper?String(L.txt).toUpperCase():String(L.txt);
   const px=L.px||0,py=L.py||0;
   const maxW=L.autoW?Infinity:Math.max(10,L.w-px*2);
-  const lines=[];
+  const lines=[],ends=[];
   for(const para of raw.split("\n")){
     const words=para.split(/ +/);let line="";
-    if(!para){lines.push("");continue}
-    for(const w of words){const test=line?line+" "+w:w;if(line&&MC.measureText(test).width>maxW){lines.push(line);line=w}else line=test}
-    lines.push(line);
+    if(!para){lines.push("");ends.push(true);continue}
+    for(const w of words){const test=line?line+" "+w:w;if(line&&MC.measureText(test).width>maxW){lines.push(line);ends.push(false);line=w}else line=test}
+    lines.push(line);ends.push(true);
   }
   const widths=lines.map(l=>MC.measureText(l).width);
   if(L.autoW)L.w=Math.ceil(Math.max(10,...widths)+px*2);
   L.h=Math.ceil(lines.length*L.size*(L.lh||1.2)+py*2);
-  L._lines=lines;L._widths=widths;
+  L._lines=lines;L._widths=widths;L._ends=ends;
 }
+/* justified text: every line except the last of each paragraph fills the box; returns [[word,x],...] or null */
+function justWords(L,i,x0,inner){if(L.align!=="justify"||!L._ends||L._ends[i])return null;const ws=L._lines[i].split(/ +/).filter(Boolean);if(ws.length<2)return null;
+  setFont(MC,L);const wd=ws.map(w=>MC.measureText(w).width),gap=(inner-wd.reduce((a,b)=>a+b,0))/(ws.length-1);if(gap<0)return null;let x=x0;return ws.map((w,j)=>{const r=[w,x];x+=wd[j]+gap;return r})}
 
 /* ================== drawing ================== */
 function rr(ctx,x,y,w,h,r){r=Math.max(0,Math.min(r||0,w/2,h/2));ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else{ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}}
@@ -683,7 +686,7 @@ function drawLayer(ctx,L,editingId){
       setFont(ctx,L);ctx.fillStyle=L.color;ctx.textBaseline="alphabetic";
       const lh=L.size*(L.lh||1.2),px=L.px||0,py=L.py||0,inner=L.w-px*2;
       L._lines.forEach((ln,i)=>{const lw=L._widths[i];let tx=x+px;if(L.align==="center")tx=x+px+(inner-lw)/2;else if(L.align==="right")tx=x+px+inner-lw;
-        const base=y+py+i*lh+(lh-L.size)/2+L.size*.8;ctx.fillText(ln,tx,base)});
+        const base=y+py+i*lh+(lh-L.size)/2+L.size*.8;const J=justWords(L,i,x+px,inner);if(J){setFont(ctx,L);J.forEach(([w,wx])=>ctx.fillText(w,wx,base))}else ctx.fillText(ln,tx,base)});
     }
   }
   ctx.restore();
@@ -1761,9 +1764,9 @@ function delPage(){const d=S.doc;if(d.pages.length<2){toast("El diseño necesita
 function movePage(dir){const d=S.doc,j=d.pi+dir;if(j<0||j>=d.pages.length)return;syncPage();const [P]=d.pages.splice(d.pi,1);d.pages.splice(j,0,P);d.pi=j;commit();renderProps();renderPageBar()}
 function pagesHtml(){return fullPanels()?pagesBlock():""}
 function pagesBlock(){const d=S.doc;return `<h3>Páginas (${d.pages.length})</h3><div class="pages">${d.pages.map((P,i)=>`<button type="button" class="pg" data-pg="${i}" aria-current="${i===d.pi}"><canvas width="10" height="10"></canvas>${i+1}${P.name?" · "+esc(P.name):""}</button>`).join("")}</div>
-  <div class="actions"><button class="btn" type="button" id="pg-new">Agregar página</button><button class="btn" type="button" id="pg-dup">Duplicar página</button><button class="btn" type="button" id="pg-left"${d.pi<=0?" disabled":""}>Mover antes</button><button class="btn" type="button" id="pg-right"${d.pi>=d.pages.length-1?" disabled":""}>Mover después</button><button class="btn danger" type="button" id="pg-del" style="grid-column:1/-1"${d.pages.length<2?" disabled":""}>Eliminar esta página</button></div>`}
+  <div class="actions"><button class="btn" type="button" id="pg-new">Agregar página</button><button class="btn" type="button" id="pg-dup">Duplicar página</button><button class="btn" type="button" id="pg-left"${d.pi<=0?" disabled":""}>Mover antes</button><button class="btn" type="button" id="pg-right"${d.pi>=d.pages.length-1?" disabled":""}>Mover después</button><button class="btn danger" type="button" id="pg-del" style="grid-column:1/-1"${d.pages.length<2?" disabled":""}>Eliminar esta página</button><button class="btn pri" type="button" id="pg-adapt" style="grid-column:1/-1">Copiar a otros tamaños…</button></div>`}
 function bindPages(){const d=S.doc;syncPage();document.querySelectorAll(".pg").forEach(b=>{const P=d.pages[+b.dataset.pg],c=b.querySelector("canvas"),k=96/Math.max(d.w,d.h);c.width=Math.max(1,Math.round(d.w*k));c.height=Math.max(1,Math.round(d.h*k));const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers});b.onclick=()=>goPage(+b.dataset.pg)});
-  const on=(id,fn)=>{const x=$("#"+id);if(x)x.onclick=fn};on("pg-new",()=>addPage(false));on("pg-dup",()=>addPage(true));on("pg-del",delPage);on("pg-left",()=>movePage(-1));on("pg-right",()=>movePage(1))}
+  const on=(id,fn)=>{const x=$("#"+id);if(x)x.onclick=fn};on("pg-new",()=>addPage(false));on("pg-dup",()=>addPage(true));on("pg-del",delPage);on("pg-left",()=>movePage(-1));on("pg-right",()=>movePage(1));on("pg-adapt",adaptDialog)}
 $("#pg-prev").onclick=()=>goPage(S.doc.pi-1);$("#pg-next").onclick=()=>goPage(S.doc.pi+1);$("#pg-add").onclick=()=>addPage(false);
 
 /* ================== tema claro / oscuro ================== */
@@ -1826,7 +1829,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();co
   const upd=()=>{commit();renderProps();requestRender()};
   on("front",()=>reorder("top"));on("back",()=>reorder("bottom"));on("dup",duplicate);on("del",removeSel);
   on("group",groupSel);on("ungroup",ungroupSel);on("flat",flattenSel);
-  on("align",b=>{if(L&&L.t==="text"){L.align={left:"center",center:"right",right:"left"}[L.align]||"left";upd();return}
+  on("align",b=>{if(L&&L.t==="text"){L.align={left:"center",center:"right",right:"justify",justify:"left"}[L.align]||"left";upd();return}
     pop(b,`<div class="chips">${Object.keys(AL_ICON).map(k=>`<button type="button" data-al2="${k}" title="${AL_NAME[k]}" aria-label="Alinear ${AL_NAME[k]}">${AL_ICON[k]}</button>`).join("")}</div>`,d=>d.querySelectorAll("[data-al2]").forEach(x=>x.onclick=()=>{closePop();alignSel(x.dataset.al2)}))});
   on("cropdone",endCrop);on("cropreset",()=>{L.z=1;L.fx=.5;L.fy=.5;upd()});
   const fz=$("#cx-font");if(fz)fz.onchange=e=>{L.font=e.target.value;const F=FONTS[L.font];if(!F.w.includes(+L.weight))L.weight=F.w.includes(700)?700:F.w[0];upd()};
@@ -1887,7 +1890,8 @@ async function toSVG(layers,box,bg){await fontsReady;const out=[],defs=[],fams=n
       if(L.bg)g.push(`<path d="${rrPath(L.x,L.y,L.w,L.h,L.rad)}" fill="${L.bg}"/>`);
       const lh=L.size*(L.lh||1.2),px=L.px||0,py=L.py||0,inner=L.w-px*2;
       L._lines.forEach((ln,i)=>{if(!ln)return;const lw=L._widths[i];let tx=L.x+px;if(L.align==="center")tx=L.x+px+(inner-lw)/2;else if(L.align==="right")tx=L.x+px+inner-lw;
-        const base=L.y+py+i*lh+(lh-L.size)/2+L.size*.8;g.push(`<text x="${num1(tx)}" y="${num1(base)}" font-family="${esc(F.css)}" font-size="${L.size}" font-weight="${L.weight||400}" fill="${L.color}"${L.ls?` letter-spacing="${num1(L.ls*L.size)}"`:""} xml:space="preserve">${esc(ln)}</text>`)})}
+        const base=L.y+py+i*lh+(lh-L.size)/2+L.size*.8;const tt=(t,xx)=>`<text x="${num1(xx)}" y="${num1(base)}" font-family="${esc(F.css)}" font-size="${L.size}" font-weight="${L.weight||400}" fill="${L.color}"${L.ls?` letter-spacing="${num1(L.ls*L.size)}"`:""} xml:space="preserve">${esc(t)}</text>`;
+        const J=justWords(L,i,L.x+px,inner);if(J)J.forEach(([w,wx])=>g.push(tt(w,wx)));else g.push(tt(ln,tx))})}
     if(!g.length)continue;out.push((L.op??1)<1?`<g opacity="${L.op}">${g.join("")}</g>`:g.join(""))}
   let css="";for(const [fam,ws] of fams){for(const [w,path] of FONTFILES[fam]){if(![...ws].some(x=>Math.abs(x-w)<=100))continue;try{css+=`@font-face{font-family:"${fam}";font-weight:${w};src:url(data:font/woff2;base64,${await fontB64(path)}) format("woff2")}`}catch(e){}}}
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${num1(box.w)}" height="${num1(box.h)}" viewBox="${num1(box.x)} ${num1(box.y)} ${num1(box.w)} ${num1(box.h)}">${css?`<style>${css}</style>`:""}${defs.length?`<defs>${defs.join("")}</defs>`:""}${bg?`<rect x="${num1(box.x)}" y="${num1(box.y)}" width="${num1(box.w)}" height="${num1(box.h)}" fill="${bg}"/>`:""}${out.join("")}</svg>`}
@@ -1993,7 +1997,7 @@ async function removeBg(L,withAI){
   bgBusy=false;btns.forEach(b=>b.disabled=false)}
 
 /* ================== properties panel ================== */
-const ICON={left:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="9" height="2"/><rect x="1" y="12" width="12" height="2"/></svg>',center:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="3.5" y="7" width="9" height="2"/><rect x="2" y="12" width="12" height="2"/></svg>',right:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="6" y="7" width="9" height="2"/><rect x="3" y="12" width="12" height="2"/></svg>',
+const ICON={left:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="9" height="2"/><rect x="1" y="12" width="12" height="2"/></svg>',center:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="3.5" y="7" width="9" height="2"/><rect x="2" y="12" width="12" height="2"/></svg>',right:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="6" y="7" width="9" height="2"/><rect x="3" y="12" width="12" height="2"/></svg>',justify:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="14" height="2"/><rect x="1" y="12" width="14" height="2"/></svg>',
   eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',eyeoff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/></svg>',
   lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',unlock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.7"/></svg>'};
 function swatches(id,val,allowNone){const pal=BR[S.brand].pal;const extra=val&&!pal.includes(val.toUpperCase())?[val.toUpperCase()]:[];
@@ -2027,13 +2031,14 @@ function renderPropsMain(){
     el.innerHTML=`<div class="pane"><h2>Página ${d.pi+1}${d.pages.length>1?` de ${d.pages.length}`:""}${d.pages[d.pi].name?` · ${esc(d.pages[d.pi].name)}`:""}</h2><p class="hint">Haz clic en un elemento del diseño para editarlo.</p>
       <h3>Color de fondo</h3>${swatches("bg",d.bg)}
       <div class="actions" style="margin-top:14px"><button class="btn" type="button" id="p-paste">Pegar</button></div>
-      <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div>
+      <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div><button class="btn" type="button" id="p-adapt" style="width:100%;margin-top:6px">Copiar a otros tamaños…</button>
       <div class="row">${num("p-W","Ancho (px)",d.w,1,50)}${num("p-H","Alto (px)",d.h,1,50)}</div>
       <p class="hint">El tamaño es el mismo para todas las páginas. Al cambiarlo, los elementos se quedan donde están; muévelos a su lugar.${d.mm?` Tamaño de impresión: ${d.mm[0]/10} × ${d.mm[1]/10} cm.`:""}</p>
       ${pagesHtml()}
       ${layersHtml()}</div>`;
     bindSw("bg",c=>{d.bg=c;requestRender()},true);
     $("#p-paste").onclick=pasteClip;
+    {const pa=$("#p-adapt");if(pa)pa.onclick=adaptDialog}
     $("#p-size").onchange=e=>{const s=SIZES.find(s=>s[0]===e.target.value);if(s){d.w=s[2];d.h=s[3];d.mm=s[4]||null;d.folds=s[0]==="triptico"?[1/3,2/3]:null;commit();renderProps();requestRender()}};
     ["W","H"].forEach(k=>$("#p-"+k).onchange=e=>{const v=Math.max(50,Math.min(6000,+e.target.value||0));d[k.toLowerCase()]=v;d.mm=null;d.folds=null;commit();renderProps();requestRender()});
     bindPages();
@@ -2044,7 +2049,7 @@ function renderPropsMain(){
     h+=`<div class="row one"><label class="f"><span>Texto</span><textarea id="p-txt">${esc(L.txt)}</textarea></label></div>
       <div class="row one"><label class="f"><span>Letra</span><select id="p-font">${Object.entries(FONTS).map(([k,f])=>`<option value="${esc(k)}"${k===L.font?" selected":""}>${esc(f.label)}</option>`).join("")}</select></label></div>
       <div class="row">${num("p-size","Tamaño",L.size,1,4)}<label class="f"><span>Grosor</span><select id="p-weight">${[[400,"Normal"],[600,"Semi negrita"],[700,"Negrita"]].map(([w,n])=>`<option value="${w}"${+L.weight===w?" selected":""}${F.w.includes(w)?"":" disabled"}>${n}</option>`).join("")}</select></label></div>
-      <div class="row"><div class="f"><span>Alineación</span><div class="chips">${["left","center","right"].map(a=>`<button type="button" data-al="${a}" aria-pressed="${L.align===a}" aria-label="${{left:"Izquierda",center:"Centro",right:"Derecha"}[a]}">${ICON[a]}</button>`).join("")}</div></div>
+      <div class="row"><div class="f"><span>Alineación</span><div class="chips">${["left","center","right","justify"].map(a=>`<button type="button" data-al="${a}" aria-pressed="${L.align===a}" aria-label="${{left:"Izquierda",center:"Centro",right:"Derecha",justify:"Justificado"}[a]}" title="${{left:"Izquierda",center:"Centro",right:"Derecha",justify:"Justificado"}[a]}">${ICON[a]}</button>`).join("")}</div></div>
         <div class="f"><span>Estilo</span><div class="chips"><button type="button" id="p-upper" aria-pressed="${!!L.upper}" title="Mayúsculas">AA</button></div></div></div>
       <h3>Color del texto</h3>${swatches("color",L.color)}
       <h3>Espaciado</h3><div class="row">${rng("p-lh","Interlineado",L.lh||1.2,.8,2.2,.02)}${rng("p-ls","Entre letras",L.ls||0,-.05,.5,.01)}</div>
@@ -2298,6 +2303,48 @@ function delSecDialog(S1,S2){const pre=S2?S1.id+"/"+S2.id:S1.id+"/",n=(CX.list||
   v.querySelector("#cx-yes").onclick=async()=>{v.remove();
     for(const d of (CX.list||[]).filter(d=>S2?(d.sec||"")===pre:(d.sec||"").startsWith(pre))){try{await store.move(d.id,"");d.sec="";if(S.doc&&S.doc.id===d.id)S.doc.sec=""}catch(e){}}
     if(S2)S1.subs=S1.subs.filter(x=>x!==S2);else CX.secs=CX.secs.filter(x=>x!==S1);CX.sel=S2?S1.id:"all";await saveSecs();paintCarpetas()}}
+
+
+/* ================== copiar el diseño a otros tamaños ================== */
+/* Each chosen size becomes a NEW design (its own file) with the same content, re-arranged:
+   backgrounds and full-width bands stretch to the new canvas; everything else keeps its size ratio
+   and stays near the same edge (top/bottom, left/right) or in the middle. */
+function adaptLayers(layers,W,H,W2,H2){const s=Math.min(W2/W,H2/H),out=clone(layers.map(stripL)),units=[],seen=new Set();
+  for(const L of out){if(seen.has(L))continue;const u=L.g?out.filter(x=>x.g===L.g):[L];u.forEach(x=>seen.add(x));units.push(u)}
+  /* near an edge (first or last 20 %): keeps its distance to that edge; in the middle: the whole middle block moves together and stays centered, so stacked texts keep their spacing */
+  const anchor=(pos,size,len,len2)=>{const c=(pos+size/2)/len;if(c<.2)return pos*s;if(c>.8)return len2-(len-pos-size)*s-size*s;return pos*s+(len2-len*s)/2};
+  const scaleL=(L,k)=>{L.w=Math.max(2,Math.round(L.w*k));if(L.t==="text"){L.size=Math.max(4,Math.round(L.size*k));L.px=Math.round((L.px||0)*k);L.py=Math.round((L.py||0)*k)}else L.h=Math.max(2,Math.round(L.h*k));if(L.rad)L.rad=Math.round(L.rad*k);if(L.sw)L.sw=Math.max(1,Math.round(L.sw*k))};
+  for(const u of units){const b=bbox(u),solo=u.length===1&&u[0].t!=="text"?u[0]:null;
+    const fullW=b.x<=W*.03&&b.x+b.w>=W*.97,fullH=b.y<=H*.03&&b.y+b.h>=H*.97;
+    if(solo&&(solo.t==="rect"||solo.t==="img"||solo.t==="ellipse")&&(fullW||fullH)){
+      /* a band glued to an edge stays glued to it and grows with the canvas */
+      const band=(pos,size,len,len2,full)=>{if(full)return[pos*len2/len,size*len2/len];const top=pos<=len*.03,bot=pos+size>=len*.97,k=len2/len;
+        if(top)return[0,(pos+size)*k];if(bot){const ns=(len-pos)*k;return[len2-ns,ns]}return[anchor(pos,size,len,len2),size*s]};
+      const [x2,w2]=fullH&&!fullW?band(solo.x,solo.w,W,W2,false):fullW?[solo.x*W2/W,solo.w*W2/W]:[anchor(solo.x,solo.w,W,W2),solo.w*s];
+      const [y2,h2]=fullW&&!fullH?band(solo.y,solo.h,H,H2,false):fullH?[solo.y*H2/H,solo.h*H2/H]:[anchor(solo.y,solo.h,H,H2),solo.h*s];
+      solo.x=Math.round(x2);solo.w=Math.round(w2);solo.y=Math.round(y2);solo.h=Math.round(h2);
+      if(solo.rad)solo.rad=Math.round(solo.rad*s);continue}
+    const nx=anchor(b.x,b.w,W,W2),ny=anchor(b.y,b.h,H,H2);
+    for(const L of u){const rx=L.x-b.x,ry=L.y-b.y;scaleL(L,s);L.x=Math.round(nx+rx*s);L.y=Math.round(ny+ry*s);if(L.t==="text")layoutText(L)}}
+  return out}
+const SIZE_SEC={estado:"whatsapp/estados",portada:"facebook/portadas",bannerweb:"web/banners",a4:"impresos/folletos",triptico:"impresos/folletos",rollup:"impresos/banners"};
+async function adaptDialog(){const d=S.doc;if(S.editing)endEdit();syncPage();await loadSecs().catch(()=>{});
+  const opts=SIZES.filter(z=>!(z[2]===d.w&&z[3]===d.h)).filter((z,i,a)=>a.findIndex(y=>y[2]===z[2]&&y[3]===z[3])===i);
+  const v=showDialog("Copiar a otros tamaños",`<p class="hint" style="margin-top:0">Se crea un diseño nuevo por cada tamaño, con el mismo contenido acomodado al nuevo formato. El original no cambia. Después revisa cada copia y ajusta lo que haga falta.</p>
+    <div style="display:grid;gap:6px;margin:10px 0 14px">${opts.map(z=>`<label class="check" style="margin:0"><input type="checkbox" value="${z[0]}"${z[0]==="estado"||z[0]==="post45"||z[0]==="post11"?" checked":""}> ${esc(z[1])} <small style="color:var(--muted)">· ${z[2]} × ${z[3]}</small></label>`).join("")}</div>
+    ${d.pages.length>1?`<label class="check"><input type="checkbox" id="ad-all" checked> Copiar las ${d.pages.length} páginas (si no, solo la página ${d.pi+1})</label>`:""}
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="ad-go">Crear copias</button></div>`);
+  v.querySelector("#ad-go").onclick=async()=>{const pick=[...v.querySelectorAll('input[type=checkbox][value]:checked')].map(i=>SIZES.find(z=>z[0]===i.value));if(!pick.length){toast("Elige al menos un tamaño.");return}
+    const all=!v.querySelector("#ad-all")||v.querySelector("#ad-all").checked,src=all?pagesOut(d):[pagesOut(d)[d.pi]];
+    const btn=v.querySelector("#ad-go");btn.disabled=true;btn.textContent="Creando…";const made=[];const me=store.kind==="fb"&&FB.user?fbMe():null;
+    for(const z of pick){const nd=newDoc(z[2],z[3],d.bg,d.brand,`${d.name} · ${z[1]}`);
+      const pages=src.map(P=>({id:"p"+uid(),name:P.name||"",bg:P.bg,layers:adaptLayers(P.layers,d.w,d.h,z[2],z[3])}));
+      let sec=SIZE_SEC[z[0]]||d.sec||"";if(CX.secs&&!secValid(sec))sec=secValid(d.sec||"");
+      const rec={id:nd.id,name:nd.name,brand:d.brand,w:z[2],h:z[3],mm:z[4]||null,folds:z[0]==="triptico"?[1/3,2/3]:null,pages,by:me?me.email:"",byName:me?me.name:"",sec};
+      try{rec.thumb=await makeThumb(rec,220);await store.put(rec);made.push(rec)}catch(e){toast("No se pudo crear la copia "+z[1]+". Revisa tu conexión.")}}
+    HOME.list=null;CX.list=null;v.remove();if(!made.length)return;
+    const r=showDialog("Copias listas",`<p class="hint" style="margin-top:0">${made.length} diseño${made.length>1?"s":""} nuevo${made.length>1?"s":""}. Ábrelos para revisar y ajustar.</p><div class="dgrid">${made.map(m=>`<div class="dcard"><button type="button" class="pic" data-op="${m.id}">${m.thumb?`<img src="${m.thumb}" alt="">`:""}</button><div class="meta"><b>${esc(m.name)}</b><small>${m.w} × ${m.h}${m.sec&&CX.secs?" · "+esc(secLabel(m.sec)):""}</small></div></div>`).join("")}</div>`);
+    r.querySelectorAll("[data-op]").forEach(b=>b.onclick=async()=>{if(await openStored(b.dataset.op)){r.remove();if(S.tab==="inicio"||S.tab==="disenos")toEditor()}})}}
 
 /* ================== dialogs: my designs ================== */
 function showDialog(title,body){const v=document.createElement("div");v.className="veil";v.innerHTML=`<div class="dlg" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><h2>${esc(title)}</h2><button class="btn" type="button" data-close>Cerrar</button></header><div class="body">${body}</div></div>`;

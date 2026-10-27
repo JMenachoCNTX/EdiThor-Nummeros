@@ -12,6 +12,8 @@
 - **QR**: pestaña QR para crear códigos de WhatsApp, página web, Telegram, correo, Wi-Fi o texto, con el logo de la marca en el centro. Plantillas de **porta QR para acrílico** (10 × 15 cm, 2 caras) y **QR para redes**.
 - **Mockups**: marcos de laptop, celular, tablet y navegador para mostrar capturas de los sistemas; plantillas de mockup laptop, mockup celular y **guía paso a paso** (A4) para manuales.
 - **Descargas**: PNG, PNG sin fondo, JPG, SVG (con las letras incluidas) y PDF; también **solo lo seleccionado** en PNG sin fondo o SVG.
+- **Copiar a otros tamaños**: en Páginas (o en las opciones de la página → Tamaño) se eligen los formatos (estado, publicación 4:5, cuadrada, portada, banner…) y se crea un **diseño nuevo por cada tamaño** con el mismo contenido acomodado: los fondos y franjas se estiran, lo demás conserva su proporción y su lugar (arriba, centro o abajo). El original no cambia y cada copia se guarda en su apartado (por ejemplo, Estados).
+- **Texto justificado**: además de izquierda, centro y derecha.
 - **Páginas**: un diseño puede tener varias páginas (agregar, duplicar, mover, eliminar). Se descarga la página actual en PNG/JPG o todas juntas en **PDF** (las piezas de imprenta salen a su tamaño real en cm).
 - **Modo claro, oscuro o según el sistema**, con el botón de la barra superior.
 - **Barras distribuidas**: arriba del lienzo, las opciones rápidas del elemento elegido (letra, tamaño, color, recortar, quitar fondo, agrupar…); abajo, las páginas, la vista previa y el zoom.
