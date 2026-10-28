@@ -8,7 +8,7 @@
 - **Candado**: los diseños guardados se abren **bloqueados**, para que nadie mueva ni borre algo por accidente. Al intentar cambiar algo aparece una ventana para desbloquear (botón «Bloqueado» arriba). Las plantillas nuevas se abren desbloqueadas.
 - **En Diseños**: cada diseño tiene «Mover a», **Descargar** (PNG, JPG, PDF, SVG o PowerPoint) sin abrirlo, **Compartir** y **Eliminar**. Con las casillas se eligen **varios** para descargarlos juntos en un ZIP, moverlos o eliminarlos. El apartado **En varios tamaños** muestra cada diseño junto a sus copias en otras medidas.
 - **Compartir por WhatsApp o Telegram**: como imagen JPG, archivo PNG, PDF o SVG. En el celular y en Safari/Chrome de Mac se abre el menú de compartir del sistema; si no, se descarga el archivo y se abre WhatsApp Web o Telegram Web para adjuntarlo.
-- **Buscar imágenes**: pestaña Buscar con fotos libres de Openverse que se agregan con un toque; accesos a Google Imágenes y Pinterest (copiar la imagen y pegarla con ⌘ + V) y opción de pegar el enlace de una imagen.
+- **Imágenes**: una sola pestaña con tres partes: «De la marca», «Buscar» y «Mis imágenes» (subidas). En Buscar hay fotos libres de Openverse que se agregan con un toque; accesos a Google Imágenes y Pinterest (copiar la imagen y pegarla con ⌘ + V) y opción de pegar el enlace de una imagen.
 - **PowerPoint (.pptx)**: Descargar → PowerPoint arma una diapositiva por página, con los textos y rectángulos editables; fotos y logos van como imágenes. Se abre en PowerPoint o en Google Slides (Archivo → Importar). Para presentaciones conviene el tamaño «Presentación 16:9».
 - **Inicio**: bienvenida con una foto de los clásicos de NUMMEROS, accesos rápidos a las plantillas y los diseños del equipo con un filtro por persona.
 - **Se ve como los demás sistemas de NUMMEROS**: menú lateral menta, verde principal, Akshar en los títulos y Questrial en los textos (modo claro y oscuro).
@@ -32,7 +32,7 @@
 - **Varios a la vez**: Shift + clic o arrastrar un recuadro para elegir varios; moverlos, escalarlos, alinearlos, **agrupar** (⌘ + G) o **unir en una sola imagen**.
 - **Recortar**: doble clic sobre una imagen; se arrastra la imagen dentro del marco y se mueven los bordes.
 - **Quitar fondo**: gratis en el navegador (herramienta de IMG.LY, la primera vez descarga unos 40 MB) o con IA de OpenAI.
-- **Fotos y gráficos de marca**: los clásicos de los números y el Contador Virtual; ilustraciones, íconos en relieve, elementos y patrones de NUMMEROS; ilustraciones, íconos en relieve blanco y azul noche, elementos, pasos, recortes del isotipo y tramas de CONTAX; la N y el isotipo de CONTAX en vector. En la pestaña Fotos hay atajos para saltar a cada grupo.
+- **Fotos y gráficos de marca**: los clásicos de los números y el Contador Virtual; ilustraciones, íconos en relieve, elementos y patrones de NUMMEROS; ilustraciones, íconos en relieve blanco y azul noche, elementos, pasos, recortes del isotipo y tramas de CONTAX; la N y el isotipo de CONTAX en vector. En Imágenes → De la marca hay atajos para saltar a cada grupo.
 - **Subir imágenes** propias (por ejemplo las que se generan en ChatGPT o Gemini), también pegándolas con ⌘ + V.
 - **IA** (solo en la versión de GitHub): Claude escribe el prompt de la imagen y los textos con la voz de cada marca. OpenAI o Gemini (a elección) crean la imagen y la ponen directo en el diseño. También pueden **mejorar** una imagen ya puesta (subida, de la marca o generada); Claude puede mirarla y preparar la instrucción.
 - **Descargar** en PNG o JPG.
@@ -51,10 +51,17 @@ Con la nube activa, las claves se guardan en Firestore (`secrets/ia`): aparecen 
 
 - **En línea:** https://edithornummeros.contaxbolivia.com (GitHub Pages con dominio propio).
 - Se entra con una cuenta de Google autorizada. Los diseños y las imágenes se guardan en **Firebase** (proyecto «EdiThor Nummeros»), así se ven desde cualquier computadora.
-- **Diseños compartidos**: todos los usuarios ven y pueden cambiar los diseños de todos. Cada diseño guarda quién lo creó y quién lo cambió por última vez. Si dos personas cambian el mismo diseño al mismo tiempo, queda el último que se guardó.
+- **Diseños compartidos**: todos los usuarios ven y pueden cambiar los diseños de todos. Cada diseño guarda quién lo creó y quién lo cambió por última vez.
+- **Quién está editando**: si alguien tiene un diseño abierto y desbloqueado, los demás ven «✎ Sol lo está editando» y, al intentar desbloquearlo, pueden mirar, hacer una copia o editar igual.
+- **Estados**: cada diseño es Borrador, Para revisar, Aprobado o Publicado. En Diseños hay un apartado «Por estado».
+- **Versiones**: se guarda una copia antes del primer cambio de cada sesión y otra cada 30 minutos de trabajo (las últimas 25). En Diseños → ⋯ → «Versiones anteriores» se ven y se puede volver a cualquiera.
+- **Papelera**: lo eliminado espera 30 días en Diseños → Papelera y después se borra solo.
+- **Plantillas del equipo**: Diseños → ⋯ → «Guardar como plantilla del equipo»; aparecen en Plantillas → Del equipo.
+- **Datos de las marcas**: WhatsApp, web, correo, dirección y horario de cada marca (Inicio → «Datos de las marcas» o el menú de la cuenta). Las plantillas se llenan solas y, al cambiarlos, se pueden actualizar en todos los diseños guardados.
+- **Gasto de IA**: en IA → Configurar claves se ve cuántas imágenes y textos usó cada persona en el mes, y se puede poner un tope de imágenes por persona.
+- **Espacio**: en Diseños se ve cuánto ocupa la nube (el plan gratis tiene 1 GB). Las imágenes se achican antes de subir (máximo 2560 px, en WebP).
 - Usuarios con acceso: jhonnymenacho04@gmail.com, info@contaxbolivia.com, sol@contaxbolivia.com y contaxcontabilidad5@gmail.com.
-- Sin internet o sin entrar, el editor guarda en el navegador; después, en «Mis diseños», se suben a la nube con un clic.
-- También existe una versión dentro de Claude (artifact), sin IA.
+- Si no hay internet al abrir, el editor guarda en el navegador; después, en «Mis diseños», se suben a la nube con un clic.
 
 ## Firebase
 
@@ -77,10 +84,5 @@ Con la nube activa, las claves se guardan en Firestore (`secrets/ia`): aparecen 
 | `fonts/` | Letras: Akshar, Questrial y Adventor (reemplazo de Century Gothic) |
 | `firebase-config.js`, `firestore.rules` | Conexión con Firebase y reglas de acceso |
 | `lib/qrcode.js` | Librería para generar los códigos QR (qrcode-generator, licencia MIT) |
-| `herramientas/para-artifact.py` | Prepara `index.html` para publicarlo como artifact |
 
-El contenido de la página está entre las marcas `<!-- PAGINA -->` y `<!-- /PAGINA -->`. Para publicar como artifact se usa solo esa parte:
-
-```
-python3 herramientas/para-artifact.py index.html pagina.html
-```
+Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), `trash` (papelera), `vers` y `vmeta` (versiones), `tpls` (plantillas del equipo), `editing` (quién edita), `usage` (uso de IA por mes), `users`, `secrets/ia` (claves de IA) y `meta` (carpetas, datos de marcas, tope de IA).

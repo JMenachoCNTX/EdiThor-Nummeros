@@ -488,6 +488,39 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
 :root[data-theme="dark"] .nm-overlay .lg-l{display:none}:root[data-theme="dark"] .nm-overlay .lg-d{display:block}
 @media (prefers-reduced-motion:reduce){.nm-barra::before,.nm-retrato::after,.nm-retrato img,.hero-pic img{animation:none!important}}
 
+/* equipo: estados, papelera, versiones, espacio, plantillas del equipo, uso de IA */
+.imgseg{display:flex;gap:4px;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:3px;margin:0 0 12px}
+.imgseg button{flex:1;border:0;background:transparent;border-radius:999px;padding:7px 6px;font:600 13.5px/1 var(--head);letter-spacing:.02em;color:var(--muted);white-space:nowrap}
+.imgseg button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
+.stdot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;background:#9AA9A2;vertical-align:0}
+.stdot.st-revision{background:#E6A23C}.stdot.st-aprobado{background:#2E9E6B}.stdot.st-publicado{background:#3B6FD8}
+.cx-lbl{font:600 11.5px/1 var(--head);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:12px 10px 6px}
+.cx-it .stdot{margin:0 4px 0 2px}
+.editing{display:inline-flex;align-items:center;gap:4px;margin-top:4px;font-size:11px;font-weight:700;color:#B54708;background:#FEF0C7;border-radius:999px;padding:2px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cx .dcard .acts2{flex-wrap:wrap}
+.cx .dcard .acts2 select[data-dl]{flex:1 1 96px}
+.cx .dcard .acts2 select.more{flex:0 0 auto;width:44px;padding:5px 2px;text-align:center}
+.cx .dcard .acts2 .del{white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.cx .dcard .acts2 .del svg{width:14px;height:14px}
+.cx-space{padding:12px 10px 4px;display:grid;gap:6px}
+.cx-space small{color:var(--muted);font-size:11.5px;line-height:1.4}
+.spbar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.spbar i{display:block;height:100%;background:var(--acc);border-radius:999px}
+.spbar.warn i{background:#E6A23C}.spbar.full i{background:var(--danger)}
+.vtools{display:flex;justify-content:flex-end;margin-bottom:10px}
+.vlist{display:grid;gap:8px}
+.vrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:8px;background:var(--panel)}
+.vrow img,.vrow .vimg{width:54px;height:54px;object-fit:contain;border-radius:8px;background:var(--stage);flex:none}
+.vrow .vmeta{flex:1;min-width:0;display:grid;gap:2px}.vrow .vmeta small{color:var(--muted);font-size:11.5px}
+.vrow .btn{padding:6px 10px;font-size:12.5px}
+.thumb.ttpl{position:relative}
+.thumb.ttpl .pic{border:0;padding:0;width:100%;cursor:pointer}
+.thumb.ttpl .tdel{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:15px;line-height:1;display:grid;place-items:center;padding:0}
+.utab{width:100%;border-collapse:collapse;font-size:13px}
+.utab th,.utab td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.utab th{font:600 12px var(--head);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.utab td:not(:first-child),.utab th:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+
 /* phones and narrow windows */
 @media (max-width:900px){
   .bottombar{justify-content:center}
@@ -565,13 +598,13 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
       <button role="tab" type="button" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></svg>Inicio</button>
       <button role="tab" type="button" data-tab="disenos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7.5V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9.5a2 2 0 0 0-2-2h-7L10 5H5a2 2 0 0 0-2 2.5Z"/><path d="M8 13h8M8 16.5h5"/></svg>Diseños</button>
       <button role="tab" type="button" data-tab="plantillas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Plantillas</button>
-      <button role="tab" type="button" data-tab="fotos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/></svg>Fotos</button>
+      <button role="tab" type="button" data-tab="fotos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/></svg>Imágenes</button>
       <button role="tab" type="button" data-tab="logos"><svg viewBox="0 0 546 728" fill="currentColor"><path d="M0 427 L0 728 L136 728 L136 634 Z M410 0 L410 85 L546 292 L546 0 Z M0 0 L148 0 L410 458.5 L410 341 L546 548 L546 728 L401.71 728 L136 263 L136 379 L0 172 Z" transform="translate(91 64) scale(.82)"/></svg>Logos</button>
       <button role="tab" type="button" data-tab="texto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg>Texto</button>
       <button role="tab" type="button" data-tab="formas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="10" height="10" rx="1.5"/><circle cx="16" cy="8" r="5"/></svg>Formas</button>
       <button role="tab" type="button" data-tab="qr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20h1M20 14h1" stroke-linecap="round"/></svg>QR</button>
-      <button role="tab" type="button" data-tab="subir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir</button>
-      <button role="tab" type="button" data-tab="buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Buscar</button>
+      <button role="tab" type="button" data-tab="subir" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Subir</button>
+      <button role="tab" type="button" data-tab="buscar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Buscar</button>
       <button role="tab" type="button" data-tab="ia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>IA</button>
       <button role="tab" type="button" data-tab="editar" class="only-mobile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Editar</button>
     </nav>
@@ -1048,7 +1081,7 @@ const IDB={p:null,
   async del(k){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
 const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   col(){return this.db.collection("data/users/"+this.uid)},
-  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",fam:v.fam||"",by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||""}})}
+  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",fam:v.fam||"",st:v.st||"",by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||"",_sz:(v.data||"").length+(v.thumb||"").length}})}
     if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
     if(this.idb)return(await IDB.get("index"))||[];
     return lsGet("ed.designs",[])},
@@ -1079,7 +1112,7 @@ const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   async setSecciones(secs){if(this.kind==="fb"){await FB.m.setDoc(fbDoc("meta","carpetas"),{secs,updated:Date.now(),by:fbMe().email});return}
     if(this.kind==="db"){await this.col().doc("carpetas").set({secs});return}
     if(this.idb){await IDB.set("carpetas",secs);return}lsSet("ed.carpetas",secs)},
-  async del(id){if(this.kind==="fb"){await FB.m.deleteDoc(fbDoc("designs",id));return}
+  async del(id){if(this.kind==="fb"){/* goes to the trash for 30 days */const x=await FB.m.getDoc(fbDoc("designs",id));if(x.exists()){const me=fbMe();await FB.m.setDoc(fbDoc("trash",id),Object.assign({},x.data(),{deletedAt:Date.now(),deletedBy:me.email,deletedName:me.name}))}await FB.m.deleteDoc(fbDoc("designs",id));return}
     if(this.kind==="db"){await this.col().doc(id).delete();return}
     if(this.idb){await IDB.del("d:"+id);await IDB.set("index",((await IDB.get("index"))||[]).filter(x=>x.id!==id));return}
     lsSet("ed.designs",lsGet("ed.designs",[]).filter(x=>x.id!==id))},
@@ -1107,7 +1140,7 @@ async function fbLoad(){const base=`https://www.gstatic.com/firebasejs/${FB_V}/`
   const M=FB.m=Object.assign({},...mods);FB.app=M.initializeApp(window.EDITHOR_FIREBASE);FB.auth=M.getAuth(FB.app);
   try{FB.db=M.initializeFirestore(FB.app,{localCache:M.persistentLocalCache({tabManager:M.persistentMultipleTabManager()})})}catch(e){FB.db=M.getFirestore(FB.app)}}
 /* pictures live in Firestore as pieces of text (no paid Storage plan needed); a copy stays in this browser for speed */
-async function fbPutImage(blob){const M=FB.m,id=uid()+uid(),b64=await b64OfBlob(blob),size=700000,n=Math.max(1,Math.ceil(b64.length/size));
+async function fbPutImage(blob){blob=await shrinkImage(blob);const M=FB.m,id=uid()+uid(),b64=await b64OfBlob(blob),size=700000,n=Math.max(1,Math.ceil(b64.length/size));
   const batch=M.writeBatch(FB.db);batch.set(fbDoc("images",id),{type:blob.type||"image/png",n,bytes:blob.size,at:Date.now()});
   for(let i=0;i<n;i++)batch.set(fbDoc("images",id,"parts",String(i)),{d:b64.slice(i*size,(i+1)*size)});
   await batch.commit();try{await IDB.set("img:fb:"+id,blob)}catch(e){}return"fb:"+id}
@@ -1133,7 +1166,6 @@ function fbLoginUI(msg,isErr){splash(false,true);let v=$("#fblogin");if(!v){v=do
     ${msg?`<p class="${isErr?"login-err":""}">${msg}</p>`:""}
     <button class="gbtn" type="button" id="fb-in">${GICON}Entrar con Google</button>
     ${FB.user?`<button class="lsec" type="button" id="fb-out">Entrar con otra cuenta</button>`:""}
-    <button class="lsec" type="button" id="fb-local">Seguir sin entrar (se guarda solo en este navegador)</button>
     <span class="foot">NUMMEROS by CONTAX</span></div>`}
 /* NUMMEROS waiting screen n.º 6 «los clásicos trabajando»: shown when someone signs in */
 const NM_CLASICOS=[{foto:"clasicos/pitagoras-tablet.jpg",nombre:"Pitágoras",frase:"Pitágoras está ordenando tus diseños…"},{foto:"clasicos/euclides-compas.jpg",nombre:"Euclides",frase:"Euclides está midiendo tus plantillas…"},{foto:"clasicos/arquimedes-balanza.jpg",nombre:"Arquímedes",frase:"Arquímedes está cuadrando tus colores…"}];
@@ -1148,7 +1180,8 @@ function splash(show,now,title){let v=$("#nmCargando");
     <p class="nm-titulo">${esc(title||"Preparando EdiThor")}</p><p class="nm-paso">${c.frase}</p><div class="nm-barra" role="progressbar" aria-label="Cargando"></div></div></div>`}
 function acctUI(){const w=$("#acct"),u=FB.user;if(!u){w.hidden=true;return}w.hidden=false;const b=$("#btn-acct");
   b.innerHTML=u.photoURL?`<img src="${esc(u.photoURL)}" alt="" referrerpolicy="no-referrer">`:esc((u.displayName||u.email||"?").trim().charAt(0).toUpperCase());b.title=u.email||"";
-  $("#menu-acct").innerHTML=`<div class="acct-mail">Conectado como<br><b>${esc(u.email||"")}</b><br>Los diseños se guardan en la nube y los ve todo el equipo.</div><button type="button" id="acct-out">Cerrar sesión</button>`;
+  $("#menu-acct").innerHTML=`<div class="acct-mail">Conectado como<br><b>${esc(u.email||"")}</b><br>Los diseños se guardan en la nube y los ve todo el equipo.</div><button type="button" id="acct-binfo">Datos de las marcas<small>WhatsApp, web, correo y horarios</small></button><button type="button" id="acct-out">Cerrar sesión</button>`;
+  $("#acct-binfo").onclick=()=>{$("#menu-acct").hidden=true;brandInfoDialog()};
   $("#acct-out").onclick=async()=>{if(S.dirty)await saveNow();await FB.m.signOut(FB.auth);location.reload()};
   b.onclick=e=>{e.stopPropagation();const m=$("#menu-acct");m.hidden=!m.hidden;b.setAttribute("aria-expanded",String(!m.hidden))}}
 document.addEventListener("click",e=>{const m=$("#menu-acct");if(m&&!m.hidden&&!e.target.closest("#acct"))m.hidden=true});
@@ -1207,7 +1240,7 @@ async function saveNow(){
   const d=S.doc,ver=S.ver;if(store.kind==="fb"&&FB.user&&!d.by){const me=fbMe();d.by=me.email;d.byName=me.name}
   const rec={id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:pagesOut(d),by:d.by||"",byName:d.byName||""};if(d.secNew)rec.sec=d.sec||"";
   setStatus("Guardando…");
-  try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);if(rec.sec!==undefined)delete d.secNew;
+  try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);afterSave(d,rec).catch(()=>{});if(rec.sec!==undefined)delete d.secNew;
     if(S.doc===d&&S.ver===ver){S.dirty=false;setStatus(store.kind==="fb"?"Guardado en la nube":store.kind==="db"?"Guardado":"Guardado en este navegador")}}
   catch(e){setStatus(e&&(e.code==="quota_exceeded"||e.name==="QuotaExceededError")?"No se pudo guardar: no queda espacio. Elimina diseños viejos.":"No se pudo guardar. Revisa tu conexión.",true)}
 }
@@ -1453,7 +1486,7 @@ document.querySelectorAll(".rail button, .rrail button").forEach(b=>{if(!b.title
 document.querySelectorAll(".rail button").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.tab;
   if(t==="inicio"||t==="disenos"){$("#main").classList.remove("lib-open","props-open");HV.lib=false;setTab(t);updRails();return}
   if(isCompact()){const m=$("#main");if(HV.lib){HV.lib=false;if(S.tab!==t)setTab(t);updRails();return}if(S.tab===t&&m.classList.contains("lib-open")){m.classList.remove("lib-open");updRails();return}m.classList.add("lib-open");setTab(t);updRails();return}setTab(t)}));
-function setTab(t){const was=S.tab;S.tab=t;$("#main").dataset.tab=t;document.body.classList.toggle("on-home",t==="inicio"||t==="disenos");document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===t)));
+function setTab(t){const was=S.tab;S.tab=t;$("#main").dataset.tab=t;document.body.classList.toggle("on-home",t==="inicio"||t==="disenos");document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(railOf(b.dataset.tab)===railOf(t))));
   if(t==="inicio"){if(S.editing)endEdit();CX.newSec="";renderHome();return}
   if(t==="disenos"){if(S.editing)endEdit();if(S.dirty)saveNow();renderCarpetas();return}
   if(t!=="editar")S.libTab=t;
@@ -1467,6 +1500,7 @@ function renderLib(){
   const el=$("#lib"),b=S.brand,BN=BR[b].name;thumbJobs=[];
   if(S.tab==="plantillas"){
     el.innerHTML=`<div class="pane"><h2>Plantillas ${BN}</h2><p class="hint">Elige una pieza para empezar. Todo se puede mover y cambiar.</p>
+      <div id="tpls-team"></div>
       <div class="toggle2" role="group" aria-label="Estilo"><button type="button" data-st="claro" aria-pressed="${S.style==="claro"}">Claro</button><button type="button" data-st="oscuro" aria-pressed="${S.style==="oscuro"}">Oscuro</button></div>
       <div class="thumbs" id="tpls"></div>
       <h3>En blanco</h3><div class="addlist" id="blank">${SIZES.map(s=>`<button type="button" data-k="${s[0]}">${s[1]}<br><small style="color:var(--muted)">${s[2]} × ${s[3]} px</small></button>`).join("")}</div></div>`;
@@ -1476,9 +1510,10 @@ function renderLib(){
       btn.innerHTML=`<div class="pic"></div><span>${esc(t.name)}<small>${t.size}</small></span>`;btn.querySelector(".pic").appendChild(c);box.appendChild(btn);
       let built=null;const st=S.style;
       const paint=()=>{if(!built)return;const s=300/Math.max(built.w,built.h);c.width=Math.round(built.w*s);c.height=Math.round(built.h*s);const x=c.getContext("2d");x.scale(s,s);drawDesign(x,built)};
-      t.build(st).then(d=>{built=normDoc(d);built.layers=built.pages[0].layers;built.bg=built.pages[0].bg;paint()});thumbJobs.push(paint);
+      t.build(st).then(d=>{built=normDoc(d);applyBrandInfo(built);built.layers=built.pages[0].layers;built.bg=built.pages[0].bg;paint()});thumbJobs.push(paint);
       btn.onclick=async()=>{await openTemplate(t,S.style)};});
     el.querySelectorAll("#blank button").forEach(x=>x.onclick=()=>{const s=SIZES.find(s=>s[0]===x.dataset.k);{const d=newDoc(s[2],s[3],BR[b].st[S.style].bg,b,s[1]+" en blanco");if(s[4])d.mm=s[4];if(s[0]==="triptico")d.folds=[1/3,2/3];openDoc(d,true)}});
+    paintTeamTpls();
   }
   else if(S.tab==="fotos"){
     const groups=photoGroups(b);
@@ -1528,6 +1563,7 @@ function renderLib(){
     const dz=$("#drop");dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("over")});dz.addEventListener("dragleave",()=>dz.classList.remove("over"));dz.addEventListener("drop",e=>{e.preventDefault();dz.classList.remove("over");handleFiles(e.dataTransfer.files)});
     paintUploads();
   }
+  if(IMG_TABS.includes(S.tab))imgSeg(el)
 }
 let UPS=[];
 async function refreshUploads(){try{UPS=await store.uploads()}catch(e){UPS=[]}if(S.tab==="subir")paintUploads()}
@@ -1818,8 +1854,9 @@ function iaKeysDialog(){const c=aiCfg();
     <label class="f"><span>Modelo de OpenAI</span><select id="k-model">${IMG_MODELS.map(([m,n])=>`<option value="${m}"${c.imgModel===m?" selected":""}>${n}</option>`).join("")}</select></label>
     <label class="f"><span>Clave de la API de Gemini</span><input type="password" id="k-gemini" autocomplete="off" placeholder="AIza…" value="${esc(c.gemini)}"><small class="k">Se crea en aistudio.google.com → Get API key. Para imágenes hay que activar la facturación.</small></label>
     <label class="f"><span>Modelo de Gemini</span><select id="k-gmodel">${GEM_MODELS.map(([m,n])=>`<option value="${m}"${c.gemModel===m?" selected":""}>${n}</option>`).join("")}</select><small class="k">Si el modelo elegido no está en tu cuenta, el editor prueba solo con el siguiente.</small></label>
+    <div id="ia-usage"></div>
     <div class="row-end"><button class="btn danger" type="button" id="k-clear">Borrar claves</button><button class="btn pri" type="button" id="k-save">Guardar</button></div>`);
-  v.querySelector(".dlg").style.width="min(520px,100%)";
+  v.querySelector(".dlg").style.width="min(520px,100%)";paintUsage(v.querySelector("#ia-usage"));
   v.querySelector("#k-save").onclick=()=>{const k=aiCfg();k.claude=v.querySelector("#k-claude").value.trim();k.openai=v.querySelector("#k-openai").value.trim();k.gemini=v.querySelector("#k-gemini").value.trim();k.imgModel=v.querySelector("#k-model").value;k.gemModel=v.querySelector("#k-gmodel").value;aiSave(k);v.remove();if(S.tab==="ia")renderLib();
     aiCloudSave(k).then(ok=>toast(ok?"Claves guardadas en la nube para todo el equipo":"Claves guardadas en este navegador")).catch(()=>toast("Se guardaron en este navegador, pero no en la nube. Revisa tu conexión."))};
   v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";k.gemini="";aiSave(k);v.remove();aiCloudSave(k).catch(()=>{});toast("Claves borradas");if(S.tab==="ia")renderLib()}}
@@ -1856,7 +1893,7 @@ S.compact=lsGet("ed.compact",false);S.rpanel="props";
 function applyCompact(){const m=$("#main"),on=S.compact&&!isNarrow();const was=m.classList.contains("compact");m.classList.toggle("compact",on);
   if(!on)m.classList.remove("lib-open","props-open");else if(!was){m.classList.remove("lib-open");m.classList.toggle("props-open",selIds().length>0);S.rpanel="props"}
   $("#btn-panels").setAttribute("aria-pressed",String(!!S.compact));if(S.doc){renderProps();requestRender()}}
-function updRails(){const m=$("#main"),c=isCompact();document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab&&(!c||m.classList.contains("lib-open")))));
+function updRails(){const m=$("#main"),c=isCompact();document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(railOf(b.dataset.tab)===railOf(S.tab)&&(!c||m.classList.contains("lib-open")))));
   document.querySelectorAll(".rrail [data-rp]").forEach(b=>b.setAttribute("aria-selected",String(c&&m.classList.contains("props-open")&&S.rpanel===b.dataset.rp)))}
 $("#btn-panels").onclick=()=>{S.compact=!S.compact;lsSet("ed.compact",S.compact);applyCompact();toast(S.compact?"Paneles automáticos: se abren al tocar un ícono o un elemento":"Paneles fijos")};
 document.querySelectorAll(".rrail [data-rp]").forEach(b=>b.onclick=()=>{const m=$("#main"),k=b.dataset.rp;if(HV.props){HV.props=false;if(S.rpanel!==k){S.rpanel=k;renderProps()}return}if(m.classList.contains("props-open")&&S.rpanel===k){m.classList.remove("props-open");updRails();return}S.rpanel=k;m.classList.add("props-open");renderProps()});
@@ -2030,7 +2067,7 @@ function overAny(...els){return els.some(el=>el&&el.matches(":hover"))}
 if(CAN_HOVER){
   const rail=document.querySelector(".rail"),lib=$("#lib"),rrail=$("#rrail"),props=$("#props"),m=$("#main");
   document.querySelectorAll(".rail button").forEach(b=>{b.addEventListener("mouseenter",()=>{clearTimeout(HV.t);HV.t=setTimeout(()=>{const t=b.dataset.tab;if(t==="editar"||t==="inicio"||t==="disenos"||S.tab==="inicio"||S.tab==="disenos")return;
-      if(isCompact()){if(!m.classList.contains("lib-open")){m.classList.add("lib-open");HV.lib=true}}if(S.tab!==t)setTab(t);updRails()},170)});
+      if(isCompact()){if(!m.classList.contains("lib-open")){m.classList.add("lib-open");HV.lib=true}}if(railOf(S.tab)!==railOf(t))setTab(t);updRails()},170)});
     b.addEventListener("mouseleave",()=>clearTimeout(HV.t))});
   document.querySelectorAll(".rrail [data-rp]").forEach(b=>{b.addEventListener("mouseenter",()=>{clearTimeout(HV.t);HV.t=setTimeout(()=>{if(!isCompact())return;const k=b.dataset.rp;
       if(!m.classList.contains("props-open")){m.classList.add("props-open");HV.props=true}if(S.rpanel!==k){S.rpanel=k;renderProps()}else updRails()},170)});
@@ -2209,7 +2246,7 @@ function bindLayers(){document.querySelectorAll(".layer").forEach(r=>r.addEventL
   document.querySelectorAll("[data-lock]").forEach(b=>b.onclick=()=>{const L=S.doc.layers.find(l=>l.id===b.dataset.lock);L.lock=!L.lock;commit();renderProps();requestRender()})}
 
 /* ================== open / brand ================== */
-async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=normDoc(await t.build(st));if(CX.newSec){d.sec=CX.newSec;d.secNew=true;CX.newSec=""}await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
+async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=normDoc(await t.build(st));applyBrandInfo(d);if(CX.newSec){d.sec=CX.newSec;d.secNew=true;CX.newSec=""}await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
 function openDoc(d,fresh){if(S.dirty)saveNow();normDoc(d);setLock(false);S.doc=d;S.sel=null;S.multi=[];S.crop=null;S.zoom=1;S.panX=0;S.panY=0;S.dirty=false;if(d.brand&&d.brand!==S.brand)setBrand(d.brand,true);
   $("#nombre").value=d.name;resetHistory();renderProps();requestRender();renderPageBar();if(fresh)setStatus("Plantilla abierta · se guarda sola cuando la cambies");if(isNarrow())window.scrollTo({top:0,behavior:"smooth"})}
 function setBrand(b,keep){S.brand=b;lsSet("ed.brand",b);document.documentElement.dataset.marca=b;
@@ -2272,7 +2309,7 @@ function whoLine(d){if(store.kind!=="fb")return"";const by=d.by||"",ed=d.ed||by;
   const parts=[by?`De ${esc(personName(by,d.byName))}`:"",ed&&ed!==by?`editado por ${esc(personName(ed,d.edName))}`:""].filter(Boolean).join(" · ");
   return`<span class="who">${avatar(ed||by,d.edName||d.byName)}<span>${parts}</span></span>`}
 async function homeData(force){if(HOME.list&&!force)return HOME.list;try{const l=await store.list();l.sort((a,b)=>(b.updated||0)-(a.updated||0));HOME.list=l}catch(e){HOME.list=HOME.list||[]}return HOME.list}
-async function openStored(id){let d;try{d=await store.get(id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return false}openDoc(fromRecord(id,d));setLock(true);return true}
+async function openStored(id){let d;try{d=await store.get(id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return false}openDoc(fromRecord(id,d));setLock(true);S.loaded={id,rec:d,kept:false};return true}
 async function renderHome(){const el=$("#home");if(!el)return;const b=S.brand,isFB=store.kind==="fb",me=isFB?fbMe():null;
   if(!HOME.pic){const c=CLA[Math.floor(Math.random()*CLA.length)];HOME.pic={src:"clasicos/"+c[0]+".jpg",cap:PER[c[1]][0]+" · "+c[2]}}
   const hi=me&&me.name?`Hola, ${esc(firstName(me.name))}.`:"Bienvenido.";
@@ -2283,7 +2320,7 @@ async function renderHome(){const el=$("#home");if(!el)return;const b=S.brand,is
     <div class="hcard hero"><svg class="hero-wm" viewBox="0 0 546 728" aria-hidden="true"><path d="${NPATH}"/></svg>
       <div class="hero-txt"><p class="kicker">EdiThor · NUMMEROS by CONTAX</p><h1>${hi}</h1>
         <p class="lead">Bienvenido a EdiThor, el editor de piezas de NUMMEROS y CONTAX. Las plantillas, fotos, logos, colores y letras de las dos marcas ya están cargados.</p>
-        <div class="hero-acts"><button class="btn pri" type="button" data-h="nuevo">Nuevo diseño</button>${cur?`<button class="btn" type="button" data-h="seguir" title="${esc(cur.name)}">Seguir editando</button>`:""}<button class="btn" type="button" data-h="todos">Ver todos</button></div></div>
+        <div class="hero-acts"><button class="btn pri" type="button" data-h="nuevo">Nuevo diseño</button>${cur?`<button class="btn" type="button" data-h="seguir" title="${esc(cur.name)}">Seguir editando</button>`:""}<button class="btn" type="button" data-h="todos">Ver todos</button><button class="btn" type="button" data-h="binfo">Datos de las marcas</button></div></div>
       <figure class="hero-pic"><img src="${HOME.pic.src}" alt="${esc(HOME.pic.cap)}"><figcaption>${esc(HOME.pic.cap)}</figcaption></figure></div>
     <section class="hsec"><div class="hsec-head"><div><h2>Empieza rápido</h2><p>Plantillas de ${BR[b].name} listas para cambiar. Cambia de marca arriba.</p></div></div>
       <div class="quick">${Q.map(([id,n,sub,img])=>`<button type="button" class="qk" data-tpl="${id}"><img src="${img}" alt="" loading="lazy"><span><b>${n}</b><small>${sub}</small></span></button>`).join("")}</div></section>
@@ -2292,6 +2329,7 @@ async function renderHome(){const el=$("#home");if(!el)return;const b=S.brand,is
   el.querySelector('[data-h="nuevo"]').onclick=()=>toEditor("plantillas");
   el.querySelector('[data-h="seguir"]')?.addEventListener("click",()=>toEditor());
   el.querySelector('[data-h="todos"]').onclick=()=>$("#btn-disenos").click();
+  el.querySelector('[data-h="binfo"]').onclick=()=>brandInfoDialog();
   el.querySelectorAll("[data-tpl]").forEach(x=>x.onclick=async()=>{const t=TPL[b].find(t=>t.id===x.dataset.tpl);if(!t)return;x.disabled=true;await openTemplate(t,"claro");x.disabled=false;toEditor()});
   const list=await homeData(true);if(S.tab!=="inicio")return;paintHomeList(list)}
 function paintHomeList(list){const box=$("#h-list"),pp=$("#h-people");if(!box)return;const isFB=store.kind==="fb",me=isFB?fbMe().email:"";
@@ -2299,7 +2337,7 @@ function paintHomeList(list){const box=$("#h-list"),pp=$("#h-people");if(!box)re
     pp.innerHTML=`<button type="button" class="all" data-who="all" aria-pressed="${HOME.who==="all"}">Todos</button>`+emails.map(e=>`<button type="button" data-who="${esc(e)}" aria-pressed="${HOME.who===e}" title="${esc(e)}">${avatar(e)}${e===me?"Míos":esc(personName(e))}</button>`).join("");
     pp.querySelectorAll("[data-who]").forEach(x=>x.onclick=()=>{HOME.who=x.dataset.who;paintHomeList(list)})}
   const L=list.filter(d=>HOME.who==="all"||(d.by||"")===HOME.who).slice(0,12);
-  box.innerHTML=L.length?`<div class="dgrid">${L.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy">`:""}<span class="eye">${IC_EYE} Ver</span></button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${whoLine(d)}</div></div>`).join("")}</div>${list.length>12&&HOME.who==="all"?`<p class="hint" style="margin-top:12px">Mostrando los 12 más recientes. <a href="#" id="h-more">Ver todos</a></p>`:""}`
+  box.innerHTML=L.length?`<div class="dgrid">${L.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy">`:""}<span class="eye">${IC_EYE} Ver</span></button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${whoLine(d)}${editingBadge(d.id)}</div></div>`).join("")}</div>${list.length>12&&HOME.who==="all"?`<p class="hint" style="margin-top:12px">Mostrando los 12 más recientes. <a href="#" id="h-more">Ver todos</a></p>`:""}`
     :`<div class="hempty">${HOME.who==="all"?"Todavía no hay diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.":"Esta persona todavía no tiene diseños."}</div>`;
   box.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
   box.querySelectorAll("[data-view]").forEach(x=>x.onclick=()=>previewStored(x.dataset.view));
@@ -2350,21 +2388,26 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   const inSec=(d,a)=>secValid(d.sec||"").split("/")[0]===a,inSub=(d,v)=>secValid(d.sec||"")===v,none=d=>!secValid(d.sec||"");
   const FAMS=cxFams();if(CX.sel.startsWith("fam:")&&!FAMS.some(f=>"fam:"+f.fam===CX.sel))CX.sel="fams";
   CX.picked=new Set([...CX.picked].filter(id=>L.some(d=>d.id===id)));
-  if(CX.sel!=="all"&&CX.sel!=="none"&&CX.sel!=="fams"&&!CX.sel.startsWith("fam:")){const [a,b]=CX.sel.split("/");const S1=CX.secs.find(x=>x.id===a);if(!S1||(b&&!S1.subs.some(x=>x.id===b)))CX.sel="all"}
+  if(CX.sel!=="all"&&CX.sel!=="none"&&CX.sel!=="fams"&&!CX.sel.startsWith("fam:")&&!CX.sel.startsWith("st:")&&CX.sel!=="trash"){const [a,b]=CX.sel.split("/");const S1=CX.secs.find(x=>x.id===a);if(!S1||(b&&!S1.subs.some(x=>x.id===b)))CX.sel="all"}
   const it=(key,icon,name,n,drop)=>`<button type="button" class="cx-it" data-sel="${esc(key)}"${drop?` data-drop="${esc(drop)}"`:""} aria-pressed="${CX.sel===key}">${icon||""}<span>${esc(name)}</span><span class="n">${n}</span></button>`;
   side.innerHTML=`<h2>Diseños</h2>${it("all",IC_ALL,"Todos",L.length)}${it("none",IC_INBOX,"Sin clasificar",cxCount(none),"__none")}${it("fams",IC_SIZES,"En varios tamaños",FAMS.length)}
+    <div class="cx-sec open"><div class="cx-lbl">Por estado</div><div class="cx-sub">${ST_K.map(k=>it("st:"+k,`<i class="stdot st-${k}"></i>`,ST_N[k],cxCount(d=>stOf(d)===k))).join("")}</div></div>
     ${CX.secs.map(S1=>`<div class="cx-sec${CX.sel===S1.id||CX.sel.startsWith(S1.id+"/")?" open":""}">${it(S1.id,SEC_ICON[S1.id]||IC_FOLDER,S1.name,cxCount(d=>inSec(d,S1.id)))}<div class="cx-sub">${S1.subs.map(S2=>it(S1.id+"/"+S2.id,"",S2.name,cxCount(d=>inSub(d,S1.id+"/"+S2.id)),S1.id+"/"+S2.id)).join("")}</div></div>`).join("")}
     <div class="cx-tools"><button class="btn" type="button" id="cx-addsec">+ Sección</button></div>
+    ${isFB?it("trash",IC_TRASH,"Papelera",CX.trashN??"·"):""}${isFB?`<div class="cx-space" id="cx-space"></div>`:""}
     <p class="hint" style="padding:0 8px;margin:6px 0 0;font-size:11.5px">Arrastra un diseño hasta un apartado para moverlo, o usa «Mover a» en cada diseño.</p>`;
   side.querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{CX.sel=b.dataset.sel;paintCarpetas()});
   side.querySelectorAll("[data-drop]").forEach(b=>{b.addEventListener("dragover",e=>{if(!CX.drag)return;e.preventDefault();b.classList.add("drop")});b.addEventListener("dragleave",()=>b.classList.remove("drop"));
     b.addEventListener("drop",e=>{e.preventDefault();b.classList.remove("drop");const id=CX.drag;CX.drag=null;if(id)moveDesign(id,b.dataset.drop==="__none"?"":b.dataset.drop)})});
   side.querySelector("#cx-addsec").onclick=()=>secDialog();
+  if(isFB)paintSpace();
+  if(CX.sel==="trash"){paintTrash(main);return}
   /* main column */
   let title,sub,groups,S1=null;
   if(CX.sel==="all"){title="Todos los diseños";sub="Todos los diseños del equipo, del más reciente al más antiguo.";groups=[{name:"",items:L}]}
   else if(CX.sel==="fams"){title="En varios tamaños";sub="Cada diseño junto a sus copias en otras medidas, para encontrarlas sin buscar en cada apartado.";groups=FAMS.map(f=>({name:f.items[0].name.replace(/ · [^·]+$/,""),fam:f.fam,items:f.items}));if(!groups.length)groups=[{name:"",items:[],empty:"Todavía no hay copias. Abre un diseño y usa «Copiar a otros tamaños» en Páginas."}]}
   else if(CX.sel.startsWith("fam:")){const f=FAMS.find(f=>"fam:"+f.fam===CX.sel);title=f.items[0].name.replace(/ · [^·]+$/,"");sub=`El mismo diseño en ${f.items.length} tamaños`;groups=[{name:"",items:f.items}]}
+  else if(CX.sel.startsWith("st:")){const k=CX.sel.slice(3);title=ST_N[k];sub=ST_D[k];groups=[{name:"",items:L.filter(d=>stOf(d)===k)}]}
   else if(CX.sel==="none"){title="Sin clasificar";sub="Diseños que todavía no están en ningún apartado. Muévelos para tenerlos ordenados.";groups=[{name:"",items:L.filter(none)}]}
   else{const [a,b]=CX.sel.split("/");S1=CX.secs.find(x=>x.id===a);
     if(b){const S2=S1.subs.find(x=>x.id===b);title=S2.name;sub=S1.name;groups=[{name:"",items:L.filter(d=>inSub(d,a+"/"+b))}]}
@@ -2372,9 +2415,10 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   const isSub=CX.sel.includes("/");
   const famN=f=>{const x=FAMS.find(x=>x.fam===f);return x?x.items.length:0},isFamView=CX.sel==="fams"||CX.sel.startsWith("fam:");
   const card=d=>{const fn=d.fam?famN(d.fam):0;return`<div class="dcard${CX.picked.has(d.id)?" picked":""}" draggable="true" data-id="${esc(d.id)}"><label class="ck" title="Seleccionar"><input type="checkbox" data-pick="${esc(d.id)}"${CX.picked.has(d.id)?" checked":""} aria-label="Seleccionar ${esc(d.name)}"></label><span class="size">${esc(isFamView?sizeName(d):`${d.w}×${d.h}`)}</span><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}<span class="eye">${IC_EYE} Ver</span></button>
-      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}</div>
+      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}${editingBadge(d.id)}</div>
+      <label class="mv st"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap"><i class="stdot st-${stOf(d)}"></i> Estado</span><select data-stsel="${esc(d.id)}" aria-label="Estado de ${esc(d.name)}">${ST_K.map(k=>`<option value="${k}"${stOf(d)===k?" selected":""}>${ST_N[k]}</option>`).join("")}</select></label>
       <label class="mv"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap">Mover a</span><select data-mv="${esc(d.id)}" aria-label="Mover ${esc(d.name)} a otro apartado">${secOptions(secValid(d.sec||""))}</select></label>
-      <div class="acts2"><button type="button" class="open" data-open="${esc(d.id)}" title="Abrir en el editor">Abrir</button><select data-dl="${esc(d.id)}" aria-label="Descargar ${esc(d.name)}"><option value="">Descargar…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select><button type="button" data-share="${esc(d.id)}" title="Compartir por WhatsApp o Telegram" aria-label="Compartir">${IC_SHARE}</button><button type="button" class="del" data-del="${esc(d.id)}" title="Eliminar diseño" aria-label="Eliminar">${IC_TRASH}</button></div></div>`};
+      <div class="acts2"><button type="button" class="open" data-open="${esc(d.id)}" title="Abrir en el editor">Abrir</button><select data-dl="${esc(d.id)}" aria-label="Descargar ${esc(d.name)}"><option value="">Descargar…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select><button type="button" data-share="${esc(d.id)}" title="Compartir por WhatsApp o Telegram" aria-label="Compartir">${IC_SHARE}</button>${isFB?`<select data-more="${esc(d.id)}" aria-label="Más opciones" class="more"><option value="">⋯</option><option value="ver">Versiones anteriores</option><option value="tpl">Guardar como plantilla del equipo</option></select>`:""}<button type="button" class="del" data-del="${esc(d.id)}" title="Eliminar diseño" aria-label="Eliminar">${IC_TRASH}</button></div></div>`};
   const shown=[...new Set(groups.flatMap(g=>g.items.map(d=>d.id)))],np=CX.picked.size;
   main.innerHTML=(np?`<div class="cxbar"><b>${np} seleccionado${np>1?"s":""}</b><select id="cxb-dl" aria-label="Descargar seleccionados"><option value="">Descargar como…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}${np>1?" (en un ZIP)":""}</option>`).join("")}</select><select id="cxb-mv" aria-label="Mover seleccionados"><option value="-">Mover a…</option>${secOptions("__")}</select><button class="btn" type="button" id="cxb-del">${IC_TRASH.replace('<svg','<svg style="width:15px;height:15px"')}Eliminar</button><span class="sp"></span><button class="btn" type="button" id="cxb-all">Elegir todos (${shown.length})</button><button class="btn" type="button" id="cxb-none">Quitar selección</button></div>`:"")+`<div class="cx-head"><div><h2>${esc(title)}</h2><p>${esc(sub)}</p></div><div class="acts">
       ${S1?`<button class="btn" type="button" id="cx-addsub">+ Apartado</button><button class="btn" type="button" id="cx-ren">Cambiar nombre</button><button class="btn" type="button" id="cx-delsec">Eliminar${isSub?" apartado":" sección"}</button>`:""}
@@ -2385,6 +2429,8 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   main.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
   main.querySelectorAll("[data-view]").forEach(x=>x.onclick=()=>previewStored(x.dataset.view));
   main.querySelectorAll("[data-mv]").forEach(x=>x.onchange=()=>moveDesign(x.dataset.mv,x.value));
+  main.querySelectorAll("[data-stsel]").forEach(x=>x.onchange=()=>setStatusOf(x.dataset.stsel,x.value));
+  main.querySelectorAll("[data-more]").forEach(x=>x.onchange=()=>{const v=x.value;x.value="";const d=L.find(d=>d.id===x.dataset.more);if(!d)return;if(v==="ver")versionsDialog(d);if(v==="tpl")saveAsTemplate(d.id)});
   main.querySelectorAll("[data-fam]").forEach(x=>x.onclick=()=>{CX.sel="fam:"+x.dataset.fam;paintCarpetas()});
   main.querySelectorAll("[data-pick]").forEach(x=>x.onchange=()=>{x.checked?CX.picked.add(x.dataset.pick):CX.picked.delete(x.dataset.pick);paintCarpetas()});
   main.querySelectorAll("[data-dl]").forEach(x=>x.onchange=async()=>{const f=x.value;x.value="";if(!f)return;x.disabled=true;const r=await exportStored(x.dataset.dl,f);x.disabled=false;if(r)await saveBlob(r.blob,r.fname,f)});
@@ -2474,9 +2520,9 @@ let LOCKDLG=null;
 function lockPrompt(){if(LOCKDLG&&LOCKDLG.isConnected)return;
   LOCKDLG=showDialog("Diseño bloqueado",`<p style="margin-top:0">Este diseño está protegido para que nadie lo mueva ni lo borre por accidente.</p><p class="hint">¿Quieres desbloquearlo para editarlo? Se vuelve a bloquear la próxima vez que se abra.</p>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Solo mirar</button><button class="btn pri" type="button" id="unlock-go">${LOCK_ICO.replace('<svg','<svg style="width:16px;height:16px"')}Desbloquear</button></div>`);
-  LOCKDLG.querySelector("#unlock-go").onclick=()=>{LOCKDLG.remove();setLock(false);toast("Diseño desbloqueado: ya puedes editar")};LOCKDLG.querySelector("#unlock-go").focus()}
+  LOCKDLG.querySelector("#unlock-go").onclick=()=>{LOCKDLG.remove();tryUnlock()};LOCKDLG.querySelector("#unlock-go").focus()}
 $("#btn-lock").onclick=()=>{if(S.locked)lockPrompt();else{setLock(true);toast("Diseño bloqueado")}};
-$("#lock-open").onclick=()=>{setLock(false);toast("Diseño desbloqueado: ya puedes editar")};$("#lock-view").onclick=()=>openPreview();
+$("#lock-open").onclick=()=>tryUnlock();$("#lock-view").onclick=()=>openPreview();
 /* while locked, anything that would change the design asks to unlock first */
 /* only the controls that change something are stopped (not scrolling a panel or tapping an empty spot), and the question appears on a real tap (click), never while scrolling */
 const LOCK_ZONES="#ctxbar,#props,#pg-add,#undo,#redo,#nombre,#stage .dropveil";
@@ -2589,7 +2635,7 @@ async function downloadMany(ids,fmt){if(!ids.length)return;if(ids.length===1){co
   setStatus("Comprimiendo…");const blob=await zip.generateAsync({type:"blob"});setStatus("");
   await saveBlob(blob,`edithor-${n}-disenos-${fmt}.zip`,"zip")}
 function deleteDesigns(ids,after){const L=(CX.list||[]).filter(d=>ids.includes(d.id));if(!L.length)return;
-  const v=showDialog(L.length>1?"Eliminar diseños":"Eliminar diseño",`<p style="margin-top:0">${L.length>1?`¿Eliminar estos <b>${L.length} diseños</b>?`:`¿Eliminar <b>${esc(L[0].name)}</b>?`}</p><p class="hint">Se borra${L.length>1?"n":""} para todo el equipo y no se puede${L.length>1?"n":""} recuperar.</p>
+  const v=showDialog(L.length>1?"Eliminar diseños":"Eliminar diseño",`<p style="margin-top:0">${L.length>1?`¿Eliminar estos <b>${L.length} diseños</b>?`:`¿Eliminar <b>${esc(L[0].name)}</b>?`}</p><p class="hint">${store.kind==="fb"?`Se va${L.length>1?"n":""} a la <b>Papelera</b>: durante 30 días se puede${L.length>1?"n":""} recuperar desde Diseños → Papelera.`:`Se borra${L.length>1?"n":""} y no se puede${L.length>1?"n":""} recuperar.`}</p>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="button" id="del-yes">Sí, eliminar</button></div>`);
   v.querySelector("#del-yes").onclick=async()=>{v.remove();let n=0;for(const d of L){try{await store.del(d.id);n++;if(S.doc&&S.doc.id===d.id){S.dirty=false;clearTimeout(S.saveTimer)}if(lsGet("ed.last",null)===d.id)lsSet("ed.last",null)}catch(e){}}
     CX.list=(CX.list||[]).filter(d=>!ids.includes(d.id));HOME.list=null;ids.forEach(id=>CX.picked.delete(id));toast(n===L.length?(n>1?`${n} diseños eliminados`:"Diseño eliminado"):"Algunos no se pudieron eliminar. Revisa tu conexión.");after&&after()}}
@@ -2616,6 +2662,189 @@ $("#btn-disenos").onclick=async()=>{
     catch(e){mg.disabled=false;msg.textContent="No se pudo terminar de subir. Revisa tu internet y vuelve a intentar."}};
 };
 
+/* ================== equipo: imágenes, estados, quién edita, versiones, papelera, plantillas, datos de marca, gasto de IA y espacio ================== */
+/* one rail button «Imágenes» holds three panels: brand pictures, web search and your own uploads */
+const IMG_TABS=["fotos","buscar","subir"];
+function railOf(t){return IMG_TABS.includes(t)?"fotos":t}
+function imgSeg(el){const p=el.querySelector(".pane");if(!p||p.querySelector(".imgseg"))return;const h=document.createElement("div");h.className="imgseg";h.setAttribute("role","group");h.setAttribute("aria-label","Imágenes");
+  h.innerHTML=[["fotos","De la marca"],["buscar","Buscar"],["subir","Mis imágenes"]].map(([k,n])=>`<button type="button" data-is="${k}" aria-pressed="${S.tab===k}">${n}</button>`).join("");
+  p.insertBefore(h,p.firstChild);h.querySelectorAll("[data-is]").forEach(b=>b.onclick=()=>{if(S.tab!==b.dataset.is){setTab(b.dataset.is);if(isCompact())updRails()}})}
+
+/* ---------- status of each design ---------- */
+const ST_K=["borrador","revision","aprobado","publicado"];
+const ST_N={borrador:"Borrador",revision:"Para revisar",aprobado:"Aprobado",publicado:"Publicado"};
+const ST_D={borrador:"Diseños en preparación.",revision:"Listos para que alguien los revise y los apruebe.",aprobado:"Revisados y listos para publicar.",publicado:"Ya se publicaron."};
+const stOf=d=>ST_K.includes(d&&d.st)?d.st:"borrador";
+async function setStatusOf(id,st){try{await store.patch(id,{st})}catch(e){toast("No se pudo cambiar el estado. Revisa tu conexión.");return}
+  for(const L of [CX.list,HOME.list])if(L){const d=L.find(x=>x.id===id);if(d)d.st=st}if(S.doc&&S.doc.id===id)S.doc.st=st;
+  toast("Estado: "+ST_N[st]);if(S.tab==="disenos")paintCarpetas()}
+
+/* ---------- who is editing what (so two people don't overwrite each other) ---------- */
+const PRES={map:{},mine:null};
+const PRES_TTL=120000;
+async function loadPresence(){if(store.kind!=="fb"||!FB.user)return;try{const q=await FB.m.getDocs(FB.m.collection(FB.db,"editing"));const m={},me=fbMe().email;
+  q.docs.forEach(x=>{const v=x.data();if(v&&v.email!==me&&Date.now()-(v.at||0)<PRES_TTL)m[x.id]=v});PRES.map=m}catch(e){}}
+function editingBadge(id){const v=PRES.map[id];return v?`<span class="editing" title="${esc(v.email||"")}">✎ ${esc(firstName(v.name||v.email))} lo está editando</span>`:""}
+function presenceSoon(){clearTimeout(PRES.t);PRES.t=setTimeout(presenceTick,1500)}
+async function presenceTick(){clearTimeout(PRES.t);if(store.kind!=="fb"||!FB.user)return;const d=S.doc,want=d&&d.by&&!S.locked&&S.tab!=="inicio"&&S.tab!=="disenos"?d.id:null;
+  if(PRES.mine&&PRES.mine!==want){const old=PRES.mine;PRES.mine=null;try{await FB.m.deleteDoc(fbDoc("editing",old))}catch(e){}}
+  if(want){PRES.mine=want;const me=fbMe();try{await FB.m.setDoc(fbDoc("editing",want),{email:me.email,name:me.name,at:Date.now()})}catch(e){}}}
+setInterval(presenceTick,30000);
+{const _setLock=setLock;setLock=function(v){_setLock(v);presenceSoon()}}
+{const _setTab=setTab;setTab=function(t){_setTab(t);presenceSoon()}}
+window.addEventListener("pagehide",()=>{if(PRES.mine&&FB.m)try{FB.m.deleteDoc(fbDoc("editing",PRES.mine))}catch(e){}});
+async function tryUnlock(){const d=S.doc;
+  if(store.kind==="fb"&&d&&d.by){let v=null;try{const x=await FB.m.getDoc(fbDoc("editing",d.id));v=x.exists()?x.data():null}catch(e){}
+    if(v&&v.email!==fbMe().email&&Date.now()-(v.at||0)<PRES_TTL){const n=esc(firstName(v.name||v.email));
+      const w=showDialog("Alguien lo está editando",`<p style="margin-top:0"><b>${n}</b> está editando este diseño ahora mismo.</p><p class="hint">Si los dos lo cambian a la vez, queda lo que guardó el último y se pierde lo del otro. Míralo sin editar, espera a que ${n} termine o haz una copia para ti.</p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px"><button class="btn" type="button" data-close>Solo mirar</button><button class="btn" type="button" id="ed-copy">Hacer una copia para mí</button><button class="btn danger" type="button" id="ed-force">Editar igual</button></div>`);
+      w.querySelector("#ed-force").onclick=()=>{w.remove();doUnlock()};w.querySelector("#ed-copy").onclick=()=>{w.remove();copyForMe()};return}}
+  doUnlock()}
+function doUnlock(){setLock(false);toast("Diseño desbloqueado: ya puedes editar")}
+function copyForMe(){const s=S.doc;syncPage();const d=fromRecord(newDoc(1,1).id,Object.assign({},s,{pages:pagesOut(s)}));d.name=s.name+" (copia)";d.by="";d.byName="";d.st="borrador";delete d.verAt;d.sec=s.sec||"";
+  openDoc(d,true);S.dirty=true;scheduleSave();toast("Copia lista: estás editando tu propia copia")}
+
+/* ---------- versions: a copy every 30 minutes of work, and one before the first change ---------- */
+const VER_EVERY=30*60e3,VER_FIRST=10*60e3,VER_KEEP=25;
+async function afterSave(d,rec){if(store.kind!=="fb")return;const now=Date.now();S.verAt=S.verAt||{};const last=S.verAt[d.id]!=null?S.verAt[d.id]:(d.verAt||0);
+  if(S.loaded&&S.loaded.id===d.id&&!S.loaded.kept){S.loaded.kept=true;if(now-last>VER_FIRST){S.verAt[d.id]=now;await addVersion(d.id,S.loaded.rec,"Como estaba antes de editar");return}}
+  if(!S.verAt[d.id]&&!d.verAt){S.verAt[d.id]=now;return}
+  if(now-last>VER_EVERY){S.verAt[d.id]=now;await addVersion(d.id,Object.assign({},rec,{thumb:d.thumb}),"Copia automática")}}
+async function addVersion(id,r,why){const me=fbMe(),at=Date.now(),vid=id+"__"+at;
+  const data=typeof r.data==="string"?r.data:JSON.stringify({pages:r.pages||[],mm:r.mm||null,folds:r.folds||null});
+  await FB.m.setDoc(fbDoc("vers",vid),{did:id,name:r.name||"",brand:r.brand||"",w:r.w,h:r.h,thumb:r.thumb||"",data,at,who:me.email,whoName:me.name,why});
+  const mref=fbDoc("vmeta",id);let items=[];try{const x=await FB.m.getDoc(mref);items=x.exists()?(x.data().items||[]):[]}catch(e){}
+  items.unshift({vid,at,who:me.email,whoName:me.name,why,name:r.name||"",thumb:r.thumb||""});const drop=items.slice(VER_KEEP);items=items.slice(0,VER_KEEP);
+  await FB.m.setDoc(mref,{items});for(const it of drop){try{await FB.m.deleteDoc(fbDoc("vers",it.vid))}catch(e){}}
+  try{await FB.m.updateDoc(fbDoc("designs",id),{verAt:at})}catch(e){}}
+function verDoc(v){let more={};try{more=JSON.parse(v.data||"{}")}catch(e){}return fromRecord(v.did||newDoc(1,1).id,Object.assign({name:v.name,brand:v.brand,w:v.w,h:v.h},more))}
+async function versionsDialog(d){if(store.kind!=="fb"){toast("Las versiones se guardan solo en la nube.");return}
+  const v=showDialog("Versiones anteriores",`<p class="hint" style="margin-top:0">«${esc(d.name)}» · EdiThor guarda una copia antes del primer cambio de cada sesión y otra cada 30 minutos de trabajo. Se guardan las últimas ${VER_KEEP}.</p><div id="vlist"><div class="empty">Cargando…</div></div>`);
+  v.querySelector(".dlg").style.width="min(620px,100%)";const box=v.querySelector("#vlist");
+  const paint=async()=>{let items=[];try{const x=await FB.m.getDoc(fbDoc("vmeta",d.id));items=x.exists()?(x.data().items||[]):[]}catch(e){box.innerHTML='<div class="empty">No se pudieron cargar las versiones. Revisa tu conexión.</div>';return}
+    box.innerHTML=`<div class="vtools"><button class="btn" type="button" id="v-now">Guardar una versión ahora</button></div>`+(items.length?`<div class="vlist">${items.map((it,i)=>`<div class="vrow">${it.thumb?`<img src="${it.thumb}" alt="">`:`<span class="vimg"></span>`}<div class="vmeta"><b>${new Date(it.at).toLocaleString("es-BO",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</b><small>${esc(it.why||"")} · ${esc(personName(it.who,it.whoName))}</small></div><button class="btn" type="button" data-vv="${i}">Ver</button><button class="btn pri" type="button" data-vr="${i}">Volver a esta</button></div>`).join("")}</div>`:`<div class="empty">Todavía no hay versiones guardadas de este diseño. Se crean solas mientras se edita.</div>`);
+    box.querySelector("#v-now").onclick=async()=>{const b=box.querySelector("#v-now");b.disabled=true;if(S.doc&&S.doc.id===d.id&&S.dirty)await saveNow();try{const r=await store.get(d.id);await addVersion(d.id,r,"Guardada a mano");toast("Versión guardada")}catch(e){toast("No se pudo guardar la versión.")}paint()};
+    box.querySelectorAll("[data-vv]").forEach(b=>b.onclick=async()=>{const it=items[+b.dataset.vv];const x=await FB.m.getDoc(fbDoc("vers",it.vid));if(!x.exists()){toast("Esa versión ya no existe.");return}openPreview(verDoc(x.data()),{noFull:true})});
+    box.querySelectorAll("[data-vr]").forEach(b=>b.onclick=async()=>{const it=items[+b.dataset.vr];b.disabled=true;
+      try{const x=await FB.m.getDoc(fbDoc("vers",it.vid));if(!x.exists())throw 0;const vd=x.data();
+        if(S.doc&&S.doc.id===d.id&&S.dirty)await saveNow();const cur=await store.get(d.id);if(cur)await addVersion(d.id,cur,"Antes de volver a una versión anterior");
+        let more={};try{more=JSON.parse(vd.data||"{}")}catch(e){}
+        await store.put(Object.assign({id:d.id,name:vd.name||d.name,brand:vd.brand||d.brand,w:vd.w,h:vd.h,thumb:vd.thumb||"",by:cur&&cur.by,byName:cur&&cur.byName},more));
+        if(S.doc&&S.doc.id===d.id){S.dirty=false;await openStored(d.id)}HOME.list=null;v.remove();toast("Listo: el diseño volvió a la versión elegida");if(S.tab==="disenos")renderCarpetas()}
+      catch(e){b.disabled=false;toast("No se pudo volver a esa versión.")}})};
+  paint()}
+
+/* ---------- trash: deleted designs wait 30 days ---------- */
+const TRASH_DAYS=30;
+async function loadTrash(){if(store.kind!=="fb")return[];const q=await FB.m.getDocs(FB.m.collection(FB.db,"trash"));const now=Date.now(),out=[];
+  for(const x of q.docs){const v=x.data();if(now-(v.deletedAt||0)>TRASH_DAYS*864e5){purgeTrash(x.id).catch(()=>{});continue}out.push(Object.assign({id:x.id},v))}
+  out.sort((a,b)=>(b.deletedAt||0)-(a.deletedAt||0));CX.trash=out;CX.trashN=out.length;return out}
+async function purgeTrash(id){await FB.m.deleteDoc(fbDoc("trash",id));try{const m=await FB.m.getDoc(fbDoc("vmeta",id));if(m.exists()){for(const it of m.data().items||[]){try{await FB.m.deleteDoc(fbDoc("vers",it.vid))}catch(e){}}await FB.m.deleteDoc(fbDoc("vmeta",id))}}catch(e){}}
+async function restoreTrash(id){const x=await FB.m.getDoc(fbDoc("trash",id));if(!x.exists())return false;const v=Object.assign({},x.data());delete v.deletedAt;delete v.deletedBy;delete v.deletedName;
+  await FB.m.setDoc(fbDoc("designs",id),v);await FB.m.deleteDoc(fbDoc("trash",id));return true}
+async function paintTrash(main){main.innerHTML='<div class="cx-head"><div><h2>Papelera</h2><p>Cargando…</p></div></div>';try{await loadTrash()}catch(e){}if(CX.sel!=="trash")return;const T=CX.trash||[];const left=t=>Math.max(1,TRASH_DAYS-Math.floor((Date.now()-(t.deletedAt||0))/864e5));
+  main.innerHTML=`<div class="cx-head"><div><h2>Papelera</h2><p>Los diseños eliminados esperan aquí ${TRASH_DAYS} días y después se borran solos.</p></div><div class="acts">${T.length?`<button class="btn danger" type="button" id="tr-empty">Vaciar papelera</button>`:""}</div></div>
+    ${T.length?`<div class="dgrid">${T.map((t,i)=>`<div class="dcard"><button type="button" class="pic" data-tv="${i}" aria-label="Ver ${esc(t.name)}" title="Ver">${t.thumb?`<img src="${t.thumb}" alt="" loading="lazy">`:""}<span class="eye">${IC_EYE} Ver</span></button><div class="meta"><b>${esc(t.name||"Diseño")}</b><small>Eliminado ${agoTxt(t.deletedAt)} por ${esc(personName(t.deletedBy,t.deletedName))}</small><span class="cx-tag">Se borra en ${left(t)} día${left(t)===1?"":"s"}</span></div>
+      <div class="acts2"><button type="button" class="open" data-tr="${i}">Restaurar</button><button type="button" class="del" data-tx="${i}" title="Eliminar para siempre">${IC_TRASH} Para siempre</button></div></div>`).join("")}</div>`:`<div class="hempty">La papelera está vacía.</div>`}`;
+  main.querySelectorAll("[data-tv]").forEach(b=>b.onclick=()=>{const t=T[+b.dataset.tv];openPreview(verDoc(Object.assign({did:t.id},t)),{noFull:true})});
+  main.querySelectorAll("[data-tr]").forEach(b=>b.onclick=async()=>{const t=T[+b.dataset.tr];b.disabled=true;try{await restoreTrash(t.id);toast("«"+(t.name||"Diseño")+"» volvió a Diseños");HOME.list=null;CX.sel="all";renderCarpetas()}catch(e){b.disabled=false;toast("No se pudo restaurar.")}});
+  main.querySelectorAll("[data-tx]").forEach(b=>b.onclick=()=>{const t=T[+b.dataset.tx];const v=showDialog("Eliminar para siempre",`<p style="margin-top:0">¿Borrar <b>${esc(t.name||"este diseño")}</b> para siempre? Ya no se podrá recuperar.</p><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="button" id="tx-yes">Borrar para siempre</button></div>`);
+    v.querySelector("#tx-yes").onclick=async()=>{v.remove();try{await purgeTrash(t.id);toast("Borrado para siempre")}catch(e){toast("No se pudo borrar.")}renderCarpetas()}});
+  const em=main.querySelector("#tr-empty");if(em)em.onclick=()=>{const v=showDialog("Vaciar papelera",`<p style="margin-top:0">¿Borrar para siempre los <b>${T.length}</b> diseños de la papelera?</p><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="button" id="te-yes">Vaciar</button></div>`);
+    v.querySelector("#te-yes").onclick=async()=>{v.remove();for(const t of T){try{await purgeTrash(t.id)}catch(e){}}toast("Papelera vacía");renderCarpetas()}}}
+
+/* ---------- cloud space (Firestore free plan: 1 GB) ---------- */
+const SPACE={val:null,busy:false},SPACE_MAX=1024*1024*1024;
+async function paintSpace(){const el=$("#cx-space");if(!el)return;
+  if(SPACE.val==null&&!SPACE.busy){SPACE.busy=true;el.innerHTML='<span class="hint">Calculando el espacio…</span>';
+    try{const q=await FB.m.getDocs(FB.m.collection(FB.db,"images"));let b=0;q.docs.forEach(x=>{b+=(x.data().bytes||0)*1.37});b+=(CX.list||[]).reduce((s,d)=>s+(d._sz||0),0);b+=(CX.trash||[]).reduce((s,d)=>s+((d.data||"").length+(d.thumb||"").length),0);SPACE.val=b}catch(e){SPACE.val=-1}
+    SPACE.busy=false;const e2=$("#cx-space");if(e2)paintSpace();return}
+  if(SPACE.val<0){el.innerHTML="";return}
+  const p=Math.min(100,SPACE.val/SPACE_MAX*100),mb=SPACE.val/1048576,lvl=p>=90?"full":p>=70?"warn":"";
+  el.innerHTML=`<div class="spbar ${lvl}"><i style="width:${Math.max(1,p).toFixed(1)}%"></i></div><small>Espacio en la nube: <b>${mb<1024?Math.round(mb)+" MB":(mb/1024).toFixed(2)+" GB"}</b> de 1 GB (aprox.)${lvl==="full"?" · <b>casi lleno</b>: vacía la papelera o elimina imágenes que no uses.":lvl==="warn"?" · se está llenando.":""}</small>`}
+/* pictures are made lighter before they go to the cloud: up to 2560 px, WebP (JPG on Safari) */
+async function shrinkImage(blob){try{if(!blob||!/^image\/(png|jpeg|webp)$/.test(blob.type)||blob.size<350000)return blob;
+  const bmp=await createImageBitmap(blob),M=2560,sc=Math.min(1,M/Math.max(bmp.width,bmp.height)),c=document.createElement("canvas");c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);bmp.close&&bmp.close();
+  const enc=(t,q)=>new Promise(r=>c.toBlob(r,t,q));let out=await enc("image/webp",.88);
+  if(!out||out.type!=="image/webp")out=blob.type==="image/jpeg"?await enc("image/jpeg",.88):await enc("image/png");
+  return out&&out.size<blob.size?out:blob}catch(e){return blob}}
+
+/* refresh the extras whenever the Diseños tab or the home view is drawn */
+{const _rc=renderCarpetas;renderCarpetas=async function(){SPACE.val=null;if(store.kind==="fb")await Promise.all([loadTrash().catch(()=>{}),loadPresence()]);return _rc()}}
+{const _rh=renderHome;renderHome=async function(){if(store.kind==="fb")await loadPresence();return _rh()}}
+
+/* ---------- team templates ---------- */
+let TTPL=null;
+async function loadTeamTpls(force){if(store.kind!=="fb")return[];if(TTPL&&!force)return TTPL;try{const q=await FB.m.getDocs(FB.m.collection(FB.db,"tpls"));TTPL=q.docs.map(x=>Object.assign({id:x.id},x.data())).sort((a,b)=>(b.at||0)-(a.at||0))}catch(e){TTPL=[]}return TTPL}
+async function paintTeamTpls(){const box=$("#tpls-team");if(!box||store.kind!=="fb")return;const L=(await loadTeamTpls()).filter(t=>t.brand===S.brand);if(!$("#tpls-team"))return;
+  box.innerHTML=L.length?`<h3 style="margin-top:6px">Del equipo</h3><div class="thumbs">${L.map((t,i)=>`<div class="thumb ttpl"><button type="button" class="pic" data-tt="${i}">${t.thumb?`<img src="${t.thumb}" alt="">`:""}</button><span>${esc(t.name)}<small>De ${esc(personName(t.by,t.byName))}</small></span><button type="button" class="tdel" data-ttd="${i}" title="Quitar plantilla" aria-label="Quitar plantilla">×</button></div>`).join("")}</div><h3>De la marca</h3>`
+    :`<p class="hint" style="font-size:11.5px">¿Te gustó un diseño? Guárdalo como plantilla del equipo desde Diseños → ⋯ → «Guardar como plantilla del equipo».</p>`;
+  box.querySelectorAll("[data-tt]").forEach(b=>b.onclick=()=>{const t=L[+b.dataset.tt];let more={};try{more=JSON.parse(t.data||"{}")}catch(e){}
+    const d=fromRecord(newDoc(1,1).id,Object.assign({name:t.name,brand:t.brand,w:t.w,h:t.h},more));d.name=t.name;d.by="";d.st="borrador";if(CX.newSec){d.sec=CX.newSec;d.secNew=true;CX.newSec=""}
+    Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src))).then(()=>{openDoc(d,true);toast("Plantilla abierta: es una copia, la plantilla queda igual")})});
+  box.querySelectorAll("[data-ttd]").forEach(b=>b.onclick=()=>{const t=L[+b.dataset.ttd];const v=showDialog("Quitar plantilla",`<p style="margin-top:0">¿Quitar <b>${esc(t.name)}</b> de las plantillas del equipo? Los diseños hechos con ella no cambian.</p><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="button" id="tt-yes">Quitar</button></div>`);
+    v.querySelector("#tt-yes").onclick=async()=>{v.remove();try{await FB.m.deleteDoc(fbDoc("tpls",t.id));TTPL=null;toast("Plantilla quitada");paintTeamTpls()}catch(e){toast("No se pudo quitar.")}}})}
+async function saveAsTemplate(id){if(store.kind!=="fb")return;if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();let r=null;try{r=await store.get(id)}catch(e){}if(!r){toast("No se pudo abrir ese diseño.");return}
+  nameDialog("Guardar como plantilla del equipo","Nombre de la plantilla",r.name,async t=>{const me=fbMe();
+    try{await FB.m.setDoc(fbDoc("tpls","t-"+Date.now().toString(36)+uid().slice(0,4)),{name:t,brand:r.brand||"nummeros",w:r.w,h:r.h,thumb:r.thumb||"",data:JSON.stringify({pages:r.pages||[],mm:r.mm||null,folds:r.folds||null}),by:me.email,byName:me.name,at:Date.now()});TTPL=null;toast("Plantilla guardada: aparece en Plantillas → Del equipo")}
+    catch(e){toast("No se pudo guardar la plantilla.")}})}
+
+/* ---------- brand data: WhatsApp, web, email, address and opening hours, used by every template ---------- */
+const BINFO_DEF={nummeros:{whatsapp:"+591 690-21969",web:"nummeros.contaxbolivia.com",email:"info@contaxbolivia.com",direccion:"Cond. Los Ángeles Casa 181 · Santa Cruz",horario:"lunes a viernes de 8:30 a 18:30 y los sábados de 9:00 a 13:00"},
+  contax:{whatsapp:"+591 690-21969",web:"contaxbolivia.com",email:"info@contaxbolivia.com",direccion:"Cond. Los Ángeles Casa 181 · Santa Cruz",horario:"lunes a viernes de 8:30 a 18:30 y los sábados de 9:00 a 13:00"}};
+const BINFO_F=[["whatsapp","WhatsApp","+591 690-21969"],["web","Página web","nummeros.contaxbolivia.com"],["email","Correo","info@contaxbolivia.com"],["direccion","Dirección","Calle, número · Ciudad"],["horario","Horario de atención","lunes a viernes de 8:30 a 18:30"]];
+let BINFO=clone(BINFO_DEF);
+async function loadBrandInfo(){let v=null;
+  if(store.kind==="fb"){try{const x=await FB.m.getDoc(fbDoc("meta","marcas"));if(x.exists())v=x.data()}catch(e){}}else v=lsGet("ed.marcas",null);
+  for(const b of ["nummeros","contax"])BINFO[b]=Object.assign({},BINFO_DEF[b],(v&&v[b])||{});return BINFO}
+const escRe=s=>String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+const waDigits=s=>String(s||"").replace(/\D/g,"");
+function brandSubs(from,to){const out=[];const add=(a,b)=>{if(a&&b&&a!==b)out.push([new RegExp(escRe(a),"g"),b.replace(/\$/g,"$$$$")])};
+  add(from.email,to.email);add(from.direccion,to.direccion);add(from.horario,to.horario);add(from.whatsapp,to.whatsapp);
+  if(from.web&&to.web&&from.web!==to.web)out.push([new RegExp("(^|[^\\w.@-])"+escRe(from.web)+"(?![\\w.-]*\\w)","g"),"$1"+to.web.replace(/\$/g,"$$$$")]);return out}
+function applySubs(doc,from,to){const T=brandSubs(from,to),dA=waDigits(from.whatsapp),dB=waDigits(to.whatsapp);if(!T.length&&dA===dB)return false;let ch=false;
+  for(const P of doc.pages||[{layers:doc.layers||[]}])for(const L of P.layers||[]){
+    if(L.t==="text"&&typeof L.txt==="string"){let t=L.txt;for(const [re,v] of T)t=t.replace(re,v);if(t!==L.txt){L.txt=t;try{layoutText(L)}catch(e){}ch=true}}
+    if(L.t==="qr"&&typeof L.data==="string"){let t=L.data;for(const [re,v] of T)t=t.replace(re,v);if(dA&&dB&&dA!==dB)t=t.split(dA).join(dB);if(t!==L.data){L.data=t;L.qr=null;ch=true}}}
+  return ch}
+function applyBrandInfo(d){const b=d&&d.brand;if(!BINFO_DEF[b])return d;applySubs(d,BINFO_DEF[b],BINFO[b]);return d}
+function brandInfoDialog(){let cur="nummeros";const draft=clone(BINFO);
+  const v=showDialog("Datos de las marcas",`<p class="hint" style="margin-top:0">Las plantillas nuevas se llenan solas con estos datos. ${store.kind==="fb"?"Se guardan en la nube para todo el equipo.":"Se guardan en este navegador."}</p>
+    <div class="toggle2" role="group" aria-label="Marca"><button type="button" data-bi="nummeros" aria-pressed="true">NUMMEROS</button><button type="button" data-bi="contax" aria-pressed="false">CONTAX</button></div>
+    <div id="bi-f"></div>
+    <label class="check"><input type="checkbox" id="bi-upd" checked> Cambiar también en los diseños guardados que tienen los datos anteriores</label>
+    <p class="hint" id="bi-msg" style="min-height:1.2em"></p>
+    <div class="row-end"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="bi-save">Guardar</button></div>`);
+  v.querySelector(".dlg").style.width="min(560px,100%)";
+  const paintF=()=>{v.querySelector("#bi-f").innerHTML=BINFO_F.map(([k,n,ph])=>`<label class="f"><span>${n}</span><input type="text" data-bk="${k}" value="${esc(draft[cur][k]||"")}" placeholder="${esc(ph)}"></label>`).join("");
+    v.querySelectorAll("[data-bk]").forEach(i=>i.oninput=()=>{draft[cur][i.dataset.bk]=i.value.trim()})};
+  v.querySelectorAll("[data-bi]").forEach(b=>b.onclick=()=>{cur=b.dataset.bi;v.querySelectorAll("[data-bi]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));paintF()});paintF();
+  v.querySelector("#bi-save").onclick=async()=>{const btn=v.querySelector("#bi-save"),msg=v.querySelector("#bi-msg"),old=clone(BINFO);btn.disabled=true;
+    for(const b of ["nummeros","contax"])for(const [k] of BINFO_F)if(!draft[b][k])draft[b][k]=old[b][k];
+    try{if(store.kind==="fb")await FB.m.setDoc(fbDoc("meta","marcas"),Object.assign({},draft,{updated:Date.now(),by:fbMe().email}));else lsSet("ed.marcas",draft)}catch(e){btn.disabled=false;msg.textContent="No se pudo guardar. Revisa tu conexión.";return}
+    BINFO=clone(draft);let n=0;
+    if(v.querySelector("#bi-upd").checked){let list=[];try{list=await store.list()}catch(e){}const todo=list.filter(d=>BINFO_DEF[d.brand]);let i=0;
+      for(const it of todo){i++;msg.textContent=`Revisando diseños guardados… ${i} de ${todo.length}`;let d=null;try{d=await store.get(it.id)}catch(e){}if(!d)continue;
+        if(applySubs(d,old[d.brand],BINFO[d.brand])){try{await store.put(Object.assign({},d,{id:it.id}));n++}catch(e){}}}
+      if(S.doc&&BINFO_DEF[S.doc.brand]){if(S.locked&&S.doc.by){const id=S.doc.id;S.dirty=false;await openStored(id)}else if(applySubs(S.doc,old[S.doc.brand],BINFO[S.doc.brand])){commit();requestRender()}}}
+    v.remove();HOME.list=null;toast(n?`Datos guardados · se actualizaron ${n} diseño${n===1?"":"s"}`:"Datos guardados");if(S.tab==="plantillas")renderLib()}}
+
+/* ---------- AI spending: how many images and texts each person used this month, with an optional cap ---------- */
+const monthKey=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const userKey=e=>String(e||"").toLowerCase().replace(/\./g,",");
+async function usageAdd(kind){if(store.kind!=="fb"||!FB.user||!FB.m.increment)return;const me=fbMe();try{await FB.m.setDoc(fbDoc("usage",monthKey()),{[userKey(me.email)]:{[kind]:FB.m.increment(1),name:me.name,email:me.email}},{merge:true})}catch(e){}}
+async function usageState(){const r={lim:0,mine:0,rows:[]};if(store.kind!=="fb"||!FB.user)return r;
+  try{const [u,l]=await Promise.all([FB.m.getDoc(fbDoc("usage",monthKey())),FB.m.getDoc(fbDoc("meta","ialimit"))]);r.lim=l.exists()?+(l.data().img||0):0;const all=u.exists()?u.data():{};
+    r.rows=Object.values(all).filter(x=>x&&typeof x==="object").map(x=>({email:x.email||"",name:x.name||"",img:+(x.img||0),txt:+(x.txt||0)})).sort((a,b)=>b.img-a.img);
+    const m=all[userKey(fbMe().email)];r.mine=m?+(m.img||0):0}catch(e){}return r}
+{const _ri=runImage;runImage=async function(prov,prompt,image){const u=await usageState();if(u.lim&&u.mine>=u.lim)throw{msg:`Llegaste al tope de ${u.lim} imágenes de IA de este mes. Se puede cambiar en IA → Configurar claves → Uso de este mes.`};const r=await _ri(prov,prompt,image);usageAdd("img");return r}}
+{const _cc=callClaude;callClaude=async function(system,content,maxTokens){const r=await _cc(system,content,maxTokens);usageAdd("txt");return r}}
+async function paintUsage(box){if(!box||store.kind!=="fb")return;box.innerHTML='<p class="hint">Cargando el uso de este mes…</p>';const u=await usageState();if(!box.isConnected)return;
+  const mes=new Date().toLocaleDateString("es-BO",{month:"long",year:"numeric"});
+  box.innerHTML=`<h3 style="margin:14px 0 6px">Uso de ${esc(mes)}</h3>${u.rows.length?`<table class="utab"><thead><tr><th>Persona</th><th>Imágenes</th><th>Textos</th></tr></thead><tbody>${u.rows.map(r=>`<tr><td>${esc(firstName(r.name||r.email))}</td><td>${r.img}${u.lim?` / ${u.lim}`:""}</td><td>${r.txt}</td></tr>`).join("")}</tbody></table>`:'<p class="hint">Nadie usó la IA este mes.</p>'}
+    <label class="f" style="margin-top:10px"><span>Tope de imágenes por persona al mes (0 = sin tope)</span><div style="display:flex;gap:8px"><input type="number" id="u-lim" min="0" step="1" value="${u.lim}" style="max-width:120px"><button class="btn" type="button" id="u-save">Guardar tope</button></div><small class="k">Cada imagen cuesta unos centavos de dólar; los textos de Claude salen de tus créditos mensuales.</small></label>`;
+  box.querySelector("#u-save").onclick=async()=>{const n=Math.max(0,Math.round(+box.querySelector("#u-lim").value||0));try{await FB.m.setDoc(fbDoc("meta","ialimit"),{img:n,by:fbMe().email,at:Date.now()});toast(n?`Tope: ${n} imágenes por persona al mes`:"Sin tope de imágenes")}catch(e){toast("No se pudo guardar el tope.")}}}
+
 /* ================== boot ================== */
 const fontsReady=(async()=>{try{await Promise.all(["600 40px Akshar","700 40px Akshar","400 40px Questrial","400 40px \"Adventor CX\"","700 40px \"Adventor CX\"","400 40px Arimo","700 40px Arimo"].map(f=>document.fonts.load(f)))}catch(e){}})();
 (async function boot(){
@@ -2626,7 +2855,7 @@ const fontsReady=(async()=>{try{await Promise.all(["600 40px Akshar","700 40px A
   await fontsReady;
   const t=TPL[S.brand].find(t=>t.id.endsWith("post-foto"));const d=await t.build("claro");openDoc(d);setStatus("");
   renderLib();
-  await initStore();
+  await initStore();await loadBrandInfo();
   const last=lsGet("ed.last",null);
   if(last){try{const x=await store.get(last);if(x&&!S.dirty&&S.hi===0){openDoc(fromRecord(last,x));setLock(true);setStatus("Seguiste donde te quedaste")}}catch(e){}}
   aiCloudLoad();splash(false);if(S.tab==="inicio")renderHome();
