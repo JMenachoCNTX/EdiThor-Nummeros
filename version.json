@@ -1,7 +1,12 @@
 {
- "v": 38,
+ "v": 39,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 39,
+   "fecha": "2026-10-28",
+   "texto": "Las fotos de la marca se vuelven a bajar en cada versión nueva: ya no se quedan las viejas guardadas en el navegador"
+  },
   {
    "v": 38,
    "fecha": "2026-10-28",
