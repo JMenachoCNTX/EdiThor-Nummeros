@@ -1263,10 +1263,13 @@ const SELC="#2E90FA";
 function render(){
   if(!S.doc||!V.cw)return;computeView();
   ctx.setTransform(V.dpr,0,0,V.dpr,0,0);ctx.clearRect(0,0,V.cw,V.ch);
+  /* parts of elements that stick out of the design: shown faded, so you see what is inside and what is outside */
+  if(GRID.edge!==false){ctx.save();ctx.translate(V.ox,V.oy);ctx.scale(V.sc,V.sc);drawDesign(ctx,S.doc,S.editing,true);ctx.restore();
+    ctx.save();ctx.globalAlpha=.74;ctx.fillStyle=getComputedStyle(stage).backgroundColor||"#E4EFE7";ctx.fillRect(0,0,V.cw,V.ch);ctx.restore()}
   ctx.save();ctx.shadowColor="rgba(0,0,0,.22)";ctx.shadowBlur=18;ctx.shadowOffsetY=4;ctx.fillStyle=S.doc.bg;ctx.fillRect(V.ox,V.oy,S.doc.w*V.sc,S.doc.h*V.sc);ctx.restore();
   ctx.save();ctx.translate(V.ox,V.oy);ctx.scale(V.sc,V.sc);ctx.beginPath();ctx.rect(0,0,S.doc.w,S.doc.h);ctx.clip();drawDesign(ctx,S.doc,S.editing);ctx.restore();
   /* thin red line on the edge of the design: shows what stays inside (not in downloads) */
-  if(GRID.edge!==false){ctx.save();ctx.strokeStyle="#E5262E";ctx.lineWidth=1;ctx.strokeRect(Math.round(V.ox)+.5,Math.round(V.oy)+.5,Math.round(S.doc.w*V.sc)-1,Math.round(S.doc.h*V.sc)-1);ctx.restore()}
+  if(GRID.edge!==false){ctx.save();ctx.strokeStyle="#FF2D3A";ctx.lineWidth=1.5;ctx.strokeRect(Math.round(V.ox)-.75,Math.round(V.oy)-.75,Math.round(S.doc.w*V.sc)+1.5,Math.round(S.doc.h*V.sc)+1.5);ctx.restore()}
   // guides
   if(S.guides){ctx.save();ctx.strokeStyle="#E8458B";ctx.lineWidth=1;ctx.setLineDash([5,4]);
     if(S.guides.v){const x=V.ox+S.doc.w/2*V.sc;ctx.beginPath();ctx.moveTo(x+.5,V.oy);ctx.lineTo(x+.5,V.oy+S.doc.h*V.sc);ctx.stroke()}
