@@ -1,7 +1,12 @@
 {
- "v": 34,
+ "v": 35,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 35,
+   "fecha": "2026-10-28",
+   "texto": "Tocar un elemento abre su propio menú: lo transparente de logos e imágenes ya no tapa los textos; tocar otra vez elige el de abajo"
+  },
   {
    "v": 34,
    "fecha": "2026-10-28",

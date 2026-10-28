@@ -123,3 +123,8 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 ## Duplicar
 
 - En Diseños, cada tarjeta tiene el botón **Duplicar** (dos cuadraditos) y también está en «⋯». Hace una copia completa (todas las páginas y tamaños) llamada «Copia de …», en el mismo apartado. Con varios seleccionados, la barra de arriba también tiene «Duplicar».
+
+## Tocar elementos
+
+- Las partes transparentes de una imagen PNG (logos, ilustraciones) y el centro vacío de un marco ya no tapan lo que está debajo: si tocas un texto que tiene encima un logo transparente, se elige el texto y se abre su menú.
+- Si un elemento tapa a otro, tocar otra vez el mismo lugar (sin arrastrar) elige el de abajo.
