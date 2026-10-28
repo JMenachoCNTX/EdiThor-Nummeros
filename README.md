@@ -127,7 +127,7 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 ## Tocar elementos
 
 - Las partes transparentes de una imagen PNG (logos, ilustraciones) y el centro vacío de un marco ya no tapan lo que está debajo: si tocas un texto que tiene encima un logo transparente, se elige el texto y se abre su menú.
-- Si un elemento tapa a otro, tocar otra vez el mismo lugar (sin arrastrar) elige el de abajo.
+- Si un elemento tapa a otro, tocar otra vez el mismo lugar (sin arrastrar) elige el de abajo. En un texto, tocarlo otra vez (o doble clic) entra a escribir con el cursor justo donde tocaste.
 
 ## Listas en los textos
 
@@ -146,3 +146,8 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 - Lo copiado se pega con el mismo formato (letra, tamaño, color, alineación, espaciado, etc.) y en el mismo lugar de donde se copió: en otra página u otro diseño queda exactamente igual (simétrico). Solo en la misma página, si ya hay algo justo ahí, se corre un poco.
 - Copiar una parte del texto mientras escribes y pegarla afuera crea un texto con el mismo formato.
 - Pegar texto de otra app con un texto elegido usa el formato de ese texto y lo pone debajo.
+
+## Páginas
+
+- «Eliminar esta página» borra la página que estás viendo (antes el contenido de la borrada se copiaba sobre la siguiente).
+- Cada página tiene una casilla: marca una o varias y usa «Eliminar las elegidas». Se recuperan con ⌘ + Z.

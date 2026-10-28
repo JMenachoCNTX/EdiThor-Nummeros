@@ -1,7 +1,12 @@
 {
- "v": 42,
+ "v": 43,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 43,
+   "fecha": "2026-10-28",
+   "texto": "Cursor justo donde tocas el texto; eliminar la página correcta y elegir varias páginas para eliminar"
+  },
   {
    "v": 42,
    "fecha": "2026-10-28",
