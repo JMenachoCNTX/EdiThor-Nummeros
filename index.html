@@ -155,7 +155,7 @@ button{cursor:pointer}
 .gridctl{display:flex;gap:0}
 .gridctl #grid-btn{border-top-right-radius:0;border-bottom-right-radius:0}
 .gridctl #grid-opt{border-top-left-radius:0;border-bottom-left-radius:0;border-left:0;padding:0 9px}
-#grid-btn[aria-pressed="true"]{color:var(--acc);border-color:var(--acc);background:var(--field)}
+#sel-mode[aria-pressed="true"],#grid-btn[aria-pressed="true"]{color:var(--acc);border-color:var(--acc);background:var(--field)}
 .pvbtn{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.12);height:38px}
 .ctxbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 24px);display:flex;gap:2px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:0 4px 14px rgba(0,0,0,.12);overflow-x:auto;scrollbar-width:none;z-index:4;white-space:nowrap}
 .ctxbar::-webkit-scrollbar{display:none}
@@ -623,6 +623,7 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
         <span class="sizetag" id="sizetag"></span>
       </div>
       <button class="btn pvbtn" type="button" id="pv-open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V4h5M21 9V4h-5M3 15v5h5M21 15v5h-5"/></svg>Vista previa</button>
+      <button class="btn pvbtn" type="button" id="sel-mode" aria-pressed="false" title="Seleccionar y mover sin que se abran los menús"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3l14 8-6.2 1.6L10 19z"/></svg>Seleccionar</button>
       <div class="gridctl"><button class="btn pvbtn" type="button" id="grid-btn" aria-pressed="false" title="Mostrar u ocultar la cuadrícula (⌘ + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>Cuadrícula</button><button class="btn pvbtn" type="button" id="grid-opt" aria-label="Opciones de la cuadrícula" title="Opciones de la cuadrícula" data-pop>▾</button></div>
       <div class="stagebar">
         <button class="btn" id="zout" type="button" aria-label="Alejar">−</button>
@@ -1264,6 +1265,8 @@ function render(){
   ctx.setTransform(V.dpr,0,0,V.dpr,0,0);ctx.clearRect(0,0,V.cw,V.ch);
   ctx.save();ctx.shadowColor="rgba(0,0,0,.22)";ctx.shadowBlur=18;ctx.shadowOffsetY=4;ctx.fillStyle=S.doc.bg;ctx.fillRect(V.ox,V.oy,S.doc.w*V.sc,S.doc.h*V.sc);ctx.restore();
   ctx.save();ctx.translate(V.ox,V.oy);ctx.scale(V.sc,V.sc);ctx.beginPath();ctx.rect(0,0,S.doc.w,S.doc.h);ctx.clip();drawDesign(ctx,S.doc,S.editing);ctx.restore();
+  /* thin red line on the edge of the design: shows what stays inside (not in downloads) */
+  if(GRID.edge!==false){ctx.save();ctx.strokeStyle="#E5262E";ctx.lineWidth=1;ctx.strokeRect(Math.round(V.ox)+.5,Math.round(V.oy)+.5,Math.round(S.doc.w*V.sc)-1,Math.round(S.doc.h*V.sc)-1);ctx.restore()}
   // guides
   if(S.guides){ctx.save();ctx.strokeStyle="#E8458B";ctx.lineWidth=1;ctx.setLineDash([5,4]);
     if(S.guides.v){const x=V.ox+S.doc.w/2*V.sc;ctx.beginPath();ctx.moveTo(x+.5,V.oy);ctx.lineTo(x+.5,V.oy+S.doc.h*V.sc);ctx.stroke()}
@@ -1438,7 +1441,7 @@ document.addEventListener("keydown",e=>{
 function setSel(ids,primary){ids=[...new Set(ids)].filter(id=>S.doc.layers.some(l=>l.id===id));
   if(S.crop&&!(ids.length===1&&ids[0]===S.crop)){S.crop=null;commit()}
   if(ids.length<=1){S.multi=[];S.sel=ids[0]||null}else{S.multi=ids;S.sel=primary&&ids.includes(primary)?primary:ids[ids.length-1]}
-  if(isCompact()){const m=$("#main");if(ids.length){HV.props=false;if(!m.classList.contains("props-open")||S.rpanel==="props"){S.rpanel="props";m.classList.add("props-open")}}else if(S.rpanel==="props")m.classList.remove("props-open")}
+  if(isCompact()&&!S.moveOnly){const m=$("#main");if(ids.length){HV.props=false;if(!m.classList.contains("props-open")||S.rpanel==="props"){S.rpanel="props";m.classList.add("props-open")}}else if(S.rpanel==="props")m.classList.remove("props-open")}
   renderProps();requestRender();if(S.tab==="ia")iaSelUpdate();if(S.tab==="qr")renderLib()}
 /* clicking an element selects its whole group */
 function select(id){if(!id){setSel([]);return}const L=S.doc.layers.find(l=>l.id===id);if(!L)return;setSel(groupOf(L).map(l=>l.id),id)}
@@ -1914,7 +1917,7 @@ function pop(btn,html,bind){closePop();const d=document.createElement("div");d.c
 document.addEventListener("pointerdown",e=>{if(POP&&!e.target.closest(".ctxpop")&&!e.target.closest("[data-pop]"))closePop()},true);
 function colorPop(btn,id,val,allowNone,fn){pop(btn,swatches(id,val,allowNone),()=>bindSw(id,c=>{fn(c);closePop()},true))}
 const chipC=c=>`<span class="chip-c${c?"":" none"}" style="${c?"background:"+esc(c):""}"></span>`;
-function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();const L=selL(),Ls=selLayers();let h="";const sep='<span class="sep"></span>';
+function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if(S.moveOnly){bar.innerHTML="";return}const L=selL(),Ls=selLayers();let h="";const sep='<span class="sep"></span>';
   const tb=(id,inner,title,cls,extra)=>`<button type="button" class="tb${cls?" "+cls:""}" id="cx-${id}" title="${esc(title||"")}" aria-label="${esc(title||"")}"${extra||""}>${inner}</button>`;
   const common=()=>sep+tb("front",TB.front,"Traer al frente")+tb("back",TB.back,"Enviar al fondo")+tb("dup",TB.dup,"Duplicar (⌘ + D)")+tb("del",TB.del,"Eliminar","danger");
   if(isMulti()){const grouped=Ls.every(x=>x.g&&x.g===Ls[0].g);
@@ -2043,7 +2046,7 @@ function addDevice(k){const W=S.doc.w,H=S.doc.h,r=devRatio(k);let w=Math.round(W
   addLayer(Dv({name:"Mockup "+(DEVK.find(d=>d[0]===k)||DEVK[0])[1].toLowerCase(),kind:k,w,h,acc:S.brand==="contax"?"#152644":"#235347"}));toast("Ahora sube o pega (⌘ + V) la captura de tu sistema")}
 
 /* ================== cuadrícula ================== */
-const GRID=Object.assign({on:false,size:"media",snap:true,center:true},lsGet("ed.grid",{}));
+const GRID=Object.assign({on:false,size:"media",snap:true,center:true,edge:true},lsGet("ed.grid",{}));
 const GRID_DIV={fina:48,media:24,gruesa:12};
 function gridCell(){return Math.min(S.doc.w,S.doc.h)/(GRID_DIV[GRID.size]||24)}
 /* how much to move so the nearest of these edges lands on a grid line (0 when none is close) */
@@ -2054,11 +2057,19 @@ $("#grid-btn").onclick=toggleGrid;
 $("#grid-opt").onclick=e=>pop(e.currentTarget,`<div style="display:grid;gap:10px;min-width:230px"><div class="f"><span>Tamaño de la cuadrícula</span><div class="chips">${[["fina","Fina"],["media","Media"],["gruesa","Gruesa"]].map(([k,n])=>`<button type="button" data-gs="${k}" aria-pressed="${GRID.size===k}">${n}</button>`).join("")}</div></div>
   <label class="check" style="margin:0"><input type="checkbox" id="g-snap"${GRID.snap?" checked":""}>Pegar los elementos a la cuadrícula</label>
   <label class="check" style="margin:0"><input type="checkbox" id="g-center"${GRID.center?" checked":""}>Mostrar las líneas del centro</label>
+  <label class="check" style="margin:0"><input type="checkbox" id="g-edge"${GRID.edge!==false?" checked":""}>Mostrar el borde rojo del diseño</label>
   <p class="hint" style="margin:0">Atajo: ⌘ + ' para mostrar u ocultar. La cuadrícula no sale en las descargas.</p></div>`,d=>{
   d.querySelectorAll("[data-gs]").forEach(b=>b.onclick=()=>{GRID.size=b.dataset.gs;GRID.on=true;saveGrid();d.querySelectorAll("[data-gs]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});
-  d.querySelector("#g-snap").onchange=e=>{GRID.snap=e.target.checked;saveGrid()};d.querySelector("#g-center").onchange=e=>{GRID.center=e.target.checked;GRID.on=true;saveGrid()}});
+  d.querySelector("#g-snap").onchange=e=>{GRID.snap=e.target.checked;saveGrid()};d.querySelector("#g-center").onchange=e=>{GRID.center=e.target.checked;GRID.on=true;saveGrid()};d.querySelector("#g-edge").onchange=e=>{GRID.edge=e.target.checked;saveGrid();requestRender()}});
 document.addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&(e.key==="'"||e.code==="Quote"||e.code==="Backslash")&&!isTyping(e)){e.preventDefault();toggleGrid()}});
 saveGrid();
+/* «Seleccionar»: tap and drag elements without the option bars and panels popping up */
+S.moveOnly=!!lsGet("ed.moveonly",false);
+function setMoveOnly(v){S.moveOnly=!!v;lsSet("ed.moveonly",S.moveOnly);const b=$("#sel-mode");b.setAttribute("aria-pressed",String(S.moveOnly));
+  if(!S.moveOnly&&isCompact()&&selIds().length){const m=$("#main");S.rpanel="props";m.classList.add("props-open")}
+  if(S.moveOnly&&isCompact()&&S.rpanel==="props")$("#main").classList.remove("props-open");
+  renderProps();requestRender();toast(S.moveOnly?"Seleccionar: toca y mueve los elementos; los menús no se abren":"Menús de nuevo: toca un elemento para ver sus opciones")}
+$("#sel-mode").onclick=()=>setMoveOnly(!S.moveOnly);$("#sel-mode").setAttribute("aria-pressed",String(S.moveOnly));
 
 /* ================== menús que se abren al pasar el cursor ================== */
 const CAN_HOVER=matchMedia("(hover: hover) and (pointer: fine)").matches;

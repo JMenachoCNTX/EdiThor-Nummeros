@@ -24,6 +24,8 @@
 - **Barras distribuidas**: arriba del lienzo, las opciones rápidas del elemento elegido (letra, tamaño, color, recortar, quitar fondo, agrupar…); abajo, las páginas, la vista previa y el zoom.
 - **Paneles automáticos** (botón en la barra superior): a los lados quedan solo los íconos; los paneles se abren al tocar un ícono, y al tocar un elemento del diseño se abren sus opciones.
 - **Menús al pasar el cursor**: las pestañas de los lados, Descargar y el tema se muestran al pasar el cursor; un clic los deja fijos.
+- **Borde rojo**: una línea roja fina marca el borde del diseño (no sale en las descargas; se apaga en las opciones de la cuadrícula).
+- **Seleccionar** (botón abajo): tocar y mover elementos sin que se abran la barra de opciones ni los paneles; al apagarlo, los menús vuelven.
 - **Cuadrícula** (botón abajo o ⌘ + '): fina, media o gruesa, con líneas del centro y opción de pegar los elementos a la cuadrícula. No sale en las descargas.
 - **Vista previa en pantalla completa**, con flechas para pasar las páginas.
 - El lienzo no se escapa de la pantalla: el diseño queda centrado y solo se desplaza cuando está ampliado.
