@@ -56,8 +56,14 @@ button{cursor:pointer}
 .seg{display:inline-flex;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:2px;flex:none}
 .seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font:600 13px var(--head);letter-spacing:.04em;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--acc);color:var(--on-acc)}
-#nombre{min-width:0;flex:0 1 220px;border:1px solid transparent;background:transparent;border-radius:6px;padding:5px 8px;font-weight:600}
-#nombre:hover,#nombre:focus{border-color:var(--line);background:var(--field)}
+/* nombre del diseño: bien visible para saber siempre qué archivo estás editando */
+.docname{display:flex;align-items:center;gap:8px;min-width:0;flex:0 1 340px;background:var(--field);border:1.5px solid var(--acc);border-left-width:5px;border-radius:12px;padding:4px 10px 4px 9px;cursor:text;box-shadow:0 1px 0 rgba(0,0,0,.03)}
+.docname>svg{width:18px;height:18px;flex:none;color:var(--acc)}
+.docname .dn-in{display:grid;min-width:0;flex:1}
+.docname small{font-size:10px;line-height:1.1;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nombre{min-width:0;width:100%;border:0;background:transparent;padding:0;font:700 17px/1.2 var(--head);color:var(--ink);text-overflow:ellipsis;outline:none}
+@media (min-width:901px) and (max-width:1320px){.docname{min-width:210px}.brandmark .bm-app,.brandmark .bm-sep{display:none}#btn-lock .hide-narrow{display:none}}
+.docname:hover{background:var(--hover)}.docname:focus-within{box-shadow:0 0 0 3px rgba(35,83,71,.18)}
 .spacer{flex:1}
 .status{font-size:12px;color:var(--muted);white-space:nowrap}
 .status.err{color:var(--danger)}
@@ -320,7 +326,7 @@ body{font:13.5px/1.45 var(--ui)}
 .seg{background:var(--field);border-color:var(--line)}
 .seg button{font:600 14px var(--head)}
 .seg #m-contax[aria-pressed="true"]{background:var(--navy);color:var(--on-navy)}
-#nombre{border-radius:var(--r)}
+#nombre{border-radius:0}
 .menu{border-radius:14px;box-shadow:var(--shadow-lg)}
 .menu button{border-radius:8px}
 .rail{background:var(--menu);border-right:0;gap:4px;padding:10px 8px}
@@ -348,7 +354,7 @@ body{font:13.5px/1.45 var(--ui)}
 .home{display:none;min-height:0;overflow:auto;background:var(--bg)}
 .main[data-tab="inicio"] .lib,.main[data-tab="inicio"] .stage,.main[data-tab="inicio"] .props,.main[data-tab="inicio"] .rrail,.main[data-tab="disenos"] .lib,.main[data-tab="disenos"] .stage,.main[data-tab="disenos"] .props,.main[data-tab="disenos"] .rrail{display:none!important}
 .main[data-tab="inicio"] .home,.main[data-tab="disenos"] .home{display:block;grid-column:2/-1}
-body.on-home #nombre,body.on-home #undo,body.on-home #redo,body.on-home #btn-descargar,body.on-home .status{display:none}
+body.on-home .docname,body.on-home #nombre,body.on-home #undo,body.on-home #redo,body.on-home #btn-descargar,body.on-home .status{display:none}
 body.on-home .top .spacer{flex:1}
 .home-in{max-width:1180px;margin:0 auto;padding:28px 28px 48px;display:grid;gap:28px}
 .hcard{background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
@@ -564,7 +570,7 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
   body{overflow:auto}
   .app{height:auto;min-height:100%}
   .top{flex-wrap:wrap}
-  #nombre{order:5;flex:1 1 100%}
+  .docname{order:5;flex:1 1 100%}
   .status{display:none}
   .hide-narrow{display:none}
   .main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto}
@@ -592,7 +598,7 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
       <button type="button" id="m-nummeros" data-marca="nummeros">NUMMEROS</button>
       <button type="button" id="m-contax" data-marca="contax">CONTAX</button>
     </div>
-    <input id="nombre" type="text" aria-label="Nombre del diseño" value="Diseño sin nombre">
+    <label class="docname" id="docname" title="Nombre del diseño que estás editando · tócalo para cambiarlo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span class="dn-in"><small id="dn-kind">Editando</small><input id="nombre" type="text" aria-label="Nombre del diseño" value="Diseño sin nombre"></span></label>
     <button class="btn" id="btn-lock" type="button" hidden data-lockok></button>
     <div class="spacer"></div>
     <span class="status" id="status" aria-live="polite"></span>
@@ -717,7 +723,7 @@ const CGRA=[["Ilustraciones",["ilu-chat-recepcion","Chat de recepción"],["ilu-d
 const CFOT=[["retrato","Retrato"],["completo","Cuerpo completo"],["brazos","Brazos cruzados"],["perfil","De perfil"],["sofa","En el sofá"],["sillon","En el sillón"],["casco","Detalle del casco"],["celular","Con el celular"],["ventana","Café en la ventana"],["ventana2","Café en la ventana (2)"],["auto","En el auto"],["escritorio","En el escritorio"],["hamaca2","En la hamaca"],["piso","Con la tablet"],["listo","Todo listo"],["reloj","Siempre a tiempo"],["caminando","Caminando"],["puf","En el puf"],["escalones","Pausa con café"],["colgante","Silla colgante"],["taburete","En el taburete"]];
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
-const APP_VER=43;
+const APP_VER=44;
 /* las imágenes de la marca llevan ?v=versión: así, al actualizar EdiThor, el navegador baja las fotos nuevas en vez de usar las viejas guardadas */
 const bust=s=>{s=String(s||"");if(!s||/^(data:|blob:|https?:|fb:|idb:)/.test(s)||s.includes("?"))return s;return s+"?v="+APP_VER};
 const BR={
@@ -1727,7 +1733,7 @@ document.querySelectorAll(".rail button, .rrail button").forEach(b=>{if(!b.title
 document.querySelectorAll(".rail button").forEach(b=>b.addEventListener("click",()=>{const t=b.dataset.tab;
   if(t==="inicio"||t==="disenos"){$("#main").classList.remove("lib-open","props-open");HV.lib=false;setTab(t);updRails();return}
   if(isCompact()){const m=$("#main");if(HV.lib){HV.lib=false;if(S.tab!==t)setTab(t);updRails();return}if(S.tab===t&&m.classList.contains("lib-open")){m.classList.remove("lib-open");updRails();return}m.classList.add("lib-open");setTab(t);updRails();return}setTab(t)}));
-function setTab(t){const was=S.tab;S.tab=t;$("#main").dataset.tab=t;document.body.classList.toggle("on-home",t==="inicio"||t==="disenos");document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(railOf(b.dataset.tab)===railOf(t))));
+function setTab(t){const was=S.tab;S.tab=t;$("#main").dataset.tab=t;document.body.classList.toggle("on-home",t==="inicio"||t==="disenos");try{paintDocName()}catch(e){}document.querySelectorAll(".rail button").forEach(b=>b.setAttribute("aria-selected",String(railOf(b.dataset.tab)===railOf(t))));
   if(t==="inicio"){if(S.editing)endEdit();CX.newSec="";renderHome();return}
   if(t==="disenos"){if(S.editing)endEdit();if(S.dirty)saveNow();renderCarpetas();return}
   if(t!=="editar")S.libTab=t;
@@ -2129,7 +2135,7 @@ function fmtMenu(btn){const d=S.doc;if(!d)return;if(d.fmts)fmtSync(d);const list
     box.querySelectorAll("[data-fgo]").forEach(b=>b.onclick=()=>{closePop();switchFmt(+b.dataset.fgo)});
     box.querySelectorAll("[data-fx]").forEach(b=>b.onclick=()=>{closePop();removeFmt(+b.dataset.fx)});
     box.querySelector("#fmt-add").onclick=()=>{closePop();if(S.locked){lockPrompt();return}adaptDialog()}})}
-function renderPageBar(){paintFmtBtn();const d=S.doc;if(!d||!d.pages)return;const n=d.pages.length,P=d.pages[d.pi];
+function renderPageBar(){paintFmtBtn();try{paintDocName()}catch(e){}const d=S.doc;if(!d||!d.pages)return;const n=d.pages.length,P=d.pages[d.pi];
   $("#pg-lbl").textContent=`Página ${d.pi+1} de ${n}${P&&P.name?" · "+P.name:""}`;$("#pg-prev").disabled=d.pi<=0;$("#pg-next").disabled=d.pi>=n-1}
 $("#fmt-btn").onclick=e=>fmtMenu(e.currentTarget);
 function goPage(i){const d=S.doc;if(S.editing)endEdit();if(S.crop){S.crop=null}syncPage();i=clamp(i,0,d.pages.length-1);d.pi=i;d.bg=d.pages[i].bg;d.layers=d.pages[i].layers;
@@ -2562,12 +2568,15 @@ function bindLayers(){document.querySelectorAll(".layer").forEach(r=>r.addEventL
 /* ================== open / brand ================== */
 async function openTemplate(t,st){setStatus("Abriendo plantilla…");const d=normDoc(await t.build(st));applyBrandInfo(d);if(CX.newSec){d.sec=CX.newSec;d.secNew=true;CX.newSec=""}else if(t.sec){d.sec=t.sec;d.secNew=true}await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));openDoc(d,true);setStatus("")}
 function openDoc(d,fresh){if(S.dirty)saveNow();normDoc(d);setLock(false);S.doc=d;S.sel=null;S.multi=[];S.crop=null;S.zoom=1;S.panX=0;S.panY=0;S.dirty=false;if(d.brand&&d.brand!==S.brand)setBrand(d.brand,true);
-  $("#nombre").value=d.name;resetHistory();renderProps();requestRender();renderPageBar();if(fresh)setStatus("Plantilla abierta · se guarda sola cuando la cambies");if(isNarrow())window.scrollTo({top:0,behavior:"smooth"})}
+  $("#nombre").value=d.name;paintDocName();resetHistory();renderProps();requestRender();renderPageBar();if(fresh)setStatus("Plantilla abierta · se guarda sola cuando la cambies");if(isNarrow())window.scrollTo({top:0,behavior:"smooth"})}
 function setBrand(b,keep){S.brand=b;lsSet("ed.brand",b);document.documentElement.dataset.marca=b;
   document.querySelectorAll(".seg [data-marca]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.marca===b)));
   renderLib();if(S.doc)renderProps();if(S.tab==="inicio"&&!keep)renderHome();if(S.tab==="disenos"&&!keep)renderCarpetas()}
 document.querySelectorAll(".seg [data-marca]").forEach(x=>x.onclick=()=>setBrand(x.dataset.marca));
-$("#nombre").addEventListener("change",e=>{S.doc.name=e.target.value.trim()||"Diseño sin nombre";e.target.value=S.doc.name;commit()});
+$("#nombre").addEventListener("change",e=>{S.doc.name=e.target.value.trim()||"Diseño sin nombre";e.target.value=S.doc.name;commit();paintDocName()});
+$("#nombre").addEventListener("input",e=>{document.title=(e.target.value.trim()||"Diseño sin nombre")+" · EdiThor"});
+function paintDocName(){const d=S.doc,k=$("#dn-kind");if(!d)return;if(k){const sz=fmtName({k:fmtKey(d.w,d.h),w:d.w,h:d.h});k.textContent=`${BR[d.brand]?BR[d.brand].name:""} · ${sz}${d.pages&&d.pages.length>1?` · ${d.pages.length} págs.`:""}`}
+  document.title=(S.tab==="inicio"||S.tab==="disenos")?"EdiThor · NUMMEROS":(d.name||"Diseño sin nombre")+" · EdiThor"}
 $("#undo").onclick=undo;$("#redo").onclick=redo;
 
 /* ================== export ================== */

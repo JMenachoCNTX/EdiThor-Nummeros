@@ -1,7 +1,12 @@
 {
- "v": 43,
+ "v": 44,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 44,
+   "fecha": "2026-10-28",
+   "texto": "Nombre del diseño bien visible arriba (con marca, tamaño y páginas) y en la pestaña del navegador"
+  },
   {
    "v": 43,
    "fecha": "2026-10-28",
