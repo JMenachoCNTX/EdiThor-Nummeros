@@ -27,6 +27,9 @@
 - **Borde rojo**: una línea roja marca el borde del diseño por fuera, y lo que se sale del borde se ve apagado (no sale en las descargas; se apaga en las opciones de la cuadrícula).
 - **Seleccionar** (botón abajo): tocar y mover elementos sin que se abran la barra de opciones ni los paneles; al apagarlo, los menús vuelven.
 - **Páginas y descargas**: cada diseño muestra cuántas páginas tiene. Al descargar un diseño con varias páginas se eligen el formato y qué páginas bajar (todas o algunas); varias imágenes llegan juntas en un ZIP. La vista previa también tiene **Descargar** y **Compartir**.
+- **Girar formas**: rectángulos, círculos, líneas, la N y el isotipo se giran con el punto redondo de arriba (se ajusta solo a 0°, 45°, 90°…; con Shift va de 15 en 15), con el botón «Girar» de la barra o escribiendo los grados.
+- **Grosor de línea**: las líneas tienen el botón «Grosor» para escribir cualquier número (mínimo 0,5).
+- **Tamaño de letra**: en la barra del texto se puede escribir el número exacto del tamaño.
 - **Cuadrícula** (botón abajo o ⌘ + '): fina, media o gruesa, con líneas del centro y opción de pegar los elementos a la cuadrícula. No sale en las descargas.
 - **Vista previa en pantalla completa**, con flechas para pasar las páginas.
 - El lienzo no se escapa de la pantalla: el diseño queda centrado y solo se desplaza cuando está ampliado.

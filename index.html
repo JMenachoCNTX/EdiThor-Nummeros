@@ -169,6 +169,8 @@ button{cursor:pointer}
 .ctxbar .sep{width:1px;height:20px;background:var(--line);margin:0 4px;flex:none}
 .ctxbar select{height:30px;border:1px solid var(--line);border-radius:6px;background:var(--field);padding:0 6px;font-size:12.5px;max-width:150px;flex:none}
 .ctxbar .num{min-width:30px;text-align:center;font-variant-numeric:tabular-nums;font-size:12.5px;flex:none}
+.ctxbar input.num{width:58px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit;font-size:13px;padding:0 4px;-moz-appearance:textfield}
+.ctxbar input.num::-webkit-inner-spin-button,.ctxbar input.num::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .ctxbar .lbl{font-size:12px;color:var(--muted);padding:0 6px;flex:none}
 .chip-c{width:18px;height:18px;border-radius:5px;border:1px solid rgba(127,127,127,.55);display:inline-block}
 .chip-c.none{background:linear-gradient(135deg,transparent 45%,var(--danger) 45%,var(--danger) 55%,transparent 55%),var(--panel)}
@@ -769,10 +771,17 @@ function justWords(L,i,x0,inner){if(L.align!=="justify"||!L._ends||L._ends[i])re
 
 /* ================== drawing ================== */
 function rr(ctx,x,y,w,h,r){r=Math.max(0,Math.min(r||0,w/2,h/2));ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else{ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}}
+const ROTT=new Set(["rect","ellipse","n","iso"]);const canRot=L=>!!L&&ROTT.has(L.t);
+const radOf=L=>(L&&L.rot||0)*Math.PI/180;
+function rotPt(px,py,cx,cy,a){const c=Math.cos(a),s=Math.sin(a),dx=px-cx,dy=py-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]}
+const normDeg=v=>{v=((Math.round(+v||0)%360)+360)%360;return v>180?v-360:v};
+const isLine=L=>!!L&&L.t==="rect"&&(L.line||/^L[ií]nea/i.test(L.name||""));
+function strokeBox(ctx,L,b,off){off=off||0;ctx.save();ctx.translate(b.x+b.w/2,b.y+b.h/2);ctx.rotate(radOf(L));ctx.strokeRect(-b.w/2+off,-b.h/2+off,b.w,b.h);ctx.restore()}
 function drawLayer(ctx,L,editingId){
   if(L.hide)return;
   ctx.save();ctx.globalAlpha=L.op??1;
   const {x,y,w,h}=L;
+  if(L.rot&&L.t!=="text"){const cx=x+w/2,cy=y+h/2;ctx.translate(cx,cy);ctx.rotate(radOf(L));ctx.translate(-cx,-cy)}
   if(L.t==="rect"){rr(ctx,x,y,w,h,L.rad);if(L.fill){ctx.fillStyle=L.fill;ctx.fill()}if(L.sw>0&&L.stroke){ctx.lineWidth=L.sw;ctx.strokeStyle=L.stroke;ctx.stroke()}}
   else if(L.t==="ellipse"){ctx.beginPath();ctx.ellipse(x+w/2,y+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2);if(L.fill){ctx.fillStyle=L.fill;ctx.fill()}if(L.sw>0&&L.stroke){ctx.lineWidth=L.sw;ctx.strokeStyle=L.stroke;ctx.stroke()}}
   else if(L.t==="img"){
@@ -1283,14 +1292,16 @@ function render(){
     if(S.guides.h){const y=V.oy+S.doc.h/2*V.sc;ctx.beginPath();ctx.moveTo(V.ox,y+.5);ctx.lineTo(V.ox+S.doc.w*V.sc,y+.5);ctx.stroke()}ctx.restore()}
   if(S.crop){const L=S.doc.layers.find(l=>l.id===S.crop),r=L&&imgRect(L);if(r){const ri=img(L.src);ctx.save();ctx.translate(V.ox,V.oy);ctx.scale(V.sc,V.sc);ctx.globalAlpha=.35;ctx.drawImage(ri.im,r.x,r.y,r.w,r.h);ctx.restore();
       ctx.save();ctx.strokeStyle=SELC;ctx.setLineDash([4,4]);ctx.lineWidth=1;ctx.strokeRect(V.ox+r.x*V.sc,V.oy+r.y*V.sc,r.w*V.sc,r.h*V.sc);ctx.restore()}}
-  if(S.hover&&!selIds().includes(S.hover)){const L=S.doc.layers.find(l=>l.id===S.hover);if(L&&!L.hide){const b=scr(L);ctx.save();ctx.strokeStyle=SELC;ctx.lineWidth=1;ctx.strokeRect(b.x+.5,b.y+.5,b.w,b.h);ctx.restore()}}
+  if(S.hover&&!selIds().includes(S.hover)){const L=S.doc.layers.find(l=>l.id===S.hover);if(L&&!L.hide){const b=scr(L);ctx.save();ctx.strokeStyle=SELC;ctx.lineWidth=1;strokeBox(ctx,L,b,.5);ctx.restore()}}
   const L=selL();const dot=(hx,hy,sq)=>{ctx.fillStyle="#fff";ctx.strokeStyle=SELC;ctx.lineWidth=1.5;ctx.beginPath();if(sq)ctx.rect(hx-5,hy-5,10,10);else ctx.arc(hx,hy,5.5,0,Math.PI*2);ctx.fill();ctx.stroke()};
   const tag=(t,x,y)=>{ctx.fillStyle=SELC;ctx.font="600 11px "+getComputedStyle(document.body).fontFamily;ctx.fillText(t,x,y)};
-  if(L&&!L.hide){const b=scr(L);ctx.save();ctx.strokeStyle=SELC;ctx.lineWidth=1.5;ctx.strokeRect(b.x,b.y,b.w,b.h);
-    if(!L.lock&&S.editing!==L.id){for(const [hx,hy] of handles(L).map(h=>h.p))dot(hx,hy,S.crop===L.id)}
+  if(L&&!L.hide){const b=scr(L);ctx.save();ctx.strokeStyle=SELC;ctx.lineWidth=1.5;strokeBox(ctx,L,b);
+    if(!L.lock&&S.editing!==L.id){const hs=handles(L),hr=hs.find(h=>h.k==="rot");if(hr){const [ax,ay]=rotPt(b.x+b.w/2,b.y,b.x+b.w/2,b.y+b.h/2,radOf(L));ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(hr.p[0],hr.p[1]);ctx.stroke();ctx.lineWidth=1.5}
+      for(const h of hs){if(h.k==="rot"){ctx.fillStyle=SELC;ctx.beginPath();ctx.arc(h.p[0],h.p[1],7,0,Math.PI*2);ctx.fill();ctx.strokeStyle="#fff";ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(h.p[0],h.p[1],3.6,-Math.PI*.9,Math.PI*.55);ctx.stroke();ctx.strokeStyle=SELC;ctx.lineWidth=1.5}else dot(h.p[0],h.p[1],S.crop===L.id)}}
+    if(drag&&drag.mode==="rotate")tag(`${L.rot||0}°`,b.x+b.w+8,b.y-6);
     if(L.lock)tag("Bloqueado",b.x,b.y-6);else if(S.crop===L.id)tag("Recortando · arrastra la imagen o los bordes · Enter para terminar",b.x,b.y-6);else if(L.g)tag("En un grupo",b.x,b.y-6);
     ctx.restore()}
-  if(isMulti()){const Ls=selLayers();ctx.save();ctx.strokeStyle=SELC;ctx.lineWidth=1;for(const x of Ls){if(x.hide)continue;const b=scr(x);ctx.strokeRect(b.x+.5,b.y+.5,b.w,b.h)}
+  if(isMulti()){const Ls=selLayers();ctx.save();ctx.strokeStyle=SELC;ctx.lineWidth=1;for(const x of Ls){if(x.hide)continue;const b=scr(x);strokeBox(ctx,x,b,.5)}
     const bb=bbox(Ls),sb={x:V.ox+bb.x*V.sc,y:V.oy+bb.y*V.sc,w:bb.w*V.sc,h:bb.h*V.sc};ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.strokeRect(sb.x,sb.y,sb.w,sb.h);ctx.setLineDash([]);
     if(!Ls.some(x=>x.lock))for(const h of multiHandles())dot(h.p[0],h.p[1]);
     const grouped=Ls.every(x=>x.g&&x.g===Ls[0].g);tag(grouped?"Grupo · "+Ls.length+" elementos":Ls.length+" elementos",sb.x,sb.y-6);ctx.restore()}
@@ -1308,9 +1319,14 @@ function render(){
 function scr(L){if(L.t==="text")layoutText(L);return{x:V.ox+L.x*V.sc,y:V.oy+L.y*V.sc,w:L.w*V.sc,h:L.h*V.sc}}
 function handles(L){const b=scr(L),x1=b.x,y1=b.y,x2=b.x+b.w,y2=b.y+b.h,mx=(x1+x2)/2,my=(y1+y2)/2;
   const all=[["nw",[x1,y1]],["ne",[x2,y1]],["sw",[x1,y2]],["se",[x2,y2]],["n",[mx,y1]],["s",[mx,y2]],["w",[x1,my]],["e",[x2,my]]];
-  return all.filter(([k])=>L.t==="text"?(k!=="n"&&k!=="s"):true).map(([k,p])=>({k,p}))}
+  let hs=all.filter(([k])=>L.t==="text"?(k!=="n"&&k!=="s"):true);
+  if(L.t!=="text"&&!S.crop){if(b.h<18)hs=hs.filter(([k])=>k==="w"||k==="e");else if(b.w<18)hs=hs.filter(([k])=>k==="n"||k==="s")}
+  if(canRot(L)&&!S.crop)hs.push(["rot",[mx,y1-26]]);
+  const a=radOf(L);if(a&&L.t!=="text")hs=hs.map(([k,p])=>[k,rotPt(p[0],p[1],mx,my,a)]);
+  return hs.map(([k,p])=>({k,p}))}
 function toDoc(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left-V.ox)/V.sc,y:(e.clientY-r.top-V.oy)/V.sc,sx:e.clientX-r.left,sy:e.clientY-r.top}}
-function hitTest(p){for(let i=S.doc.layers.length-1;i>=0;i--){const L=S.doc.layers[i];if(L.hide)continue;if(L.t==="text")layoutText(L);if(p.x>=L.x&&p.x<=L.x+L.w&&p.y>=L.y&&p.y<=L.y+L.h)return L}return null}
+function hitTest(p){for(let i=S.doc.layers.length-1;i>=0;i--){const L=S.doc.layers[i];if(L.hide)continue;if(L.t==="text")layoutText(L);let px=p.x,py=p.y;if(L.rot&&L.t!=="text")[px,py]=rotPt(p.x,p.y,L.x+L.w/2,L.y+L.h/2,-radOf(L));
+    const pd=(L.t==="rect"||L.t==="ellipse")?Math.max(0,6/V.sc-Math.min(L.w,L.h)/2):0;if(px>=L.x-pd&&px<=L.x+L.w+pd&&py>=L.y-pd&&py<=L.y+L.h+pd)return L}return null}
 
 /* pointer */
 let drag=null;
@@ -1340,6 +1356,7 @@ cv.addEventListener("pointerdown",e=>{
   if(isMulti()){const Ls=selLayers();if(!Ls.some(x=>x.lock)){const h=multiHandles().find(h=>near(h,p));
     if(h){drag={mode:"mresize",k:h.k,start:p,b:bbox(Ls),o:Ls.map(l=>({id:l.id,x:l.x,y:l.y,w:l.w,h:l.h,size:l.size,px:l.px,py:l.py,rad:l.rad,sw:l.sw}))};cv.setPointerCapture(e.pointerId);return}}}
   else{const L=selL();if(L&&!L.lock){const h=handles(L).find(h=>near(h,p));
+    if(h&&h.k==="rot"){drag={mode:"rotate",start:p,c:{x:L.x+L.w/2,y:L.y+L.h/2},o:L.rot||0};cv.setPointerCapture(e.pointerId);requestRender();return}
     if(h){drag={mode:"resize",k:h.k,start:p,o:{x:L.x,y:L.y,w:L.w,h:L.h,size:L.size,px:L.px,py:L.py}};cv.setPointerCapture(e.pointerId);return}}}
   const hit=hitTest(p);
   if(hit){
@@ -1356,7 +1373,7 @@ cv.addEventListener("pointermove",e=>{
   if(!drag){let cur="default";
     if(S.crop){const L=byId(S.crop),r=L&&imgRect(L);if(L){const h=handles(L).find(h=>near(h,p));if(h)cur="crosshair";else if(r&&inRect(p,r))cur="grab"}cv.style.cursor=cur;return}
     const hs=isMulti()?(selLayers().some(x=>x.lock)?[]:multiHandles()):(selL()&&!selL().lock?handles(selL()):[]);const h=hs.find(h=>near(h,p));
-    if(h)cur={nw:"nwse-resize",se:"nwse-resize",ne:"nesw-resize",sw:"nesw-resize",n:"ns-resize",s:"ns-resize",e:"ew-resize",w:"ew-resize"}[h.k];
+    if(h)cur={nw:"nwse-resize",se:"nwse-resize",ne:"nesw-resize",sw:"nesw-resize",n:"ns-resize",s:"ns-resize",e:"ew-resize",w:"ew-resize",rot:"grab"}[h.k];
     const hit=hitTest(p);if(cur==="default"&&hit)cur=hit.lock?"default":"move";cv.style.cursor=cur;const hv=hit?hit.id:null;if(hv!==S.hover){S.hover=hv;requestRender()}return}
   const dx=p.x-drag.start.x,dy=p.y-drag.start.y;
   if(drag.mode==="pan"){S.panX=drag.o.x+(p.sx-drag.start.sx);S.panY=drag.o.y+(p.sy-drag.start.sy);requestRender();return}
@@ -1385,18 +1402,23 @@ cv.addEventListener("pointermove",e=>{
     const cover=Math.max(L.w/r.iw,L.h/r.ih);L.z=(r.w/r.iw)/cover;
     L.fx=Math.abs(L.w-r.w)<.5?.5:(r.x-L.x)/(L.w-r.w);L.fy=Math.abs(L.h-r.h)<.5?.5:(r.y-L.y)/(L.h-r.h);requestRender();syncGeom();return}
   const L=selL();if(!L)return;
+  if(drag.mode==="rotate"){let a=Math.atan2(p.y-drag.c.y,p.x-drag.c.x)*180/Math.PI+90;
+    if(e.shiftKey)a=Math.round(a/15)*15;else{const n=Math.round(a/45)*45;if(Math.abs(a-n)<4)a=n}
+    L.rot=normDeg(a);const ri=$("#p-rot");if(ri&&document.activeElement!==ri)ri.value=L.rot;requestRender();return}
   if(drag.mode==="resize"){
-    const o=drag.o,k=drag.k;let x=o.x,y=o.y,w=o.w,h=o.h;
-    if(k.includes("e"))w=o.w+dx;if(k.includes("w")){w=o.w-dx;x=o.x+dx}
-    if(k.includes("s"))h=o.h+dy;if(k.includes("n")){h=o.h-dy;y=o.y+dy}
+    const o=drag.o,k=drag.k;let x=o.x,y=o.y,w=o.w,h=o.h;const ra=L.t!=="text"?radOf(L):0;
+    const ddx=ra?dx*Math.cos(-ra)-dy*Math.sin(-ra):dx,ddy=ra?dx*Math.sin(-ra)+dy*Math.cos(-ra):dy;const mn=(L.t==="rect"||L.t==="ellipse")?1:8;
+    if(k.includes("e"))w=o.w+ddx;if(k.includes("w")){w=o.w-ddx;x=o.x+ddx}
+    if(k.includes("s"))h=o.h+ddy;if(k.includes("n")){h=o.h-ddy;y=o.y+ddy}
     const corner=k.length===2,keep=L.t==="qr"||(corner&&(L.t==="img"||L.t==="n"||L.t==="iso"||L.t==="text"||L.t==="dev"||e.shiftKey));
-    if(keep){const r=Math.max(w/o.w,h/o.h);const f=Math.abs(dx)>Math.abs(dy)?w/o.w:h/o.h;const s=Math.max(.05,L.t==="text"?w/o.w:f||r);w=o.w*s;h=o.h*s;if(k.includes("w"))x=o.x+o.w-w;if(k.includes("n"))y=o.y+o.h-h}
-    w=Math.max(8,w);h=Math.max(8,h);
-    if(GRID.on&&GRID.snap&&!keep){const th=10/V.sc,c=gridCell(),sn=v=>{const t=Math.round(v/c)*c;return Math.abs(t-v)<th?t:v};
+    if(keep){const r=Math.max(w/o.w,h/o.h);const f=Math.abs(ddx)>Math.abs(ddy)?w/o.w:h/o.h;const s=Math.max(.05,L.t==="text"?w/o.w:f||r);w=o.w*s;h=o.h*s;if(k.includes("w"))x=o.x+o.w-w;if(k.includes("n"))y=o.y+o.h-h}
+    w=Math.max(mn,w);h=Math.max(mn,h);
+    if(GRID.on&&GRID.snap&&!keep&&!ra){const th=10/V.sc,c=gridCell(),sn=v=>{const t=Math.round(v/c)*c;return Math.abs(t-v)<th?t:v};
       if(k.includes("e"))w=sn(x+w)-x;if(k.includes("w")){const nx=sn(x);w+=x-nx;x=nx}if(k.includes("s"))h=sn(y+h)-y;if(k.includes("n")){const ny=sn(y);h+=y-ny;y=ny}w=Math.max(8,w);h=Math.max(8,h)}
     if(L.t==="text"){if(corner){const s=w/o.w;L.size=Math.max(6,Math.round(o.size*s));L.px=Math.round((o.px||0)*s);L.py=Math.round((o.py||0)*s);L.w=Math.round(w);if(k.includes("w"))L.x=Math.round(o.x+o.w-L.w);layoutText(L);if(k.includes("n"))L.y=Math.round(o.y+o.h-L.h)}
       else{L.autoW=false;L.w=Math.round(w);L.x=Math.round(x)}}
-    else{L.x=Math.round(x);L.y=Math.round(y);L.w=Math.round(w);L.h=Math.round(h);if(L.t==="qr")L.h=L.w}
+    else if(ra){const [cx,cy]=rotPt(x+w/2,y+h/2,o.x+o.w/2,o.y+o.h/2,ra);L.w=w<2?round(w):Math.round(w);L.h=h<2?round(h):Math.round(h);L.x=Math.round(cx-L.w/2);L.y=Math.round(cy-L.h/2)}
+    else{L.x=Math.round(x);L.y=Math.round(y);L.w=w<2?round(w):Math.round(w);L.h=h<2?round(h):Math.round(h);if(L.t==="qr")L.h=L.w}
     requestRender();syncGeom();
   }
 });
@@ -1631,7 +1653,7 @@ function addText(k){const S0=curStyle(),B=brandText(S.brand,S0),W=Math.min(S.doc
   addLayer(L)}
 function addShape(v){const S0=curStyle(),W=S.doc.w,H=S.doc.h,m=Math.min(W,H);
   const L=v==="rect"?R({w:Math.round(m*.4),h:Math.round(m*.3),fill:S0.soft}):v==="round"?R({name:"Rectángulo redondeado",w:Math.round(m*.4),h:Math.round(m*.3),fill:S0.soft,rad:Math.round(m*.03)}):v==="ellipse"?{id:uid(),t:"ellipse",name:"Círculo",x:0,y:0,w:Math.round(m*.3),h:Math.round(m*.3),fill:S0.acc,stroke:S0.ink,sw:0,op:1}
-    :v==="line"?R({name:"Línea",w:Math.round(W*.6),h:Math.max(2,Math.round(m*.003)),fill:S0.line==="#DAF1DE"?"#8EB69B":S0.muted}):v==="frame"?R({name:"Marco",w:Math.round(W*.8),h:Math.round(H*.8),fill:null,stroke:S0.acc,sw:Math.round(m*.008)})
+    :v==="line"?R({name:"Línea",line:true,w:Math.round(W*.6),h:Math.max(2,Math.round(m*.003)),fill:S0.line==="#DAF1DE"?"#8EB69B":S0.muted}):v==="frame"?R({name:"Marco",w:Math.round(W*.8),h:Math.round(H*.8),fill:null,stroke:S0.acc,sw:Math.round(m*.008)})
     :v==="band"?R({name:"Franja",w:W,h:Math.round(H*.12),fill:S0.acc}):v==="n"?{id:uid(),t:"n",name:"La N",x:0,y:0,w:Math.round(m*.3*546/728),h:Math.round(m*.3),fill:"#235347",op:1}
     :v==="iso"?{id:uid(),t:"iso",name:"Isotipo",x:0,y:0,w:Math.round(m*.3*ISO.w/ISO.h),h:Math.round(m*.3),fill:"#152644",fill2:"#7E9197",fill3:"#000000",op:1}:null;
   if(v==="tiles"){const st=isDark(S.doc.bg)?"oscuro":"claro";const cw=Math.round(W/4),ch=Math.round(cw*1.25);tiles(0,0,4,1,cw,ch,BR.nummeros.tiles[st]).forEach(l=>S.doc.layers.push(l));commit();requestRender();toast("Cuadros agregados arriba del diseño");return}
@@ -1914,14 +1936,14 @@ stage.addEventListener("pointerdown",()=>{if(isCompact()&&$("#main").classList.c
 window.addEventListener("resize",()=>{const want=S.compact&&!isNarrow();if(want!==isCompact())applyCompact()});
 
 /* ================== barra superior: opciones del elemento elegido ================== */
-const TB={dup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
+const TB={rot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg>',dup:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>',
   del:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
   front:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="1.5" fill="currentColor" fill-opacity=".25"/><path d="M15 9V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h4"/></svg>',
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="4" width="11" height="11" rx="1.5" fill="currentColor" fill-opacity=".25"/><path d="M9 15v4a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-4"/></svg>',
   crop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2v14a2 2 0 0 0 2 2h14M18 22V8a2 2 0 0 0-2-2H2"/></svg>',
   nobg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="9" r="4"/><path d="M5 21c1-4 4-6 7-6s6 2 7 6"/><path d="M3 3l18 18" stroke-dasharray="2 3"/></svg>'};
 let POP=null;
-function closePop(){if(POP){POP.remove();POP=null}}
+function closePop(){if(POP){const p=POP;POP=null;p.remove()}}
 function pop(btn,html,bind){closePop();const d=document.createElement("div");d.className="ctxpop";d.innerHTML=html;document.body.appendChild(d);POP=d;
   const r=btn.getBoundingClientRect();d.style.left=Math.max(12,Math.min(innerWidth-d.offsetWidth-12,r.left))+"px";d.style.top=(r.bottom+6)+"px";bind&&bind(d)}
 document.addEventListener("pointerdown",e=>{if(POP&&!e.target.closest(".ctxpop")&&!e.target.closest("[data-pop]"))closePop()},true);
@@ -1935,7 +1957,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
   else if(L&&S.crop===L.id){h=`<span class="lbl">Recortando</span>`+tb("cropdone","Listo","Terminar el recorte","pri")+tb("cropreset","Quitar recorte","Quitar el recorte")}
   else if(L&&L.t==="text"){
     h=`<select id="cx-font" aria-label="Letra">${Object.entries(FONTS).map(([k,f])=>`<option value="${esc(k)}"${k===L.font?" selected":""}>${esc(k==="Adventor CX"?"Century Gothic":k)}</option>`).join("")}</select>`
-      +tb("smaller","−","Achicar letra")+`<span class="num">${Math.round(L.size)}</span>`+tb("bigger","+","Agrandar letra")+sep
+      +tb("smaller","−","Achicar letra")+`<input class="num" id="cx-fsize" type="number" inputmode="decimal" min="4" max="3000" step="1" value="${round(L.size)}" title="Tamaño de la letra: escribe un número" aria-label="Tamaño de la letra">`+tb("bigger","+","Agrandar letra")+sep
       +tb("bold","<b>B</b>","Negrita","",` aria-pressed="${+L.weight>=600}"`)+tb("upper","AA","Mayúsculas","",` aria-pressed="${!!L.upper}"`)
       +tb("align",ICON[L.align]||ICON.left,"Alineación del texto")+tb("color",chipC(L.color),"Color del texto",""," data-pop")+tb("tbg",chipC(L.bg),"Fondo del texto",""," data-pop")+sep+tb("edit","Escribir","Escribir sobre el texto")+common()}
   else if(L&&L.t==="img"){
@@ -1943,7 +1965,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
       +tb("fit",L.fit==="contain"?"Imagen completa":"Rellenar marco","Cambiar entre rellenar el marco y ver la imagen completa")+common()}
   else if(L&&L.t==="qr"){h=tb("qredit","Editar QR","Cambiar el contenido del QR")+tb("qfg",chipC(L.fg)+"Color","Color de los cuadros",""," data-pop")+tb("qbg",chipC(L.bg)+"Fondo","Fondo del QR",""," data-pop")+tb("qlogo","Logo","Logo en el centro","",` aria-pressed="${!!L.logo}"`)+common()}
   else if(L&&L.t==="dev"){h=tb("shot","Cambiar captura","Subir o pegar la captura de pantalla")+tb("dkind",((DEVK.find(d=>d[0]===L.kind)||DEVK[0])[1])+" ▾","Tipo de dispositivo",""," data-pop")+(L.kind==="browser"?"":tb("dframe",chipC(L.frame)+"Marco","Color del marco",""," data-pop"))+common()}
-  else if(L){const f=L.t==="iso"?"Color":"Color";h=tb("fill",chipC(L.fill)+f,"Color",""," data-pop")+((L.t==="rect"||L.t==="ellipse")?tb("stroke",chipC(L.sw>0?L.stroke:null)+"Borde","Color del borde",""," data-pop"):"")+common()}
+  else if(L){const f=L.t==="iso"?"Color":"Color";h=tb("fill",chipC(L.fill)+f,"Color",""," data-pop")+((L.t==="rect"||L.t==="ellipse")?tb("stroke",chipC(L.sw>0?L.stroke:null)+"Borde","Color del borde",""," data-pop"):"")+(isLine(L)?tb("thick",`Grosor ${round(Math.min(L.w,L.h))} ▾`,"Grosor de la línea",""," data-pop"):"")+(canRot(L)?tb("rot",`${TB.rot} ${L.rot||0}°`,"Girar",""," data-pop"):"")+common()}
   else{h=`<span class="lbl">Página ${S.doc.pi+1}</span>`+tb("bg",chipC(S.doc.bg)+"Fondo","Color de fondo de la página",""," data-pop")+sep+tb("addtext","+ Texto","Agregar un texto")+tb("addimg","+ Imagen","Agregar una foto o imagen")+tb("addpage","+ Página","Agregar una página")}
   const hb=bar.offsetHeight;bar.innerHTML=h;if(bar.offsetHeight!==hb)requestRender();
   const on=(id,fn)=>{const x=$("#cx-"+id);if(x)x.onclick=e=>fn(e.currentTarget)};
@@ -1954,6 +1976,14 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
     pop(b,`<div class="chips">${Object.keys(AL_ICON).map(k=>`<button type="button" data-al2="${k}" title="${AL_NAME[k]}" aria-label="Alinear ${AL_NAME[k]}">${AL_ICON[k]}</button>`).join("")}</div>`,d=>d.querySelectorAll("[data-al2]").forEach(x=>x.onclick=()=>{closePop();alignSel(x.dataset.al2)}))});
   on("cropdone",endCrop);on("cropreset",()=>{L.z=1;L.fx=.5;L.fy=.5;upd()});
   const fz=$("#cx-font");if(fz)fz.onchange=e=>{L.font=e.target.value;const F=FONTS[L.font];if(!F.w.includes(+L.weight))L.weight=F.w.includes(700)?700:F.w[0];upd()};
+  const fsz=$("#cx-fsize");if(fsz){const ap=()=>{const v=+fsz.value;if(fsz.isConnected&&v>=1&&round(v)!==L.size){L.size=Math.min(3000,Math.max(4,round(v)));upd()}};fsz.onchange=ap;fsz.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();ap();fsz.blur()}};fsz.onfocus=()=>fsz.select()}
+  on("rot",b=>pop(b,`<div style="display:grid;gap:10px;min-width:220px"><label class="f"><span>Giro (grados)</span><input type="number" id="rp-v" inputmode="decimal" step="1" value="${L.rot||0}"></label><input type="range" id="rp-r" min="-180" max="180" step="1" value="${L.rot||0}"><div class="chips">${[-90,-45,-15,15,45,90].map(v=>`<button type="button" data-rv="${v}">${v>0?"+":""}${v}°</button>`).join("")}<button type="button" data-rv="0">0°</button></div><p class="hint" style="margin:0">También puedes girar arrastrando el punto redondo de arriba.</p></div>`,d=>{
+    const vi=d.querySelector("#rp-v"),ri=d.querySelector("#rp-r");const set=(v,c)=>{L.rot=normDeg(v);vi.value=L.rot;ri.value=L.rot;requestRender();const pr=$("#p-rot");if(pr)pr.value=L.rot;if(c)commit()};
+    vi.oninput=()=>set(vi.value);vi.onchange=()=>set(vi.value,1);vi.onkeydown=e=>e.stopPropagation();ri.oninput=()=>set(ri.value);ri.onchange=()=>set(ri.value,1);
+    d.querySelectorAll("[data-rv]").forEach(x=>x.onclick=()=>{const v=+x.dataset.rv;set(v===0?0:(L.rot||0)+v,1)})}));
+  on("thick",b=>pop(b,`<div style="display:grid;gap:10px;min-width:220px"><label class="f"><span>Grosor de la línea</span><input type="number" id="tk-v" inputmode="decimal" step=".5" min=".5" value="${round(Math.min(L.w,L.h))}"></label><div class="chips">${[1,2,3,4,6,10].map(v=>`<button type="button" data-tk="${v}">${v}</button>`).join("")}</div><p class="hint" style="margin:0">Escribe cualquier número; el mínimo es 0,5.</p></div>`,d=>{
+    const vi=d.querySelector("#tk-v");const set=(v,c)=>{setThick(L,v);requestRender();syncGeom();if(c){commit();renderCtx()}};vi.oninput=()=>{if(+vi.value>0)set(vi.value)};vi.onchange=()=>set(vi.value,1);vi.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter")set(vi.value,1)};
+    d.querySelectorAll("[data-tk]").forEach(x=>x.onclick=()=>set(x.dataset.tk,1))}));
   on("smaller",()=>{L.size=Math.max(4,L.size-Math.max(1,Math.round(L.size*.08)));upd()});on("bigger",()=>{L.size=L.size+Math.max(1,Math.round(L.size*.08));upd()});
   on("bold",()=>{const F=FONTS[L.font]||FONTS.Questrial;L.weight=+L.weight>=600?Math.min(...F.w):Math.max(...F.w);upd()});on("upper",()=>{L.upper=!L.upper;upd()});
   on("color",b=>colorPop(b,"cx-c",L.color,false,c=>{L.color=c}));on("tbg",b=>colorPop(b,"cx-b",L.bg,true,c=>{L.bg=c||null}));on("edit",()=>startEdit(L.id));
@@ -1997,7 +2027,7 @@ async function fontB64(path){if(FONT64[path])return FONT64[path];const buf=new U
 async function imgDataURL(src){const im=await ld(src);if(!im)return "";const k=Math.min(1,2400/Math.max(im.naturalWidth,im.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);const x=c.getContext("2d");x.drawImage(im,0,0,c.width,c.height);
   const t=document.createElement("canvas");t.width=t.height=48;const tx=t.getContext("2d");tx.drawImage(c,0,0,48,48);const a=tx.getImageData(0,0,48,48).data;let alpha=false;for(let i=3;i<a.length;i+=4)if(a[i]<250){alpha=true;break}
   return alpha?c.toDataURL("image/png"):c.toDataURL("image/jpeg",.9)}
-function layerPNG(L,k){const c=document.createElement("canvas");c.width=Math.max(1,Math.round(L.w*k));c.height=Math.max(1,Math.round(L.h*k));const x=c.getContext("2d");x.scale(k,k);x.translate(-L.x,-L.y);drawLayer(x,{...L,op:1},null);return c.toDataURL("image/png")}
+function layerPNG(L,k){const c=document.createElement("canvas");c.width=Math.max(1,Math.round(L.w*k));c.height=Math.max(1,Math.round(L.h*k));const x=c.getContext("2d");x.scale(k,k);x.translate(-L.x,-L.y);drawLayer(x,{...L,op:1,rot:0},null);return c.toDataURL("image/png")}
 const num1=v=>Math.round(v*100)/100;
 function rrPath(x,y,w,h,r){r=Math.max(0,Math.min(r||0,w/2,h/2));if(!r)return`M${num1(x)} ${num1(y)}h${num1(w)}v${num1(h)}h${num1(-w)}Z`;return`M${num1(x+r)} ${num1(y)}H${num1(x+w-r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x+w)} ${num1(y+r)}V${num1(y+h-r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x+w-r)} ${num1(y+h)}H${num1(x+r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x)} ${num1(y+h-r)}V${num1(y+r)}A${num1(r)} ${num1(r)} 0 0 1 ${num1(x+r)} ${num1(y)}Z`}
 async function toSVG(layers,box,bg){await fontsReady;const out=[],defs=[],fams=new Map();let cid=0;
@@ -2019,7 +2049,8 @@ async function toSVG(layers,box,bg){await fontsReady;const out=[],defs=[],fams=n
       L._lines.forEach((ln,i)=>{if(!ln)return;const lw=L._widths[i];let tx=L.x+px;if(L.align==="center")tx=L.x+px+(inner-lw)/2;else if(L.align==="right")tx=L.x+px+inner-lw;
         const base=L.y+py+i*lh+(lh-L.size)/2+L.size*.8;const tt=(t,xx)=>`<text x="${num1(xx)}" y="${num1(base)}" font-family="${esc(F.css)}" font-size="${L.size}" font-weight="${L.weight||400}" fill="${L.color}"${L.ls?` letter-spacing="${num1(L.ls*L.size)}"`:""} xml:space="preserve">${esc(t)}</text>`;
         const J=justWords(L,i,L.x+px,inner);if(J)J.forEach(([w,wx])=>g.push(tt(w,wx)));else g.push(tt(ln,tx))})}
-    if(!g.length)continue;out.push((L.op??1)<1?`<g opacity="${L.op}">${g.join("")}</g>`:g.join(""))}
+    if(!g.length)continue;if(L.rot&&L.t!=="text"){const t=`<g transform="rotate(${L.rot} ${num1(L.x+L.w/2)} ${num1(L.y+L.h/2)})">${g.join("")}</g>`;g.length=0;g.push(t)}
+    out.push((L.op??1)<1?`<g opacity="${L.op}">${g.join("")}</g>`:g.join(""))}
   let css="";for(const [fam,ws] of fams){for(const [w,path] of FONTFILES[fam]){if(![...ws].some(x=>Math.abs(x-w)<=100))continue;try{css+=`@font-face{font-family:"${fam}";font-weight:${w};src:url(data:font/woff2;base64,${await fontB64(path)}) format("woff2")}`}catch(e){}}}
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${num1(box.w)}" height="${num1(box.h)}" viewBox="${num1(box.x)} ${num1(box.y)} ${num1(box.w)} ${num1(box.h)}">${css?`<style>${css}</style>`:""}${defs.length?`<defs>${defs.join("")}</defs>`:""}${bg?`<rect x="${num1(box.x)}" y="${num1(box.y)}" width="${num1(box.w)}" height="${num1(box.h)}" fill="${bg}"/>`:""}${out.join("")}</svg>`}
 
@@ -2202,7 +2233,7 @@ function renderPropsMain(){
       <p class="hint" style="margin-top:6px">«Quitar fondo» es gratis y funciona en tu computadora (la primera vez descarga la herramienta). «Con IA» usa OpenAI y tiene costo.</p>
       <div class="row">${num("p-rad","Redondeo",L.rad||0,1,0)}</div>`}
   if(L.t==="rect"||L.t==="ellipse"){
-    h+=`<h3>Relleno</h3>${swatches("fill",L.fill,true)}<h3>Borde</h3>${swatches("stroke",L.stroke)}<div class="row">${num("p-sw","Grosor del borde",L.sw||0,1,0)}${L.t==="rect"?num("p-rad","Redondeo",L.rad||0,1,0):""}</div>`}
+    h+=`${isLine(L)?`<h3>Línea</h3><div class="row">${num("p-thick","Grosor de la línea",Math.min(L.w,L.h),.5,.5)}</div>`:""}<h3>Relleno</h3>${swatches("fill",L.fill,true)}<h3>Borde</h3>${swatches("stroke",L.stroke)}<div class="row">${num("p-sw","Grosor del borde",L.sw||0,1,0)}${L.t==="rect"?num("p-rad","Redondeo",L.rad||0,1,0):""}</div>`}
   if(L.t==="qr")h+=`<h3>Contenido</h3><p class="hint" style="word-break:break-all;user-select:all">${esc(L.data)}</p><button class="btn wide" type="button" id="p-qredit">Editar contenido del QR</button>
       <h3>Color de los cuadros</h3>${swatches("qfg",L.fg)}<h3>Fondo del QR</h3>${swatches("qbg",L.bg,true)}
       <div class="row">${rng("p-margin","Margen",L.margin??2,0,6,1)}<label class="check" style="align-self:end"><input type="checkbox" id="p-qlogo"${L.logo?" checked":""}>Logo en el centro</label></div>
@@ -2214,7 +2245,8 @@ function renderPropsMain(){
       ${L.kind==="browser"?"":`<h3>Color del marco</h3>${swatches("frame",L.frame)}`}`;
   if(L.t==="n")h+=`<h3>Color de la N</h3>${swatches("fill",L.fill)}`;
   if(L.t==="iso")h+=`<h3>Color principal</h3>${swatches("fill",L.fill)}<h3>Color secundario</h3>${swatches("fill2",L.fill2)}<h3>Color de la punta</h3>${swatches("fill3",L.fill3)}`;
-  h+=`<h3>Posición y tamaño</h3><div class="row four">${num("p-x","X",L.x)}${num("p-y","Y",L.y)}${num("p-w","Ancho",L.w,1,4)}${L.t==="text"?`<label class="f"><span>Alto</span><input type="number" value="${round(L.h)}" disabled></label>`:num("p-h","Alto",L.h,1,4)}</div>
+  h+=`<h3>Posición y tamaño</h3><div class="row four">${num("p-x","X",L.x)}${num("p-y","Y",L.y)}${num("p-w","Ancho",L.w,1,4)}${L.t==="text"?`<label class="f"><span>Alto</span><input type="number" value="${round(L.h)}" disabled></label>`:num("p-h","Alto",L.h,1,(L.t==="rect"||L.t==="ellipse")?.5:4)}</div>
+    ${canRot(L)?`<h3>Girar</h3><div class="row one">${num("p-rot","Giro (grados)",L.rot||0,1)}</div><div class="row one"><div class="f"><div class="chips"><button type="button" data-rq="-90">−90°</button><button type="button" data-rq="-15">−15°</button><button type="button" data-rq="15">+15°</button><button type="button" data-rq="90">+90°</button><button type="button" data-rq="0">0°</button></div></div></div>`:""}
     ${alignHtml("Alinear en la página")}
     <div class="row one">${rng("p-op","Transparencia",L.op??1,0,1,.01)}</div>
     <h3>Acciones</h3><div class="actions"><button class="btn" type="button" id="p-copy">Copiar</button><button class="btn" type="button" id="p-paste">Pegar</button><button class="btn" type="button" id="p-dup">Duplicar</button><button class="btn" type="button" id="p-lock">${L.lock?"Desbloquear":"Bloquear"}</button>
@@ -2234,6 +2266,9 @@ function renderPropsMain(){
   ["lh","ls","fx","fy","op","z","margin"].forEach(k=>{on("p-"+k,"input",e=>{live(()=>L[k]=+e.target.value);const o=$("#p-"+k+"-v");if(o)o.textContent=e.target.value});on("p-"+k,"change",commit)});
   ["px","py","rad","sw"].forEach(k=>{on("p-"+k,"input",e=>live(()=>L[k]=Math.max(0,+e.target.value||0)));on("p-"+k,"change",commit)});
   ["x","y","w","h"].forEach(k=>{on("p-"+k,"input",e=>live(()=>{L[k]=+e.target.value||0;if(k==="w"&&L.t==="text")L.autoW=false}));on("p-"+k,"change",()=>{commit();if(k==="w")renderProps()})});
+  on("p-rot","input",e=>live(()=>L.rot=normDeg(e.target.value)));on("p-rot","change",commit);
+  document.querySelectorAll("[data-rq]").forEach(b=>b.onclick=()=>{const v=+b.dataset.rq;L.rot=v===0?0:normDeg((L.rot||0)+v);commit();renderProps();requestRender()});
+  on("p-thick","input",e=>live(()=>setThick(L,e.target.value)));on("p-thick","change",commit);
   on("p-autow","change",e=>{L.autoW=e.target.checked;commit();requestRender();syncGeom()});
   document.querySelectorAll("[data-fit]").forEach(b=>b.onclick=()=>{L.fit=b.dataset.fit;commit();renderProps();requestRender()});
   on("p-replace","click",()=>{setTab(L.name&&L.name.startsWith("Logo")?"logos":"fotos");toast("Elige la nueva imagen en el panel")});
@@ -2256,6 +2291,7 @@ function renderPropsMain(){
 function bindSw(id,fn,rerender){const box=document.querySelector(`[data-sw="${id}"]`);if(!box)return;
   box.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{fn(b.dataset.c);commit();renderProps();requestRender()});
   const cc=box.querySelector("[data-cc]");if(cc){cc.addEventListener("input",e=>{fn(e.target.value.toUpperCase());requestRender()});cc.addEventListener("change",()=>{commit();renderProps()})}}
+function setThick(L,v){v=Math.max(.5,Math.round((+v||1)*2)/2);if(L.w>=L.h){const cy=L.y+L.h/2;L.h=v;L.y=Math.round((cy-v/2)*2)/2}else{const cx=L.x+L.w/2;L.w=v;L.x=Math.round((cx-v/2)*2)/2}}
 function syncGeom(){const L=selL();if(!L)return;["x","y","w"].forEach(k=>{const i=$("#p-"+k);if(i&&document.activeElement!==i)i.value=round(L[k])});const hI=$("#p-h");if(hI&&document.activeElement!==hI)hI.value=round(L.h)}
 const KIND={text:"Texto",img:"Imagen",rect:"Forma",ellipse:"Círculo",n:"La N",iso:"Isotipo",qr:"QR",dev:"Mockup"};
 const fullPanels=()=>!isCompact();
@@ -2621,7 +2657,7 @@ async function toPPTX(d){const Pptx=await loadPptx(),P=new Pptx(),k=1/144;
   P.defineLayout({name:"EDITHOR",width:d.w*k,height:d.h*k});P.layout="EDITHOR";P.title=d.name||"Presentación";
   for(const Pg of d.pages){const sl=P.addSlide();const bg=hex6(Pg.bg);if(bg)sl.background={color:bg};
     else if(Pg.bg){const c=document.createElement("canvas");c.width=Math.round(d.w/2);c.height=Math.round(d.h/2);const x=c.getContext("2d");x.scale(.5,.5);drawDesign(x,{w:d.w,h:d.h,bg:Pg.bg,layers:[]});sl.background={data:c.toDataURL("image/png")}}
-    for(const L of Pg.layers){if(L.hide)continue;const box={x:L.x*k,y:L.y*k,w:Math.max(.01,L.w*k),h:Math.max(.01,L.h*k)};const tr=Math.round((1-(L.op??1))*100);
+    for(const L of Pg.layers){if(L.hide)continue;const box={x:L.x*k,y:L.y*k,w:Math.max(.01,L.w*k),h:Math.max(.01,L.h*k)};if(L.rot&&L.t!=="text")box.rotate=L.rot;const tr=Math.round((1-(L.op??1))*100);
       if(L.t==="text"){layoutText(L);box.h=Math.max(.01,L.h*k);const col=hex6(L.color)||"000000",fb=hex6(L.bg);
         sl.addText(L.upper?String(L.txt).toUpperCase():String(L.txt),Object.assign({},box,{fontFace:PPT_FONT[L.font]||L.font,fontSize:Math.max(1,L.size/2),color:col,bold:(+L.weight||400)>=600,
           align:L.align==="justify"?"justify":(L.align||"left"),valign:"top",lineSpacingMultiple:L.lh||1.2,charSpacing:L.ls?L.ls*L.size/2:0,margin:[(L.px||0)/2,(L.px||0)/2,(L.py||0)/2,(L.py||0)/2].map(v=>Math.max(0,v)),
