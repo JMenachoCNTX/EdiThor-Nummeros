@@ -104,7 +104,9 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 
 - Un mismo diseño puede tener varios tamaños dentro (Post 4:5, Estado, Cuadrada…). Botón de tamaños en la barra de abajo → cambiar de tamaño, **+ Agregar otro tamaño** o quitar uno.
 - Al agregar un tamaño, el contenido se acomoda solo al nuevo formato; luego se revisa y ajusta.
-- En **Diseños**, el diseño aparece en el apartado de cada tamaño (por ejemplo, el Estado en WhatsApp → Estados). Cada tarjeta tiene pestañas con sus tamaños.
+- En **Diseños**, el diseño aparece en el apartado de cada tamaño (por ejemplo, el Estado en WhatsApp → Estados). La tarjeta muestra todos sus tamaños en una fila: tocar uno lo elige (Abrir/Descargar usan ese) y tocarlo otra vez lo muestra en grande.
+- En el editor, el panel de la derecha (sin nada seleccionado) muestra «Tamaños de este diseño» en miniatura para cambiar de uno a otro.
+- Si hay copias sueltas de antes, arriba en Diseños aparece «Juntar todos».
 - Al descargar, primero se eligen los tamaños (uno, varios o todos; varios llegan en un ZIP).
 - Las copias sueltas de antes («En varios tamaños») se pueden **Juntar en un solo diseño**.
 - Datos: `fmts` (cada tamaño con sus páginas; el abierto va en `pages`), `fi` (tamaño abierto) y `fz` (resumen para la lista: tamaño, apartado y miniatura).

@@ -1,7 +1,12 @@
 {
- "v": 33,
+ "v": 34,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 34,
+   "fecha": "2026-10-28",
+   "texto": "Todos los tamaños de un diseño en una fila (Diseños y editor) y botón Juntar todos para copias sueltas"
+  },
   {
    "v": 33,
    "fecha": "2026-10-28",
