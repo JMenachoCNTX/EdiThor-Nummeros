@@ -1,7 +1,12 @@
 {
- "v": 41,
+ "v": 42,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 42,
+   "fecha": "2026-10-28",
+   "texto": "Copiar y pegar conserva el formato del texto y la misma posición en otra página o diseño"
+  },
   {
    "v": 41,
    "fecha": "2026-10-28",

@@ -140,3 +140,9 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 - Al mover con las flechas del teclado se ocultan los bordes azules de la selección; vuelven al soltar las flechas o al mover el mouse.
 - Si un panel lateral (izquierda o derecha) queda encima del área de diseño, el diseño se corre y se achica para que el panel no lo tape, deslizándose suave en vez de saltar. Si el panel se abre justo al empezar a arrastrar, el diseño espera a que sueltes.
 - La barra de arriba ya no cambia el tamaño del diseño al elegir distintos elementos.
+
+## Copiar y pegar
+
+- Lo copiado se pega con el mismo formato (letra, tamaño, color, alineación, espaciado, etc.) y en el mismo lugar de donde se copió: en otra página u otro diseño queda exactamente igual (simétrico). Solo en la misma página, si ya hay algo justo ahí, se corre un poco.
+- Copiar una parte del texto mientras escribes y pegarla afuera crea un texto con el mismo formato.
+- Pegar texto de otra app con un texto elegido usa el formato de ese texto y lo pone debajo.

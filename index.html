@@ -713,7 +713,7 @@ const CGRA=[["Ilustraciones",["ilu-chat-recepcion","Chat de recepción"],["ilu-d
 const CFOT=[["retrato","Retrato"],["completo","Cuerpo completo"],["brazos","Brazos cruzados"],["perfil","De perfil"],["sofa","En el sofá"],["sillon","En el sillón"],["casco","Detalle del casco"],["celular","Con el celular"],["ventana","Café en la ventana"],["ventana2","Café en la ventana (2)"],["auto","En el auto"],["escritorio","En el escritorio"],["hamaca2","En la hamaca"],["piso","Con la tablet"],["listo","Todo listo"],["reloj","Siempre a tiempo"],["caminando","Caminando"],["puf","En el puf"],["escalones","Pausa con café"],["colgante","Silla colgante"],["taburete","En el taburete"]];
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
-const APP_VER=41;
+const APP_VER=42;
 /* las imágenes de la marca llevan ?v=versión: así, al actualizar EdiThor, el navegador baja las fotos nuevas en vez de usar las viejas guardadas */
 const bust=s=>{s=String(s||"");if(!s||/^(data:|blob:|https?:|fb:|idb:)/.test(s)||s.includes("?"))return s;return s+"?v="+APP_VER};
 const BR={
@@ -1823,18 +1823,28 @@ function copySel(cut){const Ls=selLayers();if(!Ls.length)return null;const L=Ls[
   const plain=Ls.length>1?(Ls.filter(l=>l.t==="text").map(l=>l.txt).join("\n")||`[${Ls.length} elementos]`):L.t==="text"?String(L.txt):`[${KIND[L.t]||"Elemento"} · ${L.name||""}]`;
   CLIP={layers:Ls.map(l=>clone(stripL(l))),plain,n:0,doc:S.doc.id};lsSet(CLIP_KEY,CLIP);if(cut){removeSel();toast("Cortado")}else toast("Copiado · pégalo con ⌘ + V");return plain}
 function pasteClip(){const c=CLIP||lsGet(CLIP_KEY,null);if(!c||!c.layers||!c.layers.length){toast("No hay nada copiado todavía.");return}
-  if(c.doc!==S.doc.id){c.doc=S.doc.id;c.n=0}c.n=(c.n||0)+1;
-  const clash=c.layers.some(L=>S.doc.layers.some(x=>x.x===L.x&&x.y===L.y));const cs=cloneSet(c.layers,clash||c.n>1?c.n*30:0);
+  /* se pega con el mismo formato y en el mismo lugar de donde se copió (en otra página u otro diseño queda simétrico).
+     Solo si en esta misma página ya hay algo justo en ese lugar, se corre un poco para que se note */
+  const pg=S.doc.id+"|"+(S.doc.pages[S.doc.pi]||{}).id;if(c.pg!==pg){c.pg=pg;c.n=0}
+  const at=k=>c.layers.some(L=>S.doc.layers.some(x=>x.t===L.t&&Math.abs(x.x-(L.x+k))<1&&Math.abs(x.y-(L.y+k))<1));
+  let k=0;while(at(k)&&k<600)k+=30;c.n=k/30;const cs=cloneSet(c.layers,k);
   const b=bbox(cs);if(b.x>S.doc.w-20||b.y>S.doc.h-20){const dx=Math.round((S.doc.w-b.w)/2-b.x),dy=Math.round((S.doc.h-b.h)/2-b.y);cs.forEach(L=>{L.x+=dx;L.y+=dy})}
   S.doc.layers.push(...cs);CLIP=c;lsSet(CLIP_KEY,c);S.crop=null;S.multi=cs.length>1?cs.map(l=>l.id):[];S.sel=cs[cs.length-1].id;commit();renderProps();requestRender();if(S.tab==="ia")iaSelUpdate()}
-function pasteText(t){const S0=curStyle(),B=brandText(S.brand,S0),W=Math.min(S.doc.w-160,900),k=S.doc.w/1080;
+function pasteText(t){const ref=selL();
+  if(ref&&ref.t==="text"){const c=clone(stripL(ref));c.id=uid();c.txt=t.replace(/\r\n?/g,"\n").trim();c.lock=false;c.hide=false;delete c.g;layoutText(c);c.y=Math.min(S.doc.h-20,Math.round(ref.y+ref.h+20));addLayer(c,{center:false});return}
+  const S0=curStyle(),B=brandText(S.brand,S0),W=Math.min(S.doc.w-160,900),k=S.doc.w/1080;
   const short=t.length<=40&&!t.includes("\n");const L=short?B.title(0,0,W,t.trim(),Math.round(72*k)):B.body(0,0,W,t.trim(),Math.round(38*k));L.autoW=false;addLayer(L)}
-document.addEventListener("copy",e=>{if(isTyping(e)||S.editing||!selIds().length)return;e.preventDefault();const plain=copySel(false);try{e.clipboardData.setData("text/plain",plain)}catch(_){}});
+document.addEventListener("copy",e=>{
+  /* copiar una parte del texto mientras escribes: al pegarlo fuera, sale con la misma letra, tamaño, color y alineación */
+  if(S.editing&&ta&&e.target===ta){const sel=ta.value.slice(ta.selectionStart,ta.selectionEnd);const L=S.doc.layers.find(l=>l.id===S.editing);
+    if(sel&&L){const c=clone(stripL(L));c.txt=sel;CLIP={layers:[c],plain:sel,n:0};lsSet(CLIP_KEY,CLIP)}return}
+  if(isTyping(e)||S.editing||!selIds().length)return;e.preventDefault();const plain=copySel(false);try{e.clipboardData.setData("text/plain",plain)}catch(_){}});
 document.addEventListener("cut",e=>{if(isTyping(e)||S.editing||!selIds().length)return;e.preventDefault();if(selLayers().some(l=>l.lock)){toast("Hay un elemento bloqueado en lo seleccionado.");return}const plain=copySel(true);try{e.clipboardData.setData("text/plain",plain)}catch(_){}});
 document.addEventListener("paste",e=>{if(isTyping(e)||S.editing||S.tab==="inicio"||S.tab==="disenos")return;
   const files=[...(e.clipboardData?.files||[])];if(files.length){e.preventDefault();handleFiles(files);return}
   const t=e.clipboardData?e.clipboardData.getData("text/plain"):"";const c=CLIP||lsGet(CLIP_KEY,null);
-  if(c&&(!t||t===c.plain)){e.preventDefault();pasteClip();return}
+  const norm=x=>String(x||"").replace(/\r\n?/g,"\n").replace(/\s+$/,"").trim();
+  if(c&&(!t||norm(t)===norm(c.plain)||c.layers.some(L=>L.t==="text"&&norm(t)===norm(L.txt)))){e.preventDefault();pasteClip();return}
   if(t&&t.trim()){e.preventDefault();pasteText(t)}});
 stage.addEventListener("dragover",e=>{if([...e.dataTransfer.types].includes("Files")){e.preventDefault();if(!stage.querySelector(".dropveil")){const v=document.createElement("div");v.className="dropveil";v.textContent="Suelta la imagen para agregarla";stage.appendChild(v)}}});
 stage.addEventListener("dragleave",e=>{if(e.target.classList?.contains("dropveil"))e.target.remove()});
