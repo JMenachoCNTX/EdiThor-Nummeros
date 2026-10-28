@@ -397,6 +397,12 @@ body.on-home .top .spacer{flex:1}
 .lockpill{display:none;position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:5;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:7px 14px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);cursor:pointer;white-space:nowrap;max-width:calc(100% - 24px)}
 .lockpill svg{width:16px;height:16px;flex:none;color:var(--acc)}
 .lockpill b{color:var(--acc)}
+.lockpill{cursor:default;padding:5px 5px 5px 14px}
+.lockpill .lp-t{color:var(--muted)}
+.lockpill button{border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:999px;padding:6px 12px;font:600 13.5px/1 var(--head);letter-spacing:.02em}
+.lockpill button.pri{background:var(--acc);border-color:var(--acc);color:var(--on-acc)}
+.lockpill.nudge{animation:lockNudge .5s ease}
+@keyframes lockNudge{0%,100%{transform:translateX(-50%)}25%{transform:translateX(calc(-50% - 6px))}75%{transform:translateX(calc(-50% + 6px))}}
 body.locked .lockpill{display:inline-flex}
 body.locked #ctxbar{display:none!important}
 body.locked #cv{cursor:not-allowed}
@@ -412,6 +418,11 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
 .cx .dcard .acts2{display:flex;gap:4px;padding:0 10px 10px}
 .cx .dcard .acts2 select,.cx .dcard .acts2 button{border:1px solid var(--line);background:var(--field);color:var(--ink);border-radius:8px;padding:5px 6px;font-size:12px;min-width:0}
 .cx .dcard .acts2 select{flex:1}
+.cx .dcard .acts2 .open{background:var(--acc);border-color:var(--acc);color:var(--on-acc);font:600 13px/1 var(--head);padding:5px 10px}
+.dcard .pic .eye{position:absolute;right:8px;bottom:8px;display:inline-flex;align-items:center;gap:4px;background:rgba(5,31,32,.62);color:#fff;border-radius:999px;padding:4px 9px;font-size:11.5px;opacity:0;transition:opacity .15s}
+.dcard .pic:hover .eye,.dcard .pic:focus-visible .eye{opacity:1}
+@media (hover:none){.dcard .pic .eye{opacity:1}}
+.pv .pvbar button.pvedit{background:#8EB69B;color:#051F20;border-color:#8EB69B}
 .cx .dcard .acts2 button{flex:none;display:inline-grid;place-items:center}
 .cx .dcard .acts2 button svg{width:15px;height:15px}
 .cx .dcard .acts2 button.del:hover{color:#B3261E;border-color:#B3261E}
@@ -569,7 +580,7 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
     <section class="stage" id="stage" aria-label="Lienzo">
       <canvas id="cv" tabindex="0" aria-label="Diseño. Haz clic en un elemento para seleccionarlo y arrástralo para moverlo."></canvas>
       <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Opciones del elemento"></div>
-      <button class="lockpill" id="lockpill" type="button" data-lockok><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Diseño bloqueado · <b>Desbloquear para editar</b></span></button>
+      <div class="lockpill" id="lockpill" data-lockok><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span class="lp-t">Solo para ver</span><button type="button" id="lock-view">Vista previa</button><button type="button" id="lock-open" class="pri">Desbloquear</button></div>
       <div class="bottombar">
       <div class="pagebar" id="pagebar">
         <button class="btn" type="button" id="pg-prev" aria-label="Página anterior">‹</button>
@@ -1272,6 +1283,7 @@ function marqueeSelect(){const a=drag.start,c=drag.cur||a;const r={x:Math.min(a.
   const ids=[...drag.add];for(const L of hits)for(const g of groupOf(L))if(!ids.includes(g.id))ids.push(g.id);setSel(ids)}
 cv.addEventListener("pointerdown",e=>{
   if(e.button===2)return;
+  if(S.locked){const p0=toDoc(e);if(hitTest(p0))lockNudge();drag={mode:"pan",start:p0,o:{x:S.panX||0,y:S.panY||0}};cv.setPointerCapture(e.pointerId);return}
   if(S.editing)endEdit();
   cv.focus({preventScroll:true});
   const p=toDoc(e);
@@ -1348,7 +1360,7 @@ function endDrag(){if(!drag)return;const d=drag;
   if(changed){commit();renderProps()}}
 cv.addEventListener("pointerup",endDrag);cv.addEventListener("pointercancel",endDrag);
 cv.addEventListener("pointerleave",()=>{if(!drag&&S.hover){S.hover=null;requestRender()}});
-cv.addEventListener("dblclick",e=>{const hit=hitTest(toDoc(e));if(!hit||hit.lock)return;
+cv.addEventListener("dblclick",e=>{if(S.locked){if(hitTest(toDoc(e)))lockPrompt();return}const hit=hitTest(toDoc(e));if(!hit||hit.lock)return;
   if(hit.t==="text"){setSel([hit.id]);startEdit(hit.id)}else if(hit.t==="img")startCrop(hit.id);else if(hit.t==="dev"){setSel([hit.id]);openLib("subir");toast("Sube o pega (⌘ + V) la captura: va a la pantalla del dispositivo")}else if(hit.t==="qr"){setSel([hit.id]);openLib("qr")}else setSel([hit.id])});
 cv.addEventListener("wheel",e=>{e.preventDefault();if(e.ctrlKey||e.metaKey){setZoom(S.zoom*(e.deltaY<0?1.1:1/1.1))}else{S.panX=(S.panX||0)-e.deltaX;S.panY=(S.panY||0)-e.deltaY;requestRender()}},{passive:false});
 function setZoom(z){S.zoom=clamp(z,.2,8);requestRender()}
@@ -1905,9 +1917,9 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();co
   on("addimg",()=>{if(isCompact())$("#main").classList.add("lib-open");setTab("fotos");updRails()})}
 
 /* ================== vista previa ================== */
-async function openPreview(){if(S.editing)endEdit();const d=S.doc;syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
+async function openPreview(doc,opt){opt=opt||{};if(S.editing)endEdit();const own=!doc||doc===S.doc,d=own?S.doc:doc;if(own)syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
   let i=d.pi;const v=document.createElement("div");v.className="pv";v.setAttribute("role","dialog");v.setAttribute("aria-modal","true");v.setAttribute("aria-label","Vista previa");
-  v.innerHTML=`<div class="pvstage"></div><div class="pvbar"><button type="button" data-a="prev" aria-label="Página anterior">‹</button><span></span><button type="button" data-a="next" aria-label="Página siguiente">›</button><button type="button" data-a="fs">Pantalla completa</button><button type="button" data-a="close">Cerrar (Esc)</button></div>`;
+  v.innerHTML=`<div class="pvstage"></div><div class="pvbar"><button type="button" data-a="prev" aria-label="Página anterior">‹</button><span></span><button type="button" data-a="next" aria-label="Página siguiente">›</button><button type="button" data-a="fs">Pantalla completa</button>${opt.onEdit?`<button type="button" data-a="edit" class="pvedit">Abrir para editar</button>`:""}<button type="button" data-a="close">Cerrar</button></div>`;
   document.body.appendChild(v);const st=v.querySelector(".pvstage"),lbl=v.querySelector(".pvbar span");
   const fit=()=>{const c=st.querySelector("canvas");if(!c)return;const sc=Math.min((innerWidth-48)/d.w,(innerHeight-48-v.querySelector(".pvbar").offsetHeight)/d.h);c.style.width=Math.round(d.w*sc)+"px";c.style.height=Math.round(d.h*sc)+"px"};
   const show=()=>{const k=Math.min(3,Math.max(screen.width,screen.height,innerWidth,innerHeight)*(devicePixelRatio||1)/Math.max(d.w,d.h));st.innerHTML="";st.appendChild(pageCanvas(d,d.pages[i],k));fit();
@@ -1917,10 +1929,16 @@ async function openPreview(){if(S.editing)endEdit();const d=S.doc;syncPage();awa
   const fs=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else if(v.requestFullscreen)v.requestFullscreen().catch(()=>toast("Tu navegador no permite pantalla completa aquí; la vista previa ya ocupa toda la ventana."))};
   const key=e=>{if(e.key==="Escape"&&!document.fullscreenElement){e.preventDefault();close()}else if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();if(i<d.pages.length-1){i++;show()}}else if(e.key==="ArrowLeft"){e.preventDefault();if(i>0){i--;show()}}e.stopPropagation()};
   document.addEventListener("keydown",key,true);
-  v.addEventListener("click",e=>{const a=e.target.closest("[data-a]");if(!a){if(e.target.tagName==="CANVAS"&&i<d.pages.length-1){i++;show()}return}const k=a.dataset.a;if(k==="close")close();if(k==="fs")fs();if(k==="prev"&&i>0){i--;show()}if(k==="next"&&i<d.pages.length-1){i++;show()}});
+  v.addEventListener("click",e=>{const a=e.target.closest("[data-a]");if(!a){if(e.target.tagName==="CANVAS"&&i<d.pages.length-1){i++;show()}return}const k=a.dataset.a;if(k==="edit"){close();opt.onEdit()}if(k==="close")close();if(k==="fs")fs();if(k==="prev"&&i>0){i--;show()}if(k==="next"&&i<d.pages.length-1){i++;show()}});
   document.addEventListener("fullscreenchange",()=>{const b=v.querySelector('[data-a="fs"]');if(b)b.textContent=document.fullscreenElement?"Salir de pantalla completa":"Pantalla completa"});
-  show();v.querySelector('[data-a="close"]').focus();if(v.requestFullscreen)v.requestFullscreen().catch(()=>{})}
-$("#pv-open").onclick=openPreview;
+  /* swipe left or right to change page (iPad and phones) */
+  let sx=null,sy=0;v.addEventListener("touchstart",e=>{if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY}},{passive:true});
+  v.addEventListener("touchend",e=>{if(sx===null)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;sx=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0&&i<d.pages.length-1){i++;show()}else if(dx>0&&i>0){i--;show()}}},{passive:true});
+  show();v.querySelector('[data-a="close"]').focus();if(!opt.noFull&&v.requestFullscreen)v.requestFullscreen().catch(()=>{})}
+$("#pv-open").onclick=()=>openPreview();
+/* look at a saved design without opening it in the editor */
+async function previewStored(id){if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();setStatus("Abriendo la vista previa…");const d=await storedDoc(id);setStatus("");if(!d){toast("No se pudo abrir ese diseño.");return}
+  openPreview(d,{noFull:true,onEdit:async()=>{if(await openStored(id))toEditor()}})}
 
 /* ================== SVG ================== */
 const FONTFILES={"Akshar":[[600,"fonts/Akshar-600.woff2"],[700,"fonts/Akshar-700.woff2"]],"Questrial":[[400,"fonts/Questrial-400.woff2"]],"Adventor CX":[[400,"fonts/Adventor-400.woff2"],[700,"fonts/Adventor-700.woff2"]]};
@@ -2281,9 +2299,10 @@ function paintHomeList(list){const box=$("#h-list"),pp=$("#h-people");if(!box)re
     pp.innerHTML=`<button type="button" class="all" data-who="all" aria-pressed="${HOME.who==="all"}">Todos</button>`+emails.map(e=>`<button type="button" data-who="${esc(e)}" aria-pressed="${HOME.who===e}" title="${esc(e)}">${avatar(e)}${e===me?"Míos":esc(personName(e))}</button>`).join("");
     pp.querySelectorAll("[data-who]").forEach(x=>x.onclick=()=>{HOME.who=x.dataset.who;paintHomeList(list)})}
   const L=list.filter(d=>HOME.who==="all"||(d.by||"")===HOME.who).slice(0,12);
-  box.innerHTML=L.length?`<div class="dgrid">${L.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-open="${esc(d.id)}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy">`:""}</button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${whoLine(d)}</div></div>`).join("")}</div>${list.length>12&&HOME.who==="all"?`<p class="hint" style="margin-top:12px">Mostrando los 12 más recientes. <a href="#" id="h-more">Ver todos</a></p>`:""}`
+  box.innerHTML=L.length?`<div class="dgrid">${L.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy">`:""}<span class="eye">${IC_EYE} Ver</span></button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${whoLine(d)}</div></div>`).join("")}</div>${list.length>12&&HOME.who==="all"?`<p class="hint" style="margin-top:12px">Mostrando los 12 más recientes. <a href="#" id="h-more">Ver todos</a></p>`:""}`
     :`<div class="hempty">${HOME.who==="all"?"Todavía no hay diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.":"Esta persona todavía no tiene diseños."}</div>`;
   box.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
+  box.querySelectorAll("[data-view]").forEach(x=>x.onclick=()=>previewStored(x.dataset.view));
   box.querySelector("#h-more")?.addEventListener("click",e=>{e.preventDefault();$("#btn-disenos").click()})}
 
 
@@ -2299,6 +2318,7 @@ const SEC_DEF=[
 const CX={secs:null,sel:"all",list:null,who:"all",picked:new Set()};
 const IC_SIZES='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="7" width="9" height="13" rx="1.5"/><rect x="14" y="4" width="7" height="9" rx="1.5"/><rect x="14" y="15" width="7" height="5" rx="1"/></svg>';
 const IC_DL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+const IC_EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const IC_SHARE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>';
 const IC_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
 const SEC_ICON={whatsapp:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 18.8Z"/><path d="M9 9.5c.3 2.2 2.3 4.2 4.5 4.6l1.2-1.2 1.8.8c-.3 1.1-1.2 1.8-2.3 1.7-3.5-.4-6.3-3.2-6.6-6.6 0-1.1.6-2 1.7-2.3l.8 1.8Z"/></svg>',
@@ -2351,10 +2371,10 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
     else{title=S1.name;sub=`${S1.subs.length} apartado${S1.subs.length===1?"":"s"}`;groups=S1.subs.map(S2=>({name:S2.name,key:a+"/"+S2.id,items:L.filter(d=>inSub(d,a+"/"+S2.id))}))}}
   const isSub=CX.sel.includes("/");
   const famN=f=>{const x=FAMS.find(x=>x.fam===f);return x?x.items.length:0},isFamView=CX.sel==="fams"||CX.sel.startsWith("fam:");
-  const card=d=>{const fn=d.fam?famN(d.fam):0;return`<div class="dcard${CX.picked.has(d.id)?" picked":""}" draggable="true" data-id="${esc(d.id)}"><label class="ck" title="Seleccionar"><input type="checkbox" data-pick="${esc(d.id)}"${CX.picked.has(d.id)?" checked":""} aria-label="Seleccionar ${esc(d.name)}"></label><span class="size">${esc(isFamView?sizeName(d):`${d.w}×${d.h}`)}</span><button type="button" class="pic" data-open="${esc(d.id)}" aria-label="Abrir ${esc(d.name)}">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}</button>
+  const card=d=>{const fn=d.fam?famN(d.fam):0;return`<div class="dcard${CX.picked.has(d.id)?" picked":""}" draggable="true" data-id="${esc(d.id)}"><label class="ck" title="Seleccionar"><input type="checkbox" data-pick="${esc(d.id)}"${CX.picked.has(d.id)?" checked":""} aria-label="Seleccionar ${esc(d.name)}"></label><span class="size">${esc(isFamView?sizeName(d):`${d.w}×${d.h}`)}</span><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}<span class="eye">${IC_EYE} Ver</span></button>
       <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}</div>
       <label class="mv"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap">Mover a</span><select data-mv="${esc(d.id)}" aria-label="Mover ${esc(d.name)} a otro apartado">${secOptions(secValid(d.sec||""))}</select></label>
-      <div class="acts2"><select data-dl="${esc(d.id)}" aria-label="Descargar ${esc(d.name)}"><option value="">Descargar…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select><button type="button" data-share="${esc(d.id)}" title="Compartir por WhatsApp o Telegram" aria-label="Compartir">${IC_SHARE}</button><button type="button" class="del" data-del="${esc(d.id)}" title="Eliminar diseño" aria-label="Eliminar">${IC_TRASH}</button></div></div>`};
+      <div class="acts2"><button type="button" class="open" data-open="${esc(d.id)}" title="Abrir en el editor">Abrir</button><select data-dl="${esc(d.id)}" aria-label="Descargar ${esc(d.name)}"><option value="">Descargar…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select><button type="button" data-share="${esc(d.id)}" title="Compartir por WhatsApp o Telegram" aria-label="Compartir">${IC_SHARE}</button><button type="button" class="del" data-del="${esc(d.id)}" title="Eliminar diseño" aria-label="Eliminar">${IC_TRASH}</button></div></div>`};
   const shown=[...new Set(groups.flatMap(g=>g.items.map(d=>d.id)))],np=CX.picked.size;
   main.innerHTML=(np?`<div class="cxbar"><b>${np} seleccionado${np>1?"s":""}</b><select id="cxb-dl" aria-label="Descargar seleccionados"><option value="">Descargar como…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}${np>1?" (en un ZIP)":""}</option>`).join("")}</select><select id="cxb-mv" aria-label="Mover seleccionados"><option value="-">Mover a…</option>${secOptions("__")}</select><button class="btn" type="button" id="cxb-del">${IC_TRASH.replace('<svg','<svg style="width:15px;height:15px"')}Eliminar</button><span class="sp"></span><button class="btn" type="button" id="cxb-all">Elegir todos (${shown.length})</button><button class="btn" type="button" id="cxb-none">Quitar selección</button></div>`:"")+`<div class="cx-head"><div><h2>${esc(title)}</h2><p>${esc(sub)}</p></div><div class="acts">
       ${S1?`<button class="btn" type="button" id="cx-addsub">+ Apartado</button><button class="btn" type="button" id="cx-ren">Cambiar nombre</button><button class="btn" type="button" id="cx-delsec">Eliminar${isSub?" apartado":" sección"}</button>`:""}
@@ -2363,6 +2383,7 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
       ${g.items.length?`<div class="dgrid">${g.items.map(card).join("")}</div>`:`<div class="hempty"${g.key?` data-drop="${esc(g.key)}"`:""}>${g.empty?g.empty:g.name?"Todavía no hay diseños en este apartado.":isSub?"Todavía no hay diseños aquí. Arrastra uno desde «Todos» o «Sin clasificar», o crea uno nuevo.":CX.sel==="none"?"Todo está clasificado.":"Todavía no hay diseños guardados."}</div>`}</section>`).join("")}`;
   main.querySelectorAll("h3[data-sel]").forEach(h=>h.onclick=()=>{CX.sel=h.dataset.sel;paintCarpetas()});
   main.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
+  main.querySelectorAll("[data-view]").forEach(x=>x.onclick=()=>previewStored(x.dataset.view));
   main.querySelectorAll("[data-mv]").forEach(x=>x.onchange=()=>moveDesign(x.dataset.mv,x.value));
   main.querySelectorAll("[data-fam]").forEach(x=>x.onclick=()=>{CX.sel="fam:"+x.dataset.fam;paintCarpetas()});
   main.querySelectorAll("[data-pick]").forEach(x=>x.onchange=()=>{x.checked?CX.picked.add(x.dataset.pick):CX.picked.delete(x.dataset.pick);paintCarpetas()});
@@ -2455,13 +2476,18 @@ function lockPrompt(){if(LOCKDLG&&LOCKDLG.isConnected)return;
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Solo mirar</button><button class="btn pri" type="button" id="unlock-go">${LOCK_ICO.replace('<svg','<svg style="width:16px;height:16px"')}Desbloquear</button></div>`);
   LOCKDLG.querySelector("#unlock-go").onclick=()=>{LOCKDLG.remove();setLock(false);toast("Diseño desbloqueado: ya puedes editar")};LOCKDLG.querySelector("#unlock-go").focus()}
 $("#btn-lock").onclick=()=>{if(S.locked)lockPrompt();else{setLock(true);toast("Diseño bloqueado")}};
-$("#lockpill").onclick=()=>lockPrompt();
+$("#lock-open").onclick=()=>{setLock(false);toast("Diseño desbloqueado: ya puedes editar")};$("#lock-view").onclick=()=>openPreview();
 /* while locked, anything that would change the design asks to unlock first */
-const LOCK_ZONES="#cv,#ctxbar,#props,#pg-add,#undo,#redo,#nombre,#stage .dropveil";
+/* only the controls that change something are stopped (not scrolling a panel or tapping an empty spot), and the question appears on a real tap (click), never while scrolling */
+const LOCK_ZONES="#ctxbar,#props,#pg-add,#undo,#redo,#nombre,#stage .dropveil";
+const LOCK_CTL="button,input,select,textarea,label,a,[role=button],.sw,.layer,[contenteditable]";
 function lockBlocks(t){if(!S.locked||S.tab==="inicio"||S.tab==="disenos")return false;if(!t||!t.closest)return false;
-  if(t.closest(".veil,[data-lockok],.pg"))return false;
-  return!!t.closest(LOCK_ZONES)}
-["pointerdown","mousedown","click","dblclick","dragstart"].forEach(ev=>document.addEventListener(ev,e=>{if(lockBlocks(e.target)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(ev==="pointerdown")lockPrompt()}},true));
+  if(t.closest(".veil,[data-lockok],.pg,.pv"))return false;
+  const z=t.closest(LOCK_ZONES);if(!z)return false;
+  return z.matches(LOCK_CTL)||!!t.closest(LOCK_CTL)}
+["pointerdown","mousedown","click","dblclick","dragstart","change","input"].forEach(ev=>document.addEventListener(ev,e=>{if(lockBlocks(e.target)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(ev==="click")lockPrompt()}},true));
+/* tapping the design while it is locked only makes the lock notice blink; dragging moves the view */
+function lockNudge(){const p=$("#lockpill");if(!p)return;p.classList.remove("nudge");void p.offsetWidth;p.classList.add("nudge")}
 ["dragover","drop"].forEach(ev=>document.addEventListener(ev,e=>{if(S.locked&&S.tab!=="inicio"&&S.tab!=="disenos"&&e.target.closest&&e.target.closest("#stage")){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(ev==="drop")lockPrompt()}},true));
 document.addEventListener("keydown",e=>{if(!S.locked||S.tab==="inicio"||S.tab==="disenos")return;const t=e.target;if(t.closest&&t.closest(".veil"))return;
   const tag=(t.tagName||"").toLowerCase(),typing=tag==="input"||tag==="textarea"||tag==="select"||t.isContentEditable;
