@@ -134,3 +134,9 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 - Botón de lista en la barra del texto (y «Lista» en el panel): Sin lista · Puntos (•) · Guiones (–) · Números (1. 2. 3.) · Incisos (a) b) c)) · Romanos (i. ii. iii.).
 - Cada renglón (Enter) es un punto; los renglones vacíos no llevan marca. La marca queda colgando a la izquierda y el texto se alinea con sangría.
 - Se exporta igual en PNG, JPG, PDF y SVG; en PowerPoint la marca va al inicio de cada renglón.
+
+## Mover y paneles
+
+- Al mover con las flechas del teclado se ocultan los bordes azules de la selección; vuelven al soltar las flechas o al mover el mouse.
+- Si un panel lateral (izquierda o derecha) queda encima del área de diseño, el diseño se corre y se achica para que el panel no lo tape, deslizándose suave en vez de saltar. Si el panel se abre justo al empezar a arrastrar, el diseño espera a que sueltes.
+- La barra de arriba ya no cambia el tamaño del diseño al elegir distintos elementos.

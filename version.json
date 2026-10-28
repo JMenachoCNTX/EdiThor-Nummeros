@@ -1,7 +1,12 @@
 {
- "v": 39,
+ "v": 40,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 40,
+   "fecha": "2026-10-28",
+   "texto": "Flechas sin bordes azules; los paneles ya no tapan el diseño y el diseño no salta al elegir elementos"
+  },
   {
    "v": 39,
    "fecha": "2026-10-28",
