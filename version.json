@@ -1,7 +1,12 @@
 {
- "v": 32,
+ "v": 33,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 33,
+   "fecha": "2026-10-28",
+   "texto": "Duplicar diseños desde la pestaña Diseños"
+  },
   {
    "v": 32,
    "fecha": "2026-10-28",

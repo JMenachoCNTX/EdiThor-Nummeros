@@ -117,3 +117,7 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 - Reconocimiento A4 horizontal (con dos firmas).
 - Gift card 8,5 × 5,5 cm (frente con el valor y reverso con Para/De, código, vigencia y QR).
 - Se guardan solas en las secciones nuevas «Fondos de pantalla» y «Tarjetas y reconocimientos».
+
+## Duplicar
+
+- En Diseños, cada tarjeta tiene el botón **Duplicar** (dos cuadraditos) y también está en «⋯». Hace una copia completa (todas las páginas y tamaños) llamada «Copia de …», en el mismo apartado. Con varios seleccionados, la barra de arriba también tiene «Duplicar».
