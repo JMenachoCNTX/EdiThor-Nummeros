@@ -27,7 +27,7 @@
 - **Borde rojo**: una línea roja marca el borde del diseño por fuera, y lo que se sale del borde se ve apagado (no sale en las descargas; se apaga en las opciones de la cuadrícula).
 - **Seleccionar** (botón abajo): tocar y mover elementos sin que se abran la barra de opciones ni los paneles; al apagarlo, los menús vuelven.
 - **Páginas y descargas**: cada diseño muestra cuántas páginas tiene. Al descargar un diseño con varias páginas se eligen el formato y qué páginas bajar (todas o algunas); varias imágenes llegan juntas en un ZIP. La vista previa también tiene **Descargar** y **Compartir**.
-- **Girar formas**: rectángulos, círculos, líneas, la N y el isotipo se giran con el punto redondo de arriba (se ajusta solo a 0°, 45°, 90°…; con Shift va de 15 en 15), con el botón «Girar» de la barra o escribiendo los grados.
+- **Girar**: fotos, textos, rectángulos, círculos, líneas, la N y el isotipo se giran con el punto redondo de arriba (se ajusta solo a 0°, 45°, 90°…; con Shift va de 15 en 15), con el botón «Girar» de la barra o escribiendo los grados.
 - **Grosor de línea**: las líneas tienen el botón «Grosor» para escribir cualquier número (mínimo 0,5).
 - **Tamaño de letra**: en la barra del texto se puede escribir el número exacto del tamaño.
 - **Cuadrícula** (botón abajo o ⌘ + '): fina, media o gruesa, con líneas del centro y opción de pegar los elementos a la cuadrícula. No sale en las descargas.
@@ -99,3 +99,12 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 - EdiThor revisa cada 5 minutos (y al volver a la pestaña) si hay una versión más nueva. Si la hay, la etiqueta se pone amarilla («hay nueva») y aparece un aviso con el botón **Actualizar** (guarda tu diseño y recarga).
 - **Para cada actualización** hay que subir la versión antes de hacer el commit:
   `python3 herramientas/nueva-version.py "Qué cambió"` — cambia `APP_VER` en `index.html` y agrega la nota en `version.json`.
+
+## Un diseño, varios tamaños
+
+- Un mismo diseño puede tener varios tamaños dentro (Post 4:5, Estado, Cuadrada…). Botón de tamaños en la barra de abajo → cambiar de tamaño, **+ Agregar otro tamaño** o quitar uno.
+- Al agregar un tamaño, el contenido se acomoda solo al nuevo formato; luego se revisa y ajusta.
+- En **Diseños**, el diseño aparece en el apartado de cada tamaño (por ejemplo, el Estado en WhatsApp → Estados). Cada tarjeta tiene pestañas con sus tamaños.
+- Al descargar, primero se eligen los tamaños (uno, varios o todos; varios llegan en un ZIP).
+- Las copias sueltas de antes («En varios tamaños») se pueden **Juntar en un solo diseño**.
+- Datos: `fmts` (cada tamaño con sus páginas; el abierto va en `pages`), `fi` (tamaño abierto) y `fz` (resumen para la lista: tamaño, apartado y miniatura).

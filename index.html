@@ -168,6 +168,12 @@ button{cursor:pointer}
 .ctxbar .tb svg{width:16px;height:16px;flex:none}
 .ctxbar .sep{width:1px;height:20px;background:var(--line);margin:0 4px;flex:none}
 .ctxbar select{height:30px;border:1px solid var(--line);border-radius:6px;background:var(--field);padding:0 6px;font-size:12.5px;max-width:150px;flex:none}
+.fmtbtn{white-space:nowrap}.fmtbtn .fmtn{font-size:11px;background:var(--field);border-radius:999px;padding:2px 7px;margin-left:4px;color:var(--muted)}
+.fmtrow{display:flex;gap:4px;align-items:stretch}.fmtrow>button{flex:1;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:8px 10px;cursor:pointer;font:inherit;font-size:13px}
+.fmtrow>button small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}.fmtrow.on>button:first-child{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.fmtrow>button.x{flex:none;width:36px;text-align:center;padding:0;color:var(--muted)}
+.ftabs{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.ftabs button{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;font-size:10.5px;padding:2px 8px;cursor:pointer}
+.ftabs button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:var(--on-acc,#fff)}
 .ctxbar .num{min-width:30px;text-align:center;font-variant-numeric:tabular-nums;font-size:12.5px;flex:none}
 .ctxbar input.num{width:58px;height:32px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);font:inherit;font-size:13px;padding:0 4px;-moz-appearance:textfield}
 .ctxbar input.num::-webkit-inner-spin-button,.ctxbar input.num::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
@@ -638,6 +644,7 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
         <button class="btn" type="button" id="pg-next" aria-label="Página siguiente">›</button>
         <button class="btn" type="button" id="pg-add">+ Página</button>
         <span class="sizetag" id="sizetag"></span>
+        <button class="btn fmtbtn" type="button" id="fmt-btn" data-lockok data-pop title="Tamaños de este diseño">Tamaño ▾</button>
       </div>
       <button class="btn pvbtn" type="button" id="pv-open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V4h5M21 9V4h-5M3 15v5h5M21 15v5h-5"/></svg>Vista previa</button>
       <button class="btn pvbtn" type="button" id="sel-mode" aria-pressed="false" title="Seleccionar y mover sin que se abran los menús"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3l14 8-6.2 1.6L10 19z"/></svg>Seleccionar</button>
@@ -779,8 +786,8 @@ function justWords(L,i,x0,inner){if(L.align!=="justify"||!L._ends||L._ends[i])re
 
 /* ================== drawing ================== */
 function rr(ctx,x,y,w,h,r){r=Math.max(0,Math.min(r||0,w/2,h/2));ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else{ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}}
-const ROTT=new Set(["rect","ellipse","n","iso"]);const canRot=L=>!!L&&ROTT.has(L.t);
-const radOf=L=>(L&&L.rot||0)*Math.PI/180;
+const canRot=L=>!!L;
+const radOf=L=>L&&L.rot&&S.crop!==L.id?L.rot*Math.PI/180:0;
 function rotPt(px,py,cx,cy,a){const c=Math.cos(a),s=Math.sin(a),dx=px-cx,dy=py-cy;return[cx+dx*c-dy*s,cy+dx*s+dy*c]}
 const normDeg=v=>{v=((Math.round(+v||0)%360)+360)%360;return v>180?v-360:v};
 const isLine=L=>!!L&&L.t==="rect"&&(L.line||/^L[ií]nea/i.test(L.name||""));
@@ -789,7 +796,7 @@ function drawLayer(ctx,L,editingId){
   if(L.hide)return;
   ctx.save();ctx.globalAlpha=L.op??1;
   const {x,y,w,h}=L;
-  if(L.rot&&L.t!=="text"){const cx=x+w/2,cy=y+h/2;ctx.translate(cx,cy);ctx.rotate(radOf(L));ctx.translate(-cx,-cy)}
+  if(radOf(L)){if(L.t==="text")layoutText(L);const cx=x+L.w/2,cy=y+L.h/2;ctx.translate(cx,cy);ctx.rotate(radOf(L));ctx.translate(-cx,-cy)}
   if(L.t==="rect"){rr(ctx,x,y,w,h,L.rad);if(L.fill){ctx.fillStyle=L.fill;ctx.fill()}if(L.sw>0&&L.stroke){ctx.lineWidth=L.sw;ctx.strokeStyle=L.stroke;ctx.stroke()}}
   else if(L.t==="ellipse"){ctx.beginPath();ctx.ellipse(x+w/2,y+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2);if(L.fill){ctx.fillStyle=L.fill;ctx.fill()}if(L.sw>0&&L.stroke){ctx.lineWidth=L.sw;ctx.strokeStyle=L.stroke;ctx.stroke()}}
   else if(L.t==="img"){
@@ -867,10 +874,22 @@ const S={brand:lsGet("ed.brand","nummeros"),style:"claro",tab:"inicio",libTab:"p
 function newDoc(w,h,bg,brand,name){return{id:"d-"+Date.now().toString(36)+uid().slice(0,4),name:name||"Diseño sin nombre",brand:brand||S.brand,w,h,bg:bg||"#FFFFFF",layers:[]}}
 /* A design has pages; S.doc.bg / S.doc.layers always point at the page being edited */
 function normDoc(d){if(!d.pages||!d.pages.length)d.pages=[{id:"p"+uid(),bg:d.bg||"#FFFFFF",layers:d.layers||[]}];
+  if(d.fmts){if(!d.fmts.length)d.fmts=null;else{d.fi=clamp(d.fi||0,0,d.fmts.length-1);const F=d.fmts[d.fi];if(!F.pages||!F.pages.length)F.pages=d.pages}}
   d.pi=clamp(d.pi||0,0,d.pages.length-1);const P=d.pages[d.pi];d.bg=P.bg;d.layers=P.layers;return d}
+/* ===== un diseño, varios tamaños =====
+   d.fmts = [{k,w,h,mm,folds,pages,pi,thumb}] · d.fi = el tamaño abierto. d.w/d.h/d.pages siempre son los del tamaño abierto. */
+const fmtKey=(w,h)=>{const z=SIZES.find(z=>z[2]===w&&z[3]===h);return z?z[0]:w+"x"+h};
+const fmtName=F=>{const z=SIZES.find(z=>z[0]===F.k&&z[2]===F.w&&z[3]===F.h)||SIZES.find(z=>z[2]===F.w&&z[3]===F.h);return z?z[1]:`${F.w} × ${F.h}`};
+const FMT_SHORT={estado:"Estado",post45:"Post 4:5",post11:"Cuadrada",perfil:"Perfil",portada:"Portada FB",bannerweb:"Banner web",slide:"16:9",a4:"A4",triptico:"Tríptico",rollup:"Roll-up"};
+const fmtShort=F=>FMT_SHORT[F.k]||fmtName(F);
+const multiFmt=d=>!!(d&&d.fmts&&d.fmts.length>1);
+function fmtSync(d){if(!d||!d.fmts)return;if(d===S.doc)syncPage();const F=d.fmts[d.fi||0];if(!F)return;Object.assign(F,{w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages,pi:d.pi||0,k:fmtKey(d.w,d.h)})}
+function fmtLoad(d,i){const F=d.fmts[i];if(!F)return;d.fi=i;d.w=F.w;d.h=F.h;d.mm=F.mm||null;d.folds=F.folds||null;d.pages=F.pages;d.pi=F.pi||0;normDoc(d)}
+function fmtDoc(d,i){if(!d.fmts||i==null)return d;if(d===S.doc)fmtSync(d);const F=d.fmts[i];if(!F)return d;return normDoc({id:d.id,name:d.name,brand:d.brand,w:F.w,h:F.h,mm:F.mm||null,folds:F.folds||null,pages:F.pages,pi:0,k:F.k})}
 function syncPage(){const d=S.doc;if(!d||!d.pages)return;const P=d.pages[d.pi||0];if(P){P.bg=d.bg;P.layers=d.layers}}
 const pagesOut=d=>(syncPage(),d.pages.map(P=>({id:P.id,name:P.name||"",bg:P.bg,layers:P.layers.map(stripL)})));
-function fromRecord(id,x){const d=clone(x);d.id=id;delete d.thumb;return normDoc(d)}
+function fromRecord(id,x){const d=clone(x);d.id=id;delete d.thumb;
+  if(d.fmts&&d.fmts.length){d.fmts.forEach((F,i)=>{const z=d.fz&&d.fz[i];if(z&&!F.thumb)F.thumb=z.thumb||""})}else d.fmts=null;delete d.fz;return normDoc(d)}
 function mkPage(bg,layers,name){return{id:"p"+uid(),name:name||"",bg,layers}}
 const selL=()=>S.doc&&!S.multi.length&&S.doc.layers.find(l=>l.id===S.sel)||null;
 /* selection: one element (S.sel) or several (S.multi). Grouped elements share L.g */
@@ -1106,7 +1125,7 @@ const IDB={p:null,
   async del(k){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
 const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   col(){return this.db.collection("data/users/"+this.uid)},
-  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",fam:v.fam||"",st:v.st||"",np:(()=>{try{return(JSON.parse(v.data||"{}").pages||[]).length||1}catch(e){return 1}})(),by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||"",_sz:(v.data||"").length+(v.thumb||"").length}})}
+  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",fam:v.fam||"",fz:v.fz||null,st:v.st||"",np:(()=>{try{return(JSON.parse(v.data||"{}").pages||[]).length||1}catch(e){return 1}})(),by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||"",_sz:(v.data||"").length+(v.thumb||"").length}})}
     if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
     if(this.idb)return(await IDB.get("index"))||[];
     return lsGet("ed.designs",[])},
@@ -1114,13 +1133,13 @@ const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
     if(this.kind==="db"){const s=await this.col().doc(id).get();return s.exists?Object.assign({id},s.data()):null}
     if(this.idb){const d=await IDB.get("d:"+id);return d?Object.assign({id},d):null}
     return lsGet("ed.designs",[]).find(x=>x.id===id)||null},
-  async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages||[{id:"p1",bg:d.bg,layers:d.layers||[]}],thumb:d.thumb||"",updated:Date.now()};
+  async put(d){const rec={name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages||[{id:"p1",bg:d.bg,layers:d.layers||[]}],thumb:d.thumb||"",updated:Date.now(),fmts:d.fmts||null,fi:d.fi||0,fz:d.fz||null};
     /* every design is shared with the whole team: it keeps who created it and who changed it last */
     /* "sec" = section/apartado where the design is filed; the editor's saves leave it as it is (merge), only moving it or duplicating sets it */
     const hasSec=typeof d.sec==="string",hasFam=typeof d.fam==="string"&&!!d.fam;
-    if(this.kind==="fb"){const me=fbMe();const o={name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,by:d.by||me.email,byName:d.by?(d.byName||""):me.name,ed:me.email,edName:me.name,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds})};if(hasSec)o.sec=d.sec;if(hasFam)o.fam=d.fam;await FB.m.setDoc(fbDoc("designs",d.id),o,{merge:true});return}
+    if(this.kind==="fb"){const me=fbMe();const o={name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,by:d.by||me.email,byName:d.by?(d.byName||""):me.name,ed:me.email,edName:me.name,fz:d.fz||null,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds,fmts:d.fmts||null,fi:d.fi||0})};if(hasSec)o.sec=d.sec;if(hasFam)o.fam=d.fam;await FB.m.setDoc(fbDoc("designs",d.id),o,{merge:true});return}
     if(this.kind==="db"){if(hasSec)rec.sec=d.sec;if(hasFam)rec.fam=d.fam;await this.col().doc(d.id).set(rec,{merge:true});return}
-    if(this.idb){const old=await IDB.get("d:"+d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||"";await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,sec:rec.sec,fam:rec.fam,np:(rec.pages||[]).length||1});await IDB.set("index",idx);return}
+    if(this.idb){const old=await IDB.get("d:"+d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||"";await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,sec:rec.sec,fam:rec.fam,fz:rec.fz,np:(rec.pages||[]).length||1});await IDB.set("index",idx);return}
     {const old=lsGet("ed.designs",[]).find(x=>x.id===d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||""}
     const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));localStorage.setItem("ed.designs",JSON.stringify(all.slice(0,30)))},
   async patch(id,o){if(this.kind==="fb"){await FB.m.updateDoc(fbDoc("designs",id),o);return}
@@ -1183,7 +1202,7 @@ async function loadTeam(){if(store.kind!=="fb")return TEAM;try{const q=await FB.
 /* ===== versión de EdiThor =====
    Cada actualización sube APP_VER (con herramientas/nueva-version.py) y version.json.
    La app revisa version.json cada 5 minutos y al volver a la pestaña; si hay una más nueva, avisa. */
-const APP_VER=30;const VERI={remote:null,notas:null,shown:0};
+const APP_VER=31;const VERI={remote:null,notas:null,shown:0};
 function paintVer(){const b=$("#app-ver");if(!b)return;const nv=VERI.remote&&VERI.remote>APP_VER;b.textContent="v"+APP_VER+(nv?" · hay nueva":"");b.classList.toggle("new",!!nv);
   b.title=nv?`Estás en la versión ${APP_VER}. Ya existe la versión ${VERI.remote}: toca para actualizar.`:(VERI.remote?`Versión ${APP_VER} · es la última. Toca para ver las novedades.`:`Versión ${APP_VER} · toca para ver las novedades.`)}
 async function checkVersion(){try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;const j=await r.json();VERI.remote=+j.v||null;VERI.notas=j.notas||[];paintVer();
@@ -1280,12 +1299,19 @@ function redo(){if(S.hi<S.hist.length-1){S.hi++;restore(S.hist[S.hi]);updUndo()}
 function updUndo(){$("#undo").disabled=S.hi<=0;$("#redo").disabled=S.hi>=S.hist.length-1}
 function setStatus(t,err){const el=$("#status");el.textContent=t;el.classList.toggle("err",!!err)}
 function scheduleSave(){clearTimeout(S.saveTimer);setStatus("Cambios sin guardar");S.saveTimer=setTimeout(saveNow,1300)}
+async function recOf(d){if(d.fmts)fmtSync(d);if(d.fmts&&d.fmts.length<2){const F=d.fmts[0];d.fmts=null;d.fi=0;if(F&&F.pages!==d.pages){d.w=F.w;d.h=F.h;d.mm=F.mm;d.folds=F.folds;d.pages=F.pages;normDoc(d)}}
+  const pg=P=>({id:P.id,name:P.name||"",bg:P.bg,layers:P.layers.map(stripL)});
+  const rec={id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d===S.doc?pagesOut(d):d.pages.map(pg),by:d.by||"",byName:d.byName||"",fmts:null,fi:0,fz:null};
+  rec.thumb=await makeThumb(rec,220);
+  if(d.fmts){const fi=d.fi||0;d.fmts[fi].thumb=rec.thumb;rec.fi=fi;
+    rec.fmts=d.fmts.map((F,i)=>({k:F.k,w:F.w,h:F.h,mm:F.mm||null,folds:F.folds||null,pi:F.pi||0,pages:i===fi?null:F.pages.map(pg)}));
+    rec.fz=d.fmts.map((F,i)=>({k:F.k,w:F.w,h:F.h,sec:SIZE_SEC[F.k]||"",thumb:F.thumb||"",np:(F.pages||[]).length||1}))}
+  return rec}
 async function saveNow(){
   clearTimeout(S.saveTimer);if(!S.dirty)return;
   const d=S.doc,ver=S.ver;if(store.kind==="fb"&&FB.user&&!d.by){const me=fbMe();d.by=me.email;d.byName=me.name}
-  const rec={id:d.id,name:d.name,brand:d.brand,w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:pagesOut(d),by:d.by||"",byName:d.byName||""};if(d.secNew)rec.sec=d.sec||"";
   setStatus("Guardando…");
-  try{rec.thumb=d.thumb=await makeThumb(rec,220);await store.put(rec);lsSet("ed.last",d.id);afterSave(d,rec).catch(()=>{});if(rec.sec!==undefined)delete d.secNew;
+  try{const rec=await recOf(d);if(d.secNew)rec.sec=d.sec||"";d.thumb=rec.thumb;await store.put(rec);lsSet("ed.last",d.id);afterSave(d,rec).catch(()=>{});if(rec.sec!==undefined)delete d.secNew;
     if(S.doc===d&&S.ver===ver){S.dirty=false;setStatus(store.kind==="fb"?"Guardado en la nube":store.kind==="db"?"Guardado":"Guardado en este navegador")}}
   catch(e){setStatus(e&&(e.code==="quota_exceeded"||e.name==="QuotaExceededError")?"No se pudo guardar: no queda espacio. Elimina diseños viejos.":"No se pudo guardar. Revisa tu conexión.",true)}
 }
@@ -1350,10 +1376,10 @@ function handles(L){const b=scr(L),x1=b.x,y1=b.y,x2=b.x+b.w,y2=b.y+b.h,mx=(x1+x2
   let hs=all.filter(([k])=>L.t==="text"?(k!=="n"&&k!=="s"):true);
   if(L.t!=="text"&&!S.crop){if(b.h<18)hs=hs.filter(([k])=>k==="w"||k==="e");else if(b.w<18)hs=hs.filter(([k])=>k==="n"||k==="s")}
   if(canRot(L)&&!S.crop)hs.push(["rot",[mx,y1-26]]);
-  const a=radOf(L);if(a&&L.t!=="text")hs=hs.map(([k,p])=>[k,rotPt(p[0],p[1],mx,my,a)]);
+  const a=radOf(L);if(a)hs=hs.map(([k,p])=>[k,rotPt(p[0],p[1],mx,my,a)]);
   return hs.map(([k,p])=>({k,p}))}
 function toDoc(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left-V.ox)/V.sc,y:(e.clientY-r.top-V.oy)/V.sc,sx:e.clientX-r.left,sy:e.clientY-r.top}}
-function hitTest(p){for(let i=S.doc.layers.length-1;i>=0;i--){const L=S.doc.layers[i];if(L.hide)continue;if(L.t==="text")layoutText(L);let px=p.x,py=p.y;if(L.rot&&L.t!=="text")[px,py]=rotPt(p.x,p.y,L.x+L.w/2,L.y+L.h/2,-radOf(L));
+function hitTest(p){for(let i=S.doc.layers.length-1;i>=0;i--){const L=S.doc.layers[i];if(L.hide)continue;if(L.t==="text")layoutText(L);let px=p.x,py=p.y;if(radOf(L))[px,py]=rotPt(p.x,p.y,L.x+L.w/2,L.y+L.h/2,-radOf(L));
     const pd=(L.t==="rect"||L.t==="ellipse")?Math.max(0,6/V.sc-Math.min(L.w,L.h)/2):0;if(px>=L.x-pd&&px<=L.x+L.w+pd&&py>=L.y-pd&&py<=L.y+L.h+pd)return L}return null}
 
 /* pointer */
@@ -1434,7 +1460,7 @@ cv.addEventListener("pointermove",e=>{
     if(e.shiftKey)a=Math.round(a/15)*15;else{const n=Math.round(a/45)*45;if(Math.abs(a-n)<4)a=n}
     L.rot=normDeg(a);const ri=$("#p-rot");if(ri&&document.activeElement!==ri)ri.value=L.rot;requestRender();return}
   if(drag.mode==="resize"){
-    const o=drag.o,k=drag.k;let x=o.x,y=o.y,w=o.w,h=o.h;const ra=L.t!=="text"?radOf(L):0;
+    const o=drag.o,k=drag.k;let x=o.x,y=o.y,w=o.w,h=o.h;const ra=radOf(L);
     const ddx=ra?dx*Math.cos(-ra)-dy*Math.sin(-ra):dx,ddy=ra?dx*Math.sin(-ra)+dy*Math.cos(-ra):dy;const mn=(L.t==="rect"||L.t==="ellipse")?1:8;
     if(k.includes("e"))w=o.w+ddx;if(k.includes("w")){w=o.w-ddx;x=o.x+ddx}
     if(k.includes("s"))h=o.h+ddy;if(k.includes("n")){h=o.h-ddy;y=o.y+ddy}
@@ -1445,6 +1471,7 @@ cv.addEventListener("pointermove",e=>{
       if(k.includes("e"))w=sn(x+w)-x;if(k.includes("w")){const nx=sn(x);w+=x-nx;x=nx}if(k.includes("s"))h=sn(y+h)-y;if(k.includes("n")){const ny=sn(y);h+=y-ny;y=ny}w=Math.max(8,w);h=Math.max(8,h)}
     if(L.t==="text"){if(corner){const s=w/o.w;L.size=Math.max(6,Math.round(o.size*s));L.px=Math.round((o.px||0)*s);L.py=Math.round((o.py||0)*s);L.w=Math.round(w);if(k.includes("w"))L.x=Math.round(o.x+o.w-L.w);layoutText(L);if(k.includes("n"))L.y=Math.round(o.y+o.h-L.h)}
       else{L.autoW=false;L.w=Math.round(w);L.x=Math.round(x)}}
+    if(L.t==="text"&&ra){const [cx,cy]=rotPt(L.x+L.w/2,L.y+L.h/2,o.x+o.w/2,o.y+o.h/2,ra);L.x=Math.round(cx-L.w/2);L.y=Math.round(cy-L.h/2)}
     else if(ra){const [cx,cy]=rotPt(x+w/2,y+h/2,o.x+o.w/2,o.y+o.h/2,ra);L.w=w<2?round(w):Math.round(w);L.h=h<2?round(h):Math.round(h);L.x=Math.round(cx-L.w/2);L.y=Math.round(cy-L.h/2)}
     else{L.x=Math.round(x);L.y=Math.round(y);L.w=w<2?round(w):Math.round(w);L.h=h<2?round(h):Math.round(h);if(L.t==="qr")L.h=L.w}
     requestRender();syncGeom();
@@ -1471,7 +1498,7 @@ function startEdit(id){const L=S.doc.layers.find(l=>l.id===id);if(!L)return;sele
   ta.addEventListener("blur",()=>endEdit());
   placeEditor();ta.focus();ta.select();requestRender()}
 function placeEditor(){const L=S.doc.layers.find(l=>l.id===S.editing);if(!L||!ta)return;layoutText(L);const b=scr(L);const s=V.sc;
-  Object.assign(ta.style,{left:b.x+"px",top:b.y+"px",width:Math.max(b.w,40)+"px",height:(b.h+2)+"px",font:fontStr(L,L.size*s),lineHeight:String(L.lh||1.2),color:L.color,textAlign:L.align,letterSpacing:((L.ls||0)*L.size*s)+"px",textTransform:L.upper?"uppercase":"none",padding:`${(L.py||0)*s}px ${(L.px||0)*s}px`,borderRadius:(L.rad||0)*s+"px",whiteSpace:L.autoW?"pre":"pre-wrap"})}
+  Object.assign(ta.style,{left:b.x+"px",top:b.y+"px",width:Math.max(b.w,40)+"px",height:(b.h+2)+"px",font:fontStr(L,L.size*s),lineHeight:String(L.lh||1.2),color:L.color,textAlign:L.align,letterSpacing:((L.ls||0)*L.size*s)+"px",textTransform:L.upper?"uppercase":"none",padding:`${(L.py||0)*s}px ${(L.px||0)*s}px`,borderRadius:(L.rad||0)*s+"px",whiteSpace:L.autoW?"pre":"pre-wrap",transformOrigin:"50% 50%",transform:L.rot?`rotate(${L.rot}deg)`:"none"})}
 function endEdit(){if(!S.editing)return;const t=ta;ta=null;S.editing=null;if(t)t.remove();commit();renderProps();requestRender()}
 
 /* keyboard */
@@ -1925,8 +1952,25 @@ function iaKeysDialog(){const c=aiCfg();
   v.querySelector("#k-clear").onclick=()=>{const k=aiCfg();k.claude="";k.openai="";k.gemini="";aiSave(k);v.remove();aiCloudSave(k).catch(()=>{});toast("Claves borradas");if(S.tab==="ia")renderLib()}}
 
 /* ================== páginas ================== */
-function renderPageBar(){const d=S.doc;if(!d||!d.pages)return;const n=d.pages.length,P=d.pages[d.pi];
+function paintFmtBtn(){const b=$("#fmt-btn"),d=S.doc;if(!b||!d)return;const cur={k:fmtKey(d.w,d.h),w:d.w,h:d.h},n=d.fmts?d.fmts.length:1;
+  b.innerHTML=`${IC_SIZES.replace('<svg','<svg style="width:15px;height:15px;vertical-align:-2px;margin-right:4px"')}${esc(fmtShort(cur))}${n>1?` <span class="fmtn">${n} tamaños</span>`:""} ▾`}
+function switchFmt(i){const d=S.doc;if(!d||!d.fmts||i===(d.fi||0))return;if(S.editing)endEdit();S.crop=null;fmtSync(d);fmtLoad(d,i);S.sel=null;S.multi=[];S.zoom=1;S.panX=0;S.panY=0;
+  resetHistory();renderPageBar();renderProps();requestRender();if(!S.locked){S.dirty=true;scheduleSave()}toast("Tamaño: "+fmtName(d.fmts[i]))}
+function removeFmt(i){const d=S.doc;if(!d||!d.fmts||d.fmts.length<2)return;if(S.locked){lockPrompt();return}const F=d.fmts[i];
+  const v=showDialog("Quitar tamaño",`<p style="margin-top:0">¿Quitar el tamaño <b>${esc(fmtName(F))}</b> de este diseño?</p><p class="hint">Los demás tamaños no cambian. Puedes volver atrás con «Versiones anteriores» en Diseños.</p><div class="row-end"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="button" id="rf-yes">Quitar</button></div>`);
+  v.querySelector("#rf-yes").onclick=()=>{v.remove();fmtSync(d);const cur=d.fi||0;d.fmts.splice(i,1);const ni=i===cur?0:(i<cur?cur-1:cur);fmtLoad(d,ni);if(d.fmts.length<2){d.fmts=null;d.fi=0}
+    S.sel=null;S.multi=[];resetHistory();renderPageBar();renderProps();requestRender();S.dirty=true;scheduleSave();toast("Tamaño quitado")}}
+function fmtMenu(btn){const d=S.doc;if(!d)return;if(d.fmts)fmtSync(d);const list=d.fmts||[{k:fmtKey(d.w,d.h),w:d.w,h:d.h,pages:d.pages}],cur=d.fmts?(d.fi||0):0;
+  pop(btn,`<div style="display:grid;gap:6px;min-width:260px"><b style="font-size:13px">Tamaños de este diseño</b>
+    ${list.map((F,i)=>`<div class="fmtrow${i===cur?" on":""}"><button type="button" data-fgo="${i}">${esc(fmtName(F))}<small>${F.w} × ${F.h} · ${(F.pages||[]).length} pág.${i===cur?" · abierto":""}</small></button>${list.length>1?`<button type="button" class="x" data-fx="${i}" title="Quitar este tamaño" aria-label="Quitar ${esc(fmtName(F))}">✕</button>`:""}</div>`).join("")}
+    <button class="btn pri" type="button" id="fmt-add">+ Agregar otro tamaño…</button>
+    <p class="hint" style="margin:0">Todos los tamaños quedan en este mismo diseño. En Diseños aparece en el apartado de cada tamaño.</p></div>`,box=>{
+    box.querySelectorAll("[data-fgo]").forEach(b=>b.onclick=()=>{closePop();switchFmt(+b.dataset.fgo)});
+    box.querySelectorAll("[data-fx]").forEach(b=>b.onclick=()=>{closePop();removeFmt(+b.dataset.fx)});
+    box.querySelector("#fmt-add").onclick=()=>{closePop();if(S.locked){lockPrompt();return}adaptDialog()}})}
+function renderPageBar(){paintFmtBtn();const d=S.doc;if(!d||!d.pages)return;const n=d.pages.length,P=d.pages[d.pi];
   $("#pg-lbl").textContent=`Página ${d.pi+1} de ${n}${P&&P.name?" · "+P.name:""}`;$("#pg-prev").disabled=d.pi<=0;$("#pg-next").disabled=d.pi>=n-1}
+$("#fmt-btn").onclick=e=>fmtMenu(e.currentTarget);
 function goPage(i){const d=S.doc;if(S.editing)endEdit();if(S.crop){S.crop=null}syncPage();i=clamp(i,0,d.pages.length-1);d.pi=i;d.bg=d.pages[i].bg;d.layers=d.pages[i].layers;
   S.sel=null;S.multi=[];renderProps();requestRender();renderPageBar();if(S.tab==="ia")iaSelUpdate()}
 function addPage(dup){const d=S.doc;syncPage();const cur=d.pages[d.pi];
@@ -1935,7 +1979,7 @@ function delPage(){const d=S.doc;if(d.pages.length<2){toast("El diseño necesita
 function movePage(dir){const d=S.doc,j=d.pi+dir;if(j<0||j>=d.pages.length)return;syncPage();const [P]=d.pages.splice(d.pi,1);d.pages.splice(j,0,P);d.pi=j;commit();renderProps();renderPageBar()}
 function pagesHtml(){return fullPanels()?pagesBlock():""}
 function pagesBlock(){const d=S.doc;return `<h3>Páginas (${d.pages.length})</h3><div class="pages">${d.pages.map((P,i)=>`<button type="button" class="pg" data-pg="${i}" aria-current="${i===d.pi}"><canvas width="10" height="10"></canvas>${i+1}${P.name?" · "+esc(P.name):""}</button>`).join("")}</div>
-  <div class="actions"><button class="btn" type="button" id="pg-new">Agregar página</button><button class="btn" type="button" id="pg-dup">Duplicar página</button><button class="btn" type="button" id="pg-left"${d.pi<=0?" disabled":""}>Mover antes</button><button class="btn" type="button" id="pg-right"${d.pi>=d.pages.length-1?" disabled":""}>Mover después</button><button class="btn danger" type="button" id="pg-del" style="grid-column:1/-1"${d.pages.length<2?" disabled":""}>Eliminar esta página</button><button class="btn pri" type="button" id="pg-adapt" data-lockok style="grid-column:1/-1">Copiar a otros tamaños…</button></div>`}
+  <div class="actions"><button class="btn" type="button" id="pg-new">Agregar página</button><button class="btn" type="button" id="pg-dup">Duplicar página</button><button class="btn" type="button" id="pg-left"${d.pi<=0?" disabled":""}>Mover antes</button><button class="btn" type="button" id="pg-right"${d.pi>=d.pages.length-1?" disabled":""}>Mover después</button><button class="btn danger" type="button" id="pg-del" style="grid-column:1/-1"${d.pages.length<2?" disabled":""}>Eliminar esta página</button><button class="btn pri" type="button" id="pg-adapt" data-lockok style="grid-column:1/-1">Agregar otros tamaños…</button></div>`}
 function bindPages(){const d=S.doc;syncPage();document.querySelectorAll(".pg").forEach(b=>{const P=d.pages[+b.dataset.pg],c=b.querySelector("canvas"),k=96/Math.max(d.w,d.h);c.width=Math.max(1,Math.round(d.w*k));c.height=Math.max(1,Math.round(d.h*k));const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers});b.onclick=()=>goPage(+b.dataset.pg)});
   const on=(id,fn)=>{const x=$("#"+id);if(x)x.onclick=fn};on("pg-new",()=>addPage(false));on("pg-dup",()=>addPage(true));on("pg-del",delPage);on("pg-left",()=>movePage(-1));on("pg-right",()=>movePage(1));on("pg-adapt",adaptDialog)}
 $("#pg-prev").onclick=()=>goPage(S.doc.pi-1);$("#pg-next").onclick=()=>goPage(S.doc.pi+1);$("#pg-add").onclick=()=>addPage(false);
@@ -1973,13 +2017,13 @@ const TB={rot:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 let POP=null;
 function closePop(){if(POP){const p=POP;POP=null;p.remove()}}
 function pop(btn,html,bind){closePop();const d=document.createElement("div");d.className="ctxpop";d.innerHTML=html;document.body.appendChild(d);POP=d;
-  const r=btn.getBoundingClientRect();d.style.left=Math.max(12,Math.min(innerWidth-d.offsetWidth-12,r.left))+"px";d.style.top=(r.bottom+6)+"px";bind&&bind(d)}
+  const r=btn.getBoundingClientRect();d.style.left=Math.max(12,Math.min(innerWidth-d.offsetWidth-12,r.left))+"px";const hh=d.offsetHeight;d.style.top=(r.bottom+6+hh>innerHeight-8&&r.top-6-hh>8?r.top-6-hh:Math.max(8,Math.min(r.bottom+6,innerHeight-hh-8)))+"px";bind&&bind(d)}
 document.addEventListener("pointerdown",e=>{if(POP&&!e.target.closest(".ctxpop")&&!e.target.closest("[data-pop]"))closePop()},true);
 function colorPop(btn,id,val,allowNone,fn){pop(btn,swatches(id,val,allowNone),()=>bindSw(id,c=>{fn(c);closePop()},true))}
 const chipC=c=>`<span class="chip-c${c?"":" none"}" style="${c?"background:"+esc(c):""}"></span>`;
 function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if(S.moveOnly){bar.innerHTML="";return}const L=selL(),Ls=selLayers();let h="";const sep='<span class="sep"></span>';
   const tb=(id,inner,title,cls,extra)=>`<button type="button" class="tb${cls?" "+cls:""}" id="cx-${id}" title="${esc(title||"")}" aria-label="${esc(title||"")}"${extra||""}>${inner}</button>`;
-  const common=()=>sep+tb("front",TB.front,"Traer al frente")+tb("back",TB.back,"Enviar al fondo")+tb("dup",TB.dup,"Duplicar (⌘ + D)")+tb("del",TB.del,"Eliminar","danger");
+  const common=()=>(L&&!isMulti()&&canRot(L)?tb("rot",`${TB.rot} ${L.rot||0}°`,"Girar",""," data-pop"):"")+sep+tb("front",TB.front,"Traer al frente")+tb("back",TB.back,"Enviar al fondo")+tb("dup",TB.dup,"Duplicar (⌘ + D)")+tb("del",TB.del,"Eliminar","danger");
   if(isMulti()){const grouped=Ls.every(x=>x.g&&x.g===Ls[0].g);
     h=`<span class="lbl">${Ls.length} elementos</span>`+(grouped?tb("ungroup","Desagrupar","Desagrupar (⌘ + Shift + G)"):tb("group","Agrupar","Agrupar (⌘ + G)","pri"))+tb("flat","Unir en imagen","Unir en una sola imagen")+tb("align","Alinear ▾","Alinear",""," data-pop")+common()}
   else if(L&&S.crop===L.id){h=`<span class="lbl">Recortando</span>`+tb("cropdone","Listo","Terminar el recorte","pri")+tb("cropreset","Quitar recorte","Quitar el recorte")}
@@ -1993,7 +2037,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
       +tb("fit",L.fit==="contain"?"Imagen completa":"Rellenar marco","Cambiar entre rellenar el marco y ver la imagen completa")+common()}
   else if(L&&L.t==="qr"){h=tb("qredit","Editar QR","Cambiar el contenido del QR")+tb("qfg",chipC(L.fg)+"Color","Color de los cuadros",""," data-pop")+tb("qbg",chipC(L.bg)+"Fondo","Fondo del QR",""," data-pop")+tb("qlogo","Logo","Logo en el centro","",` aria-pressed="${!!L.logo}"`)+common()}
   else if(L&&L.t==="dev"){h=tb("shot","Cambiar captura","Subir o pegar la captura de pantalla")+tb("dkind",((DEVK.find(d=>d[0]===L.kind)||DEVK[0])[1])+" ▾","Tipo de dispositivo",""," data-pop")+(L.kind==="browser"?"":tb("dframe",chipC(L.frame)+"Marco","Color del marco",""," data-pop"))+common()}
-  else if(L){const f=L.t==="iso"?"Color":"Color";h=tb("fill",chipC(L.fill)+f,"Color",""," data-pop")+((L.t==="rect"||L.t==="ellipse")?tb("stroke",chipC(L.sw>0?L.stroke:null)+"Borde","Color del borde",""," data-pop"):"")+(isLine(L)?tb("thick",`Grosor ${round(Math.min(L.w,L.h))} ▾`,"Grosor de la línea",""," data-pop"):"")+(canRot(L)?tb("rot",`${TB.rot} ${L.rot||0}°`,"Girar",""," data-pop"):"")+common()}
+  else if(L){const f=L.t==="iso"?"Color":"Color";h=tb("fill",chipC(L.fill)+f,"Color",""," data-pop")+((L.t==="rect"||L.t==="ellipse")?tb("stroke",chipC(L.sw>0?L.stroke:null)+"Borde","Color del borde",""," data-pop"):"")+(isLine(L)?tb("thick",`Grosor ${round(Math.min(L.w,L.h))} ▾`,"Grosor de la línea",""," data-pop"):"")+common()}
   else{h=`<span class="lbl">Página ${S.doc.pi+1}</span>`+tb("bg",chipC(S.doc.bg)+"Fondo","Color de fondo de la página",""," data-pop")+sep+tb("addtext","+ Texto","Agregar un texto")+tb("addimg","+ Imagen","Agregar una foto o imagen")+tb("addpage","+ Página","Agregar una página")}
   const hb=bar.offsetHeight;bar.innerHTML=h;if(bar.offsetHeight!==hb)requestRender();
   const on=(id,fn)=>{const x=$("#cx-"+id);if(x)x.onclick=e=>fn(e.currentTarget)};
@@ -2005,7 +2049,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
   on("cropdone",endCrop);on("cropreset",()=>{L.z=1;L.fx=.5;L.fy=.5;upd()});
   const fz=$("#cx-font");if(fz)fz.onchange=e=>{L.font=e.target.value;const F=FONTS[L.font];if(!F.w.includes(+L.weight))L.weight=F.w.includes(700)?700:F.w[0];upd()};
   const fsz=$("#cx-fsize");if(fsz){const ap=()=>{const v=+fsz.value;if(fsz.isConnected&&v>=1&&round(v)!==L.size){L.size=Math.min(3000,Math.max(4,round(v)));upd()}};fsz.onchange=ap;fsz.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();ap();fsz.blur()}};fsz.onfocus=()=>fsz.select()}
-  on("rot",b=>pop(b,`<div style="display:grid;gap:10px;min-width:220px"><label class="f"><span>Giro (grados)</span><input type="number" id="rp-v" inputmode="decimal" step="1" value="${L.rot||0}"></label><input type="range" id="rp-r" min="-180" max="180" step="1" value="${L.rot||0}"><div class="chips">${[-90,-45,-15,15,45,90].map(v=>`<button type="button" data-rv="${v}">${v>0?"+":""}${v}°</button>`).join("")}<button type="button" data-rv="0">0°</button></div><p class="hint" style="margin:0">También puedes girar arrastrando el punto redondo de arriba.</p></div>`,d=>{
+  on("rot",b=>pop(b,`<div style="display:grid;gap:10px;min-width:220px"><label class="f"><span>Giro (grados)</span><input type="number" id="rp-v" inputmode="decimal" step="1" value="${L.rot||0}"></label><input type="range" id="rp-r" min="-180" max="180" step="1" value="${L.rot||0}"><div class="chips">${[-90,-45,-15,15,45,90].map(v=>`<button type="button" data-rv="${v}">${v>0?"+":""}${v}°</button>`).join("")}<button type="button" data-rv="0">0°</button></div><p class="hint" style="margin:0">También puedes girar arrastrando el punto redondo de arriba del elemento.</p></div>`,d=>{
     const vi=d.querySelector("#rp-v"),ri=d.querySelector("#rp-r");const set=(v,c)=>{L.rot=normDeg(v);vi.value=L.rot;ri.value=L.rot;requestRender();const pr=$("#p-rot");if(pr)pr.value=L.rot;if(c)commit()};
     vi.oninput=()=>set(vi.value);vi.onchange=()=>set(vi.value,1);vi.onkeydown=e=>e.stopPropagation();ri.oninput=()=>set(ri.value);ri.onchange=()=>set(ri.value,1);
     d.querySelectorAll("[data-rv]").forEach(x=>x.onclick=()=>{const v=+x.dataset.rv;set(v===0?0:(L.rot||0)+v,1)})}));
@@ -2045,8 +2089,8 @@ async function openPreview(doc,opt){opt=opt||{};if(S.editing)endEdit();const own
   show();v.querySelector('[data-a="close"]').focus();if(!opt.noFull&&v.requestFullscreen)v.requestFullscreen().catch(()=>{})}
 $("#pv-open").onclick=()=>openPreview();
 /* look at a saved design without opening it in the editor */
-async function previewStored(id){if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();setStatus("Abriendo la vista previa…");const d=await storedDoc(id);setStatus("");if(!d){toast("No se pudo abrir ese diseño.");return}
-  openPreview(d,{noFull:true,onEdit:async()=>{if(await openStored(id))toEditor()}})}
+async function previewStored(id,k){if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();setStatus("Abriendo la vista previa…");const d=await storedDoc(id,k);setStatus("");if(!d){toast("No se pudo abrir ese diseño.");return}
+  openPreview(d,{noFull:true,onEdit:async()=>{if(await openStored(id,k))toEditor()}})}
 
 /* ================== SVG ================== */
 const FONTFILES={"Akshar":[[600,"fonts/Akshar-600.woff2"],[700,"fonts/Akshar-700.woff2"]],"Questrial":[[400,"fonts/Questrial-400.woff2"]],"Adventor CX":[[400,"fonts/Adventor-400.woff2"],[700,"fonts/Adventor-700.woff2"]]};
@@ -2077,7 +2121,7 @@ async function toSVG(layers,box,bg){await fontsReady;const out=[],defs=[],fams=n
       L._lines.forEach((ln,i)=>{if(!ln)return;const lw=L._widths[i];let tx=L.x+px;if(L.align==="center")tx=L.x+px+(inner-lw)/2;else if(L.align==="right")tx=L.x+px+inner-lw;
         const base=L.y+py+i*lh+(lh-L.size)/2+L.size*.8;const tt=(t,xx)=>`<text x="${num1(xx)}" y="${num1(base)}" font-family="${esc(F.css)}" font-size="${L.size}" font-weight="${L.weight||400}" fill="${L.color}"${L.ls?` letter-spacing="${num1(L.ls*L.size)}"`:""} xml:space="preserve">${esc(t)}</text>`;
         const J=justWords(L,i,L.x+px,inner);if(J)J.forEach(([w,wx])=>g.push(tt(w,wx)));else g.push(tt(ln,tx))})}
-    if(!g.length)continue;if(L.rot&&L.t!=="text"){const t=`<g transform="rotate(${L.rot} ${num1(L.x+L.w/2)} ${num1(L.y+L.h/2)})">${g.join("")}</g>`;g.length=0;g.push(t)}
+    if(!g.length)continue;if(L.rot){const t=`<g transform="rotate(${L.rot} ${num1(L.x+L.w/2)} ${num1(L.y+L.h/2)})">${g.join("")}</g>`;g.length=0;g.push(t)}
     out.push((L.op??1)<1?`<g opacity="${L.op}">${g.join("")}</g>`:g.join(""))}
   let css="";for(const [fam,ws] of fams){for(const [w,path] of FONTFILES[fam]){if(![...ws].some(x=>Math.abs(x-w)<=100))continue;try{css+=`@font-face{font-family:"${fam}";font-weight:${w};src:url(data:font/woff2;base64,${await fontB64(path)}) format("woff2")}`}catch(e){}}}
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${num1(box.w)}" height="${num1(box.h)}" viewBox="${num1(box.x)} ${num1(box.y)} ${num1(box.w)} ${num1(box.h)}">${css?`<style>${css}</style>`:""}${defs.length?`<defs>${defs.join("")}</defs>`:""}${bg?`<rect x="${num1(box.x)}" y="${num1(box.y)}" width="${num1(box.w)}" height="${num1(box.h)}" fill="${bg}"/>`:""}${out.join("")}</svg>`}
@@ -2225,7 +2269,7 @@ function renderPropsMain(){
     el.innerHTML=`<div class="pane"><h2>Página ${d.pi+1}${d.pages.length>1?` de ${d.pages.length}`:""}${d.pages[d.pi].name?` · ${esc(d.pages[d.pi].name)}`:""}</h2><p class="hint">Haz clic en un elemento del diseño para editarlo.</p>
       <h3>Color de fondo</h3>${swatches("bg",d.bg)}
       <div class="actions" style="margin-top:14px"><button class="btn" type="button" id="p-paste">Pegar</button></div>
-      <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div><button class="btn" type="button" id="p-adapt" data-lockok style="width:100%;margin-top:6px">Copiar a otros tamaños…</button>
+      <h3>Tamaño</h3><div class="row one"><label class="f"><span>Formato</span><select id="p-size">${SIZES.map(s=>`<option value="${s[0]}"${d.w===s[2]&&d.h===s[3]?" selected":""}>${s[1]} · ${s[2]}×${s[3]}</option>`).join("")}<option value="custom"${SIZES.some(s=>d.w===s[2]&&d.h===s[3])?"":" selected"}>Personalizado</option></select></label></div><button class="btn" type="button" id="p-adapt" data-lockok style="width:100%;margin-top:6px">Agregar otros tamaños…</button>
       <div class="row">${num("p-W","Ancho (px)",d.w,1,50)}${num("p-H","Alto (px)",d.h,1,50)}</div>
       <p class="hint">El tamaño es el mismo para todas las páginas. Al cambiarlo, los elementos se quedan donde están; muévelos a su lugar.${d.mm?` Tamaño de impresión: ${d.mm[0]/10} × ${d.mm[1]/10} cm.`:""}</p>
       ${pagesHtml()}
@@ -2371,9 +2415,29 @@ async function buildExport(d,fmt,pages){const files=await buildFiles(d,fmt,pages
   let Z;try{Z=await loadZip()}catch(e){toast("No se pudo cargar la herramienta para comprimir. Revisa tu internet.");return null}
   const zip=new Z();files.forEach(f=>zip.file(f.fname,f.blob));setStatus("Comprimiendo…");const blob=await zip.generateAsync({type:"blob"});setStatus("");
   return{blob,fname:files[0].fname.replace(/-pagina-\d+(-sin-fondo)?\.[a-z]+$/i,"")+"-"+files.length+"-paginas.zip"}}
+/* a design with several sizes: first choose which sizes */
+function downloadSizes(d,o){if(d===S.doc)fmtSync(d);const fi=d.fi||0,FS=new Set([fi]);let fmt=o.fmt||"png";
+  const v=showDialog("Descargar «"+(d.name||"Diseño")+"»",`<div class="f"><span>Tamaños · este diseño tiene ${d.fmts.length}</span><div class="dpages" id="ds-grid">${d.fmts.map((F,i)=>`<label class="dpg"><input type="checkbox" data-fs="${i}"${FS.has(i)?" checked":""}><span class="dpic">${F.thumb?`<img src="${F.thumb}" alt="" style="max-width:100%;max-height:110px;box-shadow:0 1px 3px rgba(0,0,0,.18)">`:""}</span><small>${esc(fmtName(F))}<br>${F.w} × ${F.h} · ${F.pages.length} pág.</small></label>`).join("")}</div></div>
+    <div class="chips" style="margin-top:6px"><button type="button" id="ds-all">Todos los tamaños</button><button type="button" id="ds-cur">Solo el que está abierto</button></div>
+    <div class="f" style="margin-top:12px"><span>Formato</span><div class="chips dlfmt">${["png","jpg","pdf","svg","pptx"].map(k=>`<button type="button" data-df="${k}" aria-pressed="${k===fmt}">${PG_FMT_N[k]}</button>`).join("")}</div></div>
+    <p class="hint" id="ds-note" style="min-height:1.2em"></p>
+    <div class="row-end"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="ds-go">Siguiente</button></div>`);
+  v.querySelector(".dlg").style.width="min(680px,100%)";
+  const note=()=>{const k=FS.size;v.querySelector("#ds-note").textContent=!k?"Elige al menos un tamaño.":k===1?"En el siguiente paso eliges las páginas.":`Se descargan los ${k} tamaños (todas sus páginas) juntos en un archivo ZIP.`;const b=v.querySelector("#ds-go");b.disabled=!k;b.textContent=k===1?"Siguiente":"Descargar"};
+  const setFS=a=>{FS.clear();a.forEach(i=>FS.add(i));v.querySelectorAll("[data-fs]").forEach(c=>c.checked=FS.has(+c.dataset.fs));note()};
+  v.querySelectorAll("[data-fs]").forEach(c=>c.onchange=()=>{c.checked?FS.add(+c.dataset.fs):FS.delete(+c.dataset.fs);note()});
+  v.querySelector("#ds-all").onclick=()=>setFS(d.fmts.map((_,i)=>i));v.querySelector("#ds-cur").onclick=()=>setFS([fi]);
+  v.querySelectorAll("[data-df]").forEach(b=>b.onclick=()=>{fmt=b.dataset.df;v.querySelectorAll("[data-df]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});note();
+  v.querySelector("#ds-go").onclick=async()=>{const sel=[...FS].sort((a,b)=>a-b);
+    if(sel.length===1){v.remove();const dd=fmtDoc(d,sel[0]);return downloadDesign(dd,{fmt,one:true,cur:sel[0]===fi&&o.cur!=null?o.cur:null})}
+    const b=v.querySelector("#ds-go");b.disabled=true;b.textContent="Preparando…";let Z;try{Z=await loadZip()}catch(e){toast("No se pudo cargar la herramienta para comprimir. Revisa tu internet.");b.disabled=false;return}
+    const zip=new Z(),used=new Set();
+    for(const i of sel){const dd=fmtDoc(d,i);dd.name=(d.name||"diseno")+" "+fmtShort(d.fmts[i]);const fs=await buildFiles(dd,fmt,fmt==="pdf"||fmt==="pptx"?null:dd.pages.map((_,j)=>j));
+      for(const r of fs||[]){let f=r.fname,j=2;while(used.has(f))f=r.fname.replace(/(\.[a-z0-9]+)$/i,`-${j++}$1`);used.add(f);zip.file(f,r.blob)}}
+    setStatus("Comprimiendo…");const blob=await zip.generateAsync({type:"blob"});setStatus("");v.remove();await saveBlob(blob,`${fileBase(d.name)}-${sel.length}-tamanos-${fmt}.zip`,"zip")}}
 const PG_FMT_N={png:"PNG",jpg:"JPG",pngt:"PNG sin fondo",svg:"SVG",pdf:"PDF",pptx:"PowerPoint"};
 /* asks which pages to download (all or some); one page designs skip the question */
-function downloadDesign(d,o){o=o||{};const n=d.pages.length,fixed=!!o.fmt;
+function downloadDesign(d,o){o=o||{};if(multiFmt(d)&&!o.one)return downloadSizes(d,o);const n=d.pages.length,fixed=!!o.fmt;
   if(fixed&&n<=1)return(async()=>{const r=await buildExport(d,o.fmt,[0]);if(r)await saveBlob(r.blob,r.fname,o.fmt)})();
   let fmt=o.fmt||"png";const sel=new Set(o.cur!=null&&!["pdf","pptx"].includes(fmt)?[o.cur]:d.pages.map((_,i)=>i));
   const v=showDialog("Descargar «"+(d.name||"Diseño")+"»",`${fixed?"":`<div class="f"><span>Formato</span><div class="chips dlfmt">${["png","jpg","pdf","svg","pptx"].map(k=>`<button type="button" data-df="${k}" aria-pressed="${k===fmt}">${PG_FMT_N[k]}</button>`).join("")}</div></div>`}
@@ -2398,7 +2462,7 @@ async function saveBlob(blob,fname,fmt){fmt=fmt||fname.split('.').pop();
 }
 async function exportImg(fmt){
   if(S.editing)endEdit();
-  if(!fmt.startsWith("sel-")&&S.doc.pages.length>1){syncPage();downloadDesign(S.doc,{fmt,cur:S.doc.pi||0});return}
+  if(!fmt.startsWith("sel-")&&(S.doc.pages.length>1||multiFmt(S.doc))){syncPage();downloadDesign(S.doc,{fmt,cur:S.doc.pi||0});return}
   const d=S.doc;syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
   const base=(d.name||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
   let blob,fname;
@@ -2419,7 +2483,8 @@ function whoLine(d){if(store.kind!=="fb")return"";const by=d.by||"",ed=d.ed||by;
   const parts=[by?`De ${esc(personName(by,d.byName))}`:"",ed&&ed!==by?`editado por ${esc(personName(ed,d.edName))}`:""].filter(Boolean).join(" · ");
   return`<span class="who">${avatar(ed||by,d.edName||d.byName)}<span>${parts}</span></span>`}
 async function homeData(force){if(HOME.list&&!force)return HOME.list;try{const l=await store.list();l.sort((a,b)=>(b.updated||0)-(a.updated||0));HOME.list=l}catch(e){HOME.list=HOME.list||[]}return HOME.list}
-async function openStored(id){let d;try{d=await store.get(id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return false}openDoc(fromRecord(id,d));setLock(true);S.loaded={id,rec:d,kept:false};return true}
+function pickFmt(d,k){if(k&&d.fmts){const i=d.fmts.findIndex(F=>F.k===k);if(i>=0&&i!==(d.fi||0))fmtLoad(d,i)}return d}
+async function openStored(id,k){let d;try{d=await store.get(id)}catch(e){}if(!d){toast("No se pudo abrir ese diseño.");return false}openDoc(pickFmt(fromRecord(id,d),k));setLock(true);S.loaded={id,rec:d,kept:false};return true}
 async function renderHome(){const el=$("#home");if(!el)return;const b=S.brand,isFB=store.kind==="fb",me=isFB?fbMe():null;
   if(!HOME.pic){const c=CLA[Math.floor(Math.random()*CLA.length)];HOME.pic={src:"clasicos/"+c[0]+".jpg",cap:PER[c[1]][0]+" · "+c[2]}}
   const hi=me&&me.name?`Hola, ${esc(firstName(me.name))}.`:"Bienvenido.";
@@ -2493,15 +2558,34 @@ async function renderCarpetas(){const el=$("#home");if(!el)return;
   el.innerHTML=`<div class="cx"><aside class="cx-side" id="cx-side"><h2>Diseños</h2><div class="hint" style="padding:0 8px">Cargando…</div></aside><main class="cx-main" id="cx-main"></main></div>`;
   await loadSecs();try{const l=await store.list();l.sort((a,b)=>(b.updated||0)-(a.updated||0));CX.list=l}catch(e){CX.list=CX.list||[];toast("No se pudieron cargar los diseños. Revisa tu conexión.")}
   if(S.tab!=="disenos")return;paintCarpetas()}
+/* where each size of a design is filed: fixed sizes (estado, portada, banner…) go to their own apartado; the rest follow the design */
+const fzOf=d=>d.fz&&d.fz.length>1?d.fz:null;
+function secsOf(d){const f=fzOf(d);return f?[...new Set(f.map(z=>z.sec||d.sec||""))]:[d.sec||""]}
+function cardFmt(d,sel){const f=fzOf(d);if(!f)return null;const want=CX.cardK&&CX.cardK[d.id];let z=want&&f.find(x=>x.k===want);
+  if(!z&&sel&&sel!=="all"&&sel!=="none"&&!sel.startsWith("st:")&&!sel.startsWith("fam")){z=f.find(x=>{const v=secValid(x.sec||d.sec||"");return sel.includes("/")?v===sel:v.split("/")[0]===sel})}
+  if(!z&&sel==="none")z=f.find(x=>!secValid(x.sec||d.sec||""));
+  return z||f.find(x=>x.w===d.w&&x.h===d.h)||f[0]}
+async function mergeFam(fam){const f=cxFams().find(x=>x.fam===fam);if(!f)return;
+  const v=showDialog("Juntar en un solo diseño",`<p style="margin-top:0">Estos <b>${f.items.length} diseños</b> son el mismo en distintos tamaños. ¿Juntarlos en <b>un solo diseño</b> con ${f.items.length} tamaños?</p><p class="hint">Queda «${esc(f.items[0].name.replace(/ · [^·]+$/,""))}» con todos los tamaños dentro. Las copias sueltas se van a la Papelera (se pueden recuperar durante 30 días).</p>
+    <div class="row-end"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="mf-go">Juntar</button></div>`);
+  v.querySelector("#mf-go").onclick=async()=>{const b=v.querySelector("#mf-go");b.disabled=true;b.textContent="Juntando…";
+    try{const recs=[];for(const it of f.items){const r=await store.get(it.id);if(r)recs.push([it.id,r])}if(recs.length<2)throw 0;
+      const base=fromRecord(recs[0][0],recs[0][1]);if(base.fmts)fmtSync(base);base.fmts=base.fmts||[{k:fmtKey(base.w,base.h),w:base.w,h:base.h,mm:base.mm||null,folds:base.folds||null,pages:base.pages,pi:0,thumb:recs[0][1].thumb||""}];base.fi=0;
+      for(const [id,r] of recs.slice(1)){const x=fromRecord(id,r);const list=x.fmts||[{k:fmtKey(x.w,x.h),w:x.w,h:x.h,mm:x.mm||null,folds:x.folds||null,pages:x.pages,pi:0,thumb:r.thumb||""}];
+        for(const F of list)if(!base.fmts.some(G=>G.w===F.w&&G.h===F.h))base.fmts.push(F)}
+      base.name=base.name.replace(/ · [^·]+$/,"");fmtLoad(base,0);const rec=await recOf(base);rec.sec=recs[0][1].sec||"";rec.fam="";await store.put(rec);
+      for(const [id] of recs.slice(1)){try{await store.del(id)}catch(e){}}
+      v.remove();toast(`Listo: un solo diseño con ${base.fmts.length} tamaños`);CX.list=null;HOME.list=null;CX.sel="fams";renderCarpetas()}
+    catch(e){b.disabled=false;b.textContent="Juntar";toast("No se pudo juntar. Revisa tu conexión.")}}}
 function cxCount(fn){return(CX.list||[]).filter(fn).length}
-function cxFams(){const m=new Map();for(const d of CX.list||[]){if(!d.fam)continue;if(!m.has(d.fam))m.set(d.fam,[]);m.get(d.fam).push(d)}return[...m.entries()].filter(([,a])=>a.length>1).map(([f,a])=>({fam:f,items:a.sort((x,y)=>(x.id===f?-1:y.id===f?1:(x.w/x.h)-(y.w/y.h)))}))}
+function cxFams(){const m=new Map();for(const d of CX.list||[]){if(!d.fam||fzOf(d))continue;if(!m.has(d.fam))m.set(d.fam,[]);m.get(d.fam).push(d)}return[...m.entries()].filter(([,a])=>a.length>1).map(([f,a])=>({fam:f,items:a.sort((x,y)=>(x.id===f?-1:y.id===f?1:(x.w/x.h)-(y.w/y.h)))}))}
 function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!main)return;const L=CX.list||[],isFB=store.kind==="fb";
-  const inSec=(d,a)=>secValid(d.sec||"").split("/")[0]===a,inSub=(d,v)=>secValid(d.sec||"")===v,none=d=>!secValid(d.sec||"");
+  const inSec=(d,a)=>secsOf(d).some(x=>secValid(x).split("/")[0]===a),inSub=(d,v)=>secsOf(d).some(x=>secValid(x)===v),none=d=>secsOf(d).some(x=>!secValid(x));
   const FAMS=cxFams();if(CX.sel.startsWith("fam:")&&!FAMS.some(f=>"fam:"+f.fam===CX.sel))CX.sel="fams";
   CX.picked=new Set([...CX.picked].filter(id=>L.some(d=>d.id===id)));
   if(CX.sel!=="all"&&CX.sel!=="none"&&CX.sel!=="fams"&&!CX.sel.startsWith("fam:")&&!CX.sel.startsWith("st:")&&CX.sel!=="trash"){const [a,b]=CX.sel.split("/");const S1=CX.secs.find(x=>x.id===a);if(!S1||(b&&!S1.subs.some(x=>x.id===b)))CX.sel="all"}
   const it=(key,icon,name,n,drop)=>`<button type="button" class="cx-it" data-sel="${esc(key)}"${drop?` data-drop="${esc(drop)}"`:""} aria-pressed="${CX.sel===key}">${icon||""}<span>${esc(name)}</span><span class="n">${n}</span></button>`;
-  side.innerHTML=`<h2>Diseños</h2>${isFB?`<div class="cx-space" id="cx-space"></div>`:""}${it("all",IC_ALL,"Todos",L.length)}${it("none",IC_INBOX,"Sin clasificar",cxCount(none),"__none")}${it("fams",IC_SIZES,"En varios tamaños",FAMS.length)}${isFB?it("trash",IC_TRASH,"Papelera",CX.trashN??"·"):""}
+  side.innerHTML=`<h2>Diseños</h2>${isFB?`<div class="cx-space" id="cx-space"></div>`:""}${it("all",IC_ALL,"Todos",L.length)}${it("none",IC_INBOX,"Sin clasificar",cxCount(none),"__none")}${it("fams",IC_SIZES,"En varios tamaños",FAMS.length+L.filter(fzOf).length)}${isFB?it("trash",IC_TRASH,"Papelera",CX.trashN??"·"):""}
     <div class="cx-sec open"><div class="cx-lbl">Por estado</div><div class="cx-sub">${ST_K.map(k=>it("st:"+k,`<i class="stdot st-${k}"></i>`,ST_N[k],cxCount(d=>stOf(d)===k))).join("")}</div></div>
     ${CX.secs.map(S1=>`<div class="cx-sec${CX.sel===S1.id||CX.sel.startsWith(S1.id+"/")?" open":""}">${it(S1.id,SEC_ICON[S1.id]||IC_FOLDER,S1.name,cxCount(d=>inSec(d,S1.id)))}<div class="cx-sub">${S1.subs.map(S2=>it(S1.id+"/"+S2.id,"",S2.name,cxCount(d=>inSub(d,S1.id+"/"+S2.id)),S1.id+"/"+S2.id)).join("")}</div></div>`).join("")}
     <div class="cx-tools"><button class="btn" type="button" id="cx-addsec">+ Sección</button></div>
@@ -2516,7 +2600,8 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   /* main column */
   let title,sub,groups,S1=null;
   if(CX.sel==="all"){title="Todos los diseños";sub="Todos los diseños del equipo, del más reciente al más antiguo.";groups=[{name:"",items:L}]}
-  else if(CX.sel==="fams"){title="En varios tamaños";sub="Cada diseño junto a sus copias en otras medidas, para encontrarlas sin buscar en cada apartado.";groups=FAMS.map(f=>({name:f.items[0].name.replace(/ · [^·]+$/,""),fam:f.fam,items:f.items}));if(!groups.length)groups=[{name:"",items:[],empty:"Todavía no hay copias. Abre un diseño y usa «Copiar a otros tamaños» en Páginas."}]}
+  else if(CX.sel==="fams"){title="En varios tamaños";sub="Cada diseño junto a sus copias en otras medidas, para encontrarlas sin buscar en cada apartado.";sub="Diseños que tienen varios tamaños dentro (y copias sueltas de antes, que puedes juntar en uno).";const MF=L.filter(fzOf);
+    groups=(MF.length?[{name:"Un diseño con varios tamaños",items:MF,key:"fams"}]:[]).concat(FAMS.map(f=>({name:f.items[0].name.replace(/ · [^·]+$/,""),fam:f.fam,items:f.items,merge:true})));if(!groups.length)groups=[{name:"",items:[],empty:"Todavía no hay diseños en varios tamaños. Abre un diseño y usa el botón de tamaños de abajo → «Agregar otro tamaño»."}]}
   else if(CX.sel.startsWith("fam:")){const f=FAMS.find(f=>"fam:"+f.fam===CX.sel);title=f.items[0].name.replace(/ · [^·]+$/,"");sub=`El mismo diseño en ${f.items.length} tamaños`;groups=[{name:"",items:f.items}]}
   else if(CX.sel.startsWith("st:")){const k=CX.sel.slice(3);title=ST_N[k];sub=ST_D[k];groups=[{name:"",items:L.filter(d=>stOf(d)===k)}]}
   else if(CX.sel==="none"){title="Sin clasificar";sub="Diseños que todavía no están en ningún apartado. Muévelos para tenerlos ordenados.";groups=[{name:"",items:L.filter(none)}]}
@@ -2525,8 +2610,8 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
     else{title=S1.name;sub=`${S1.subs.length} apartado${S1.subs.length===1?"":"s"}`;groups=S1.subs.map(S2=>({name:S2.name,key:a+"/"+S2.id,items:L.filter(d=>inSub(d,a+"/"+S2.id))}))}}
   const isSub=CX.sel.includes("/");
   const famN=f=>{const x=FAMS.find(x=>x.fam===f);return x?x.items.length:0},isFamView=CX.sel==="fams"||CX.sel.startsWith("fam:");
-  const card=d=>{const fn=d.fam?famN(d.fam):0;return`<div class="dcard${CX.picked.has(d.id)?" picked":""}" draggable="true" data-id="${esc(d.id)}"><label class="ck" title="Seleccionar"><input type="checkbox" data-pick="${esc(d.id)}"${CX.picked.has(d.id)?" checked":""} aria-label="Seleccionar ${esc(d.name)}"></label><span class="size">${esc(isFamView?sizeName(d):`${d.w}×${d.h}`)}</span><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}<span class="eye">${IC_EYE} Ver</span></button>
-      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${pgN(d)} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}${editingBadge(d.id)}</div>
+  const card=d=>{const fn=d.fam&&!fzOf(d)?famN(d.fam):0,fz=cardFmt(d,CX.sel),fzs=fzOf(d);if(fz)d={...d,thumb:fz.thumb||d.thumb,w:fz.w,h:fz.h,np:fz.np||d.np};return`<div class="dcard${CX.picked.has(d.id)?" picked":""}" draggable="true" data-id="${esc(d.id)}"${fz?` data-k="${esc(fz.k)}"`:""}><label class="ck" title="Seleccionar"><input type="checkbox" data-pick="${esc(d.id)}"${CX.picked.has(d.id)?" checked":""} aria-label="Seleccionar ${esc(d.name)}"></label><span class="size">${esc(isFamView?sizeName(d):`${d.w}×${d.h}`)}</span><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}<span class="eye">${IC_EYE} Ver</span></button>
+      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${pgN(d)} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fzs?`<div class="ftabs" role="group" aria-label="Tamaños">${fzs.map(z=>`<button type="button" data-ftab="${esc(d.id)}" data-fk="${esc(z.k)}" aria-pressed="${z.k===fz.k}" title="${esc(fmtName(z))} · ${z.w} × ${z.h}">${esc(fmtShort(z))}</button>`).join("")}</div>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}${editingBadge(d.id)}</div>
       <label class="mv st"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap"><i class="stdot st-${stOf(d)}"></i> Estado</span><select data-stsel="${esc(d.id)}" aria-label="Estado de ${esc(d.name)}">${ST_K.map(k=>`<option value="${k}"${stOf(d)===k?" selected":""}>${ST_N[k]}</option>`).join("")}</select></label>
       <label class="mv"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap">Mover a</span><select data-mv="${esc(d.id)}" aria-label="Mover ${esc(d.name)} a otro apartado">${secOptions(secValid(d.sec||""))}</select></label>
       <div class="acts2"><button type="button" class="open" data-open="${esc(d.id)}" title="Abrir en el editor">Abrir</button><select data-dl="${esc(d.id)}" aria-label="Descargar ${esc(d.name)}"><option value="">Descargar…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select><button type="button" data-share="${esc(d.id)}" title="Compartir por WhatsApp o Telegram" aria-label="Compartir">${IC_SHARE}</button>${isFB?`<select data-more="${esc(d.id)}" aria-label="Más opciones" class="more"><option value="">⋯</option><option value="ver">Versiones anteriores</option><option value="tpl">Guardar como plantilla del equipo</option></select>`:""}<button type="button" class="del" data-del="${esc(d.id)}" title="Eliminar diseño" aria-label="Eliminar">${IC_TRASH}</button></div></div>`};
@@ -2534,18 +2619,21 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   main.innerHTML=(np?`<div class="cxbar"><b>${np} seleccionado${np>1?"s":""}</b><select id="cxb-dl" aria-label="Descargar seleccionados"><option value="">Descargar como…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}${np>1?" (en un ZIP)":""}</option>`).join("")}</select><select id="cxb-mv" aria-label="Mover seleccionados"><option value="-">Mover a…</option>${secOptions("__")}</select><button class="btn" type="button" id="cxb-del">${IC_TRASH.replace('<svg','<svg style="width:15px;height:15px"')}Eliminar</button><span class="sp"></span><button class="btn" type="button" id="cxb-all">Elegir todos (${shown.length})</button><button class="btn" type="button" id="cxb-none">Quitar selección</button></div>`:"")+`<div class="cx-head"><div><h2>${esc(title)}</h2><p>${esc(sub)}</p></div><div class="acts">
       ${S1?`<button class="btn" type="button" id="cx-addsub">+ Apartado</button><button class="btn" type="button" id="cx-ren">Cambiar nombre</button><button class="btn" type="button" id="cx-delsec">Eliminar${isSub?" apartado":" sección"}</button>`:""}
       <button class="btn pri" type="button" id="cx-new">Nuevo diseño${isSub?" aquí":""}</button></div></div>
-    ${groups.map(g=>`<section class="cx-grp">${g.name?`<h3 data-sel="${esc(g.key||("fam:"+g.fam))}" style="cursor:pointer">${esc(g.name)} <small>${g.fam?g.items.length+" tamaños":g.items.length+" diseño"+(g.items.length===1?"":"s")}</small></h3>`:""}
+    ${groups.map(g=>`<section class="cx-grp">${g.name?`<h3 data-sel="${esc(g.key||("fam:"+g.fam))}" style="cursor:pointer">${esc(g.name)} <small>${g.fam?g.items.length+" tamaños":g.items.length+" diseño"+(g.items.length===1?"":"s")}</small></h3>${g.merge?`<button class="btn" type="button" data-merge="${esc(g.fam)}" style="margin:-4px 0 10px">Juntar en un solo diseño</button>`:""}`:""}
       ${g.items.length?`<div class="dgrid">${g.items.map(card).join("")}</div>`:`<div class="hempty"${g.key?` data-drop="${esc(g.key)}"`:""}>${g.empty?g.empty:g.name?"Todavía no hay diseños en este apartado.":isSub?"Todavía no hay diseños aquí. Arrastra uno desde «Todos» o «Sin clasificar», o crea uno nuevo.":CX.sel==="none"?"Todo está clasificado.":"Todavía no hay diseños guardados."}</div>`}</section>`).join("")}`;
   main.querySelectorAll("h3[data-sel]").forEach(h=>h.onclick=()=>{CX.sel=h.dataset.sel;paintCarpetas()});
-  main.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
-  main.querySelectorAll("[data-view]").forEach(x=>x.onclick=()=>previewStored(x.dataset.view));
+  const kOf=x=>{const c=x.closest(".dcard");return c&&c.dataset.k||null};
+  main.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open,kOf(x)))toEditor()});
+  main.querySelectorAll("[data-view]").forEach(x=>x.onclick=()=>previewStored(x.dataset.view,kOf(x)));
+  main.querySelectorAll("[data-ftab]").forEach(x=>x.onclick=()=>{CX.cardK=CX.cardK||{};CX.cardK[x.dataset.ftab]=x.dataset.fk;paintCarpetas()});
+  main.querySelectorAll("[data-merge]").forEach(x=>x.onclick=()=>mergeFam(x.dataset.merge));
   main.querySelectorAll("[data-mv]").forEach(x=>x.onchange=()=>moveDesign(x.dataset.mv,x.value));
   main.querySelectorAll("[data-stsel]").forEach(x=>x.onchange=()=>setStatusOf(x.dataset.stsel,x.value));
   main.querySelectorAll("[data-more]").forEach(x=>x.onchange=()=>{const v=x.value;x.value="";const d=L.find(d=>d.id===x.dataset.more);if(!d)return;if(v==="ver")versionsDialog(d);if(v==="tpl")saveAsTemplate(d.id)});
   main.querySelectorAll("[data-fam]").forEach(x=>x.onclick=()=>{CX.sel="fam:"+x.dataset.fam;paintCarpetas()});
   main.querySelectorAll("[data-pick]").forEach(x=>x.onchange=()=>{x.checked?CX.picked.add(x.dataset.pick):CX.picked.delete(x.dataset.pick);paintCarpetas()});
-  main.querySelectorAll("[data-dl]").forEach(x=>x.onchange=async()=>{const f=x.value;x.value="";if(!f)return;x.disabled=true;if(S.doc&&S.doc.id===x.dataset.dl&&S.dirty)await saveNow();const d=await storedDoc(x.dataset.dl);x.disabled=false;if(!d){toast("No se pudo abrir ese diseño.");return}downloadDesign(d,{fmt:f})});
-  main.querySelectorAll("[data-share]").forEach(x=>x.onclick=()=>{const d=L.find(d=>d.id===x.dataset.share);if(d)shareDialog(d.name,f=>exportStored(d.id,f))});
+  main.querySelectorAll("[data-dl]").forEach(x=>x.onchange=async()=>{const f=x.value;x.value="";if(!f)return;x.disabled=true;if(S.doc&&S.doc.id===x.dataset.dl&&S.dirty)await saveNow();const d=await storedDoc(x.dataset.dl,kOf(x));x.disabled=false;if(!d){toast("No se pudo abrir ese diseño.");return}downloadDesign(d,{fmt:f})});
+  main.querySelectorAll("[data-share]").forEach(x=>x.onclick=()=>{const d=L.find(d=>d.id===x.dataset.share);const k=kOf(x);if(d)shareDialog(d.name,f=>exportStored(d.id,f,k))});
   main.querySelectorAll("[data-del]").forEach(x=>x.onclick=()=>deleteDesigns([x.dataset.del],paintCarpetas));
   if(np){const ids=()=>[...CX.picked];
     main.querySelector("#cxb-dl").onchange=async e=>{const f=e.target.value;e.target.value="";if(!f)return;e.target.disabled=true;await downloadMany(ids(),f);e.target.disabled=false};
@@ -2600,14 +2688,23 @@ function adaptLayers(layers,W,H,W2,H2){const s=Math.min(W2/W,H2/H),out=clone(lay
   return out}
 const SIZE_SEC={estado:"whatsapp/estados",portada:"facebook/portadas",bannerweb:"web/banners",a4:"impresos/folletos",triptico:"impresos/folletos",rollup:"impresos/banners"};
 async function adaptDialog(){const d=S.doc;if(S.editing)endEdit();syncPage();await loadSecs().catch(()=>{});
-  const opts=SIZES.filter(z=>!(z[2]===d.w&&z[3]===d.h)).filter((z,i,a)=>a.findIndex(y=>y[2]===z[2]&&y[3]===z[3])===i);
-  const v=showDialog("Copiar a otros tamaños",`<p class="hint" style="margin-top:0">Se crea un diseño nuevo por cada tamaño, con el mismo contenido acomodado al nuevo formato. El original no cambia. Después revisa cada copia y ajusta lo que haga falta.</p>
+  if(d.fmts)fmtSync(d);const have=(d.fmts||[{w:d.w,h:d.h}]);
+  const opts=SIZES.filter(z=>!have.some(F=>F.w===z[2]&&F.h===z[3])).filter((z,i,a)=>a.findIndex(y=>y[2]===z[2]&&y[3]===z[3])===i);
+  if(!opts.length){toast("Este diseño ya tiene todos los tamaños.");return}
+  const v=showDialog("Agregar otros tamaños",`<p class="hint" style="margin-top:0">Cada tamaño nuevo se agrega <b>dentro de este mismo diseño</b>, con el mismo contenido acomodado al nuevo formato. Cambias de tamaño con el botón de tamaños de abajo. Después revisa cada uno y ajusta lo que haga falta.</p>
     <div style="display:grid;gap:6px;margin:10px 0 14px">${opts.map(z=>`<label class="check" style="margin:0"><input type="checkbox" value="${z[0]}"${z[0]==="estado"||z[0]==="post45"||z[0]==="post11"?" checked":""}> ${esc(z[1])} <small style="color:var(--muted)">· ${z[2]} × ${z[3]}</small></label>`).join("")}</div>
     ${d.pages.length>1?`<label class="check"><input type="checkbox" id="ad-all" checked> Copiar las ${d.pages.length} páginas (si no, solo la página ${d.pi+1})</label>`:""}
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="ad-go">Crear copias</button></div>`);
+    <label class="check"><input type="checkbox" id="ad-sep"> Crear diseños separados (como antes)</label>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="ad-go">Agregar tamaños</button></div>`);
   v.querySelector("#ad-go").onclick=async()=>{const pick=[...v.querySelectorAll('input[type=checkbox][value]:checked')].map(i=>SIZES.find(z=>z[0]===i.value));if(!pick.length){toast("Elige al menos un tamaño.");return}
     const all=!v.querySelector("#ad-all")||v.querySelector("#ad-all").checked,src=all?pagesOut(d):[pagesOut(d)[d.pi]];
     const btn=v.querySelector("#ad-go");btn.disabled=true;btn.textContent="Creando…";const made=[];
+    if(!v.querySelector("#ad-sep").checked){if(!d.fmts){d.fmts=[{k:fmtKey(d.w,d.h),w:d.w,h:d.h,mm:d.mm||null,folds:d.folds||null,pages:d.pages,pi:d.pi||0,thumb:d.thumb||""}];d.fi=0}
+      for(const z of pick){const pages=src.map(P=>({id:"p"+uid(),name:P.name||"",bg:P.bg,layers:adaptLayers(P.layers,d.w,d.h,z[2],z[3])}));
+        const F={k:z[0],w:z[2],h:z[3],mm:z[4]||null,folds:z[0]==="triptico"?[1/3,2/3]:null,pages,pi:0,thumb:""};try{F.thumb=await makeThumb({w:F.w,h:F.h,pages},220)}catch(e){}d.fmts.push(F)}
+      v.remove();S.dirty=true;await saveNow();HOME.list=null;CX.list=null;renderPageBar();
+      const r=showDialog("Tamaños agregados",`<p class="hint" style="margin-top:0">Ahora este diseño tiene ${d.fmts.length} tamaños. Toca uno para revisarlo y ajustarlo.</p><div class="dpages">${d.fmts.map((F,i)=>`<button type="button" class="dpg" data-fgo="${i}"><span class="dpic">${F.thumb?`<img src="${F.thumb}" alt="" style="max-width:100%;max-height:110px">`:""}</span><small>${esc(fmtName(F))}${i===(d.fi||0)?" · abierto":""}</small></button>`).join("")}</div>`);
+      r.querySelectorAll("[data-fgo]").forEach(b=>b.onclick=()=>{r.remove();switchFmt(+b.dataset.fgo)});return}
     /* the original and its copies share one family id, to see them together in Diseños → En varios tamaños */
     if(!d.fam){d.fam=d.id;if(S.dirty)await saveNow();try{await store.patch(d.id,{fam:d.fam})}catch(e){try{S.dirty=true;await saveNow()}catch(e2){}}}const me=store.kind==="fb"&&FB.user?fbMe():null;
     for(const z of pick){const nd=newDoc(z[2],z[3],d.bg,d.brand,`${d.name} · ${z[1]}`);
@@ -2685,7 +2782,7 @@ async function toPPTX(d){const Pptx=await loadPptx(),P=new Pptx(),k=1/144;
   P.defineLayout({name:"EDITHOR",width:d.w*k,height:d.h*k});P.layout="EDITHOR";P.title=d.name||"Presentación";
   for(const Pg of d.pages){const sl=P.addSlide();const bg=hex6(Pg.bg);if(bg)sl.background={color:bg};
     else if(Pg.bg){const c=document.createElement("canvas");c.width=Math.round(d.w/2);c.height=Math.round(d.h/2);const x=c.getContext("2d");x.scale(.5,.5);drawDesign(x,{w:d.w,h:d.h,bg:Pg.bg,layers:[]});sl.background={data:c.toDataURL("image/png")}}
-    for(const L of Pg.layers){if(L.hide)continue;const box={x:L.x*k,y:L.y*k,w:Math.max(.01,L.w*k),h:Math.max(.01,L.h*k)};if(L.rot&&L.t!=="text")box.rotate=L.rot;const tr=Math.round((1-(L.op??1))*100);
+    for(const L of Pg.layers){if(L.hide)continue;const box={x:L.x*k,y:L.y*k,w:Math.max(.01,L.w*k),h:Math.max(.01,L.h*k)};if(L.rot)box.rotate=L.rot;const tr=Math.round((1-(L.op??1))*100);
       if(L.t==="text"){layoutText(L);box.h=Math.max(.01,L.h*k);const col=hex6(L.color)||"000000",fb=hex6(L.bg);
         sl.addText(L.upper?String(L.txt).toUpperCase():String(L.txt),Object.assign({},box,{fontFace:PPT_FONT[L.font]||L.font,fontSize:Math.max(1,L.size/2),color:col,bold:(+L.weight||400)>=600,
           align:L.align==="justify"?"justify":(L.align||"left"),valign:"top",lineSpacingMultiple:L.lh||1.2,charSpacing:L.ls?L.ls*L.size/2:0,margin:[(L.px||0)/2,(L.px||0)/2,(L.py||0)/2,(L.py||0)/2].map(v=>Math.max(0,v)),
@@ -2734,8 +2831,8 @@ function renderBuscar(el){
 const DL_FMT=[["png","PNG"],["jpg","JPG"],["pdf","PDF"],["svg","SVG"],["pptx","PowerPoint"]];
 const sizeName=d=>{const z=SIZES.find(z=>z[2]===d.w&&z[3]===d.h);return z?z[1]:`${d.w} × ${d.h}`};
 const fileBase=n=>(n||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
-async function storedDoc(id){let x=null;try{x=await store.get(id)}catch(e){}if(!x)return null;const d=fromRecord(id,x);d.pi=0;normDoc(d);return d}
-async function exportStored(id,fmt){if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();setStatus("Preparando la descarga…");const d=await storedDoc(id);if(!d){setStatus("");toast("No se pudo abrir ese diseño.");return null}
+async function storedDoc(id,k){let x=null;try{x=await store.get(id)}catch(e){}if(!x)return null;const d=pickFmt(fromRecord(id,x),k);d.pi=0;normDoc(d);return d}
+async function exportStored(id,fmt,k){if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();setStatus("Preparando la descarga…");const d=await storedDoc(id,k);if(!d){setStatus("");toast("No se pudo abrir ese diseño.");return null}
   const r=await buildExport(d,fmt,fmt==="pdf"||fmt==="pptx"?null:d.pages.map((_,i)=>i));setStatus("");return r}
 let JSZIPP=null;
 function loadZip(){return JSZIPP||(JSZIPP=new Promise((res,rej)=>{if(window.JSZip)return res(window.JSZip);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";sc.onload=()=>res(window.JSZip);sc.onerror=()=>{JSZIPP=null;rej()};document.head.appendChild(sc)}))}
