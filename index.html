@@ -231,6 +231,7 @@ button{cursor:pointer}
 .layer.off .nm{opacity:.45}
 
 /* overlays */
+.pv~.veil{z-index:52}
 .veil{position:fixed;inset:0;background:rgba(5,10,12,.5);z-index:40;display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
 .dlg{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:min(860px,100%);max-height:100%;display:flex;flex-direction:column;min-height:0;box-shadow:0 20px 60px rgba(0,0,0,.35)}
 .dlg header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
@@ -516,6 +517,12 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
 .thumb.ttpl{position:relative}
 .thumb.ttpl .pic{border:0;padding:0;width:100%;cursor:pointer}
 .thumb.ttpl .tdel{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:15px;line-height:1;display:grid;place-items:center;padding:0}
+.dpages{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:8px;max-height:46vh;overflow:auto;padding:2px}
+.dpg{display:grid;gap:4px;justify-items:center;border:1px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;position:relative;background:var(--panel)}
+.dpg input{position:absolute;top:8px;left:8px;width:18px;height:18px;accent-color:var(--acc)}
+.dpg:has(input:checked){border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.dpg .dpic{display:grid;place-items:center;min-height:90px}.dpg .dpic canvas{max-width:100%;height:auto;box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.dpg small{color:var(--muted);font-size:11.5px;text-align:center}
 .utab{width:100%;border-collapse:collapse;font-size:13px}
 .utab th,.utab td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
 .utab th{font:600 12px var(--head);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
@@ -1082,7 +1089,7 @@ const IDB={p:null,
   async del(k){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error)})}};
 const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
   col(){return this.db.collection("data/users/"+this.uid)},
-  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",fam:v.fam||"",st:v.st||"",by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||"",_sz:(v.data||"").length+(v.thumb||"").length}})}
+  async list(){if(this.kind==="fb"){const M=FB.m,q=await M.getDocs(M.collection(FB.db,"designs"));return q.docs.map(x=>{const v=x.data();return{id:x.id,name:v.name,brand:v.brand,w:v.w,h:v.h,thumb:v.thumb||"",updated:v.updated||0,sec:v.sec||"",fam:v.fam||"",st:v.st||"",np:(()=>{try{return(JSON.parse(v.data||"{}").pages||[]).length||1}catch(e){return 1}})(),by:v.by||"",byName:v.byName||"",ed:v.ed||"",edName:v.edName||"",_sz:(v.data||"").length+(v.thumb||"").length}})}
     if(this.kind==="db"){const q=await this.col().get();return q.docs.filter(s=>s.id.startsWith("d-")).map(s=>Object.assign({id:s.id},s.data()))}
     if(this.idb)return(await IDB.get("index"))||[];
     return lsGet("ed.designs",[])},
@@ -1096,7 +1103,7 @@ const store={kind:"local",db:null,uid:null,assets:null,downloads:null,idb:false,
     const hasSec=typeof d.sec==="string",hasFam=typeof d.fam==="string"&&!!d.fam;
     if(this.kind==="fb"){const me=fbMe();const o={name:rec.name||"",brand:rec.brand||"nummeros",w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,by:d.by||me.email,byName:d.by?(d.byName||""):me.name,ed:me.email,edName:me.name,data:JSON.stringify({pages:rec.pages,mm:rec.mm,folds:rec.folds})};if(hasSec)o.sec=d.sec;if(hasFam)o.fam=d.fam;await FB.m.setDoc(fbDoc("designs",d.id),o,{merge:true});return}
     if(this.kind==="db"){if(hasSec)rec.sec=d.sec;if(hasFam)rec.fam=d.fam;await this.col().doc(d.id).set(rec,{merge:true});return}
-    if(this.idb){const old=await IDB.get("d:"+d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||"";await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,sec:rec.sec,fam:rec.fam});await IDB.set("index",idx);return}
+    if(this.idb){const old=await IDB.get("d:"+d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||"";await IDB.set("d:"+d.id,rec);const idx=((await IDB.get("index"))||[]).filter(x=>x.id!==d.id);idx.unshift({id:d.id,name:rec.name,brand:rec.brand,w:rec.w,h:rec.h,thumb:rec.thumb,updated:rec.updated,sec:rec.sec,fam:rec.fam,np:(rec.pages||[]).length||1});await IDB.set("index",idx);return}
     {const old=lsGet("ed.designs",[]).find(x=>x.id===d.id);rec.sec=hasSec?d.sec:(old&&old.sec)||"";rec.fam=hasFam?d.fam:(old&&old.fam)||""}
     const all=lsGet("ed.designs",[]).filter(x=>x.id!==d.id);all.unshift(Object.assign({id:d.id},rec));localStorage.setItem("ed.designs",JSON.stringify(all.slice(0,30)))},
   async patch(id,o){if(this.kind==="fb"){await FB.m.updateDoc(fbDoc("designs",id),o);return}
@@ -1962,7 +1969,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
 /* ================== vista previa ================== */
 async function openPreview(doc,opt){opt=opt||{};if(S.editing)endEdit();const own=!doc||doc===S.doc,d=own?S.doc:doc;if(own)syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
   let i=d.pi;const v=document.createElement("div");v.className="pv";v.setAttribute("role","dialog");v.setAttribute("aria-modal","true");v.setAttribute("aria-label","Vista previa");
-  v.innerHTML=`<div class="pvstage"></div><div class="pvbar"><button type="button" data-a="prev" aria-label="Página anterior">‹</button><span></span><button type="button" data-a="next" aria-label="Página siguiente">›</button><button type="button" data-a="fs">Pantalla completa</button>${opt.onEdit?`<button type="button" data-a="edit" class="pvedit">Abrir para editar</button>`:""}<button type="button" data-a="close">Cerrar</button></div>`;
+  v.innerHTML=`<div class="pvstage"></div><div class="pvbar"><button type="button" data-a="prev" aria-label="Página anterior">‹</button><span></span><button type="button" data-a="next" aria-label="Página siguiente">›</button><button type="button" data-a="dl">Descargar</button><button type="button" data-a="sh">Compartir</button><button type="button" data-a="fs">Pantalla completa</button>${opt.onEdit?`<button type="button" data-a="edit" class="pvedit">Abrir para editar</button>`:""}<button type="button" data-a="close">Cerrar</button></div>`;
   document.body.appendChild(v);const st=v.querySelector(".pvstage"),lbl=v.querySelector(".pvbar span");
   const fit=()=>{const c=st.querySelector("canvas");if(!c)return;const sc=Math.min((innerWidth-48)/d.w,(innerHeight-48-v.querySelector(".pvbar").offsetHeight)/d.h);c.style.width=Math.round(d.w*sc)+"px";c.style.height=Math.round(d.h*sc)+"px"};
   const show=()=>{const k=Math.min(3,Math.max(screen.width,screen.height,innerWidth,innerHeight)*(devicePixelRatio||1)/Math.max(d.w,d.h));st.innerHTML="";st.appendChild(pageCanvas(d,d.pages[i],k));fit();
@@ -1972,7 +1979,7 @@ async function openPreview(doc,opt){opt=opt||{};if(S.editing)endEdit();const own
   const fs=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else if(v.requestFullscreen)v.requestFullscreen().catch(()=>toast("Tu navegador no permite pantalla completa aquí; la vista previa ya ocupa toda la ventana."))};
   const key=e=>{if(e.key==="Escape"&&!document.fullscreenElement){e.preventDefault();close()}else if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();if(i<d.pages.length-1){i++;show()}}else if(e.key==="ArrowLeft"){e.preventDefault();if(i>0){i--;show()}}e.stopPropagation()};
   document.addEventListener("keydown",key,true);
-  v.addEventListener("click",e=>{const a=e.target.closest("[data-a]");if(!a){if(e.target.tagName==="CANVAS"&&i<d.pages.length-1){i++;show()}return}const k=a.dataset.a;if(k==="edit"){close();opt.onEdit()}if(k==="close")close();if(k==="fs")fs();if(k==="prev"&&i>0){i--;show()}if(k==="next"&&i<d.pages.length-1){i++;show()}});
+  v.addEventListener("click",e=>{const a=e.target.closest("[data-a]");if(!a){if(e.target.tagName==="CANVAS"&&i<d.pages.length-1){i++;show()}return}const k=a.dataset.a;if(k==="dl"){downloadDesign(d,{cur:i})}if(k==="sh"){const pi=i;shareDialog(d.name,f=>buildExport(d,f,f==="pdf"?null:[pi]))}if(k==="edit"){close();opt.onEdit()}if(k==="close")close();if(k==="fs")fs();if(k==="prev"&&i>0){i--;show()}if(k==="next"&&i<d.pages.length-1){i++;show()}});
   document.addEventListener("fullscreenchange",()=>{const b=v.querySelector('[data-a="fs"]');if(b)b.textContent=document.fullscreenElement?"Salir de pantalla completa":"Pantalla completa"});
   /* swipe left or right to change page (iPad and phones) */
   let sx=null,sy=0;v.addEventListener("touchstart",e=>{if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY}},{passive:true});
@@ -2279,22 +2286,46 @@ $("#dl-share").onclick=()=>{dlMenu.hidden=true;if(S.editing)endEdit();syncPage()
 let JSPDF=null;
 function loadJsPDF(){return JSPDF||(JSPDF=new Promise((res,rej)=>{if(window.jspdf)return res(window.jspdf.jsPDF);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";sc.onload=()=>res(window.jspdf.jsPDF);sc.onerror=()=>{JSPDF=null;rej()};document.head.appendChild(sc)}))}
 function pageCanvas(d,P,k,noBg){const c=document.createElement("canvas");c.width=Math.round(d.w*k);c.height=Math.round(d.h*k);const x=c.getContext("2d");x.scale(k,k);drawDesign(x,{w:d.w,h:d.h,bg:P.bg,layers:P.layers},null,noBg);return c}
-async function buildExport(d,fmt){
-  await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.src).map(l=>ld(l.src)));await fontsReady;
+/* files for some pages of a design: images give one file per page, PDF and PowerPoint one file with those pages */
+async function buildFiles(d,fmt,pages){const all=d.pages.map((_,i)=>i);if(!pages||!pages.length)pages=(fmt==="pdf"||fmt==="pptx")?all:[d.pi||0];
+  pages=pages.filter(i=>i>=0&&i<d.pages.length);if(!pages.length)pages=[0];
+  await Promise.all(pages.flatMap(i=>d.pages[i].layers).filter(l=>l.src).map(l=>ld(l.src)));await fontsReady;
   const base=(d.name||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
-  let blob,fname;
-  if(fmt==="svg"){setStatus("Preparando el SVG…");const P=d.pages[d.pi];blob=new Blob([await toSVG(P.layers,{x:0,y:0,w:d.w,h:d.h},P.bg)],{type:"image/svg+xml"});fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+".svg";setStatus("")}
-  else if(fmt==="pngt"){const c=pageCanvas(d,d.pages[d.pi],1,true);blob=await new Promise(r=>c.toBlob(r,"image/png"));fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"-sin-fondo.png"}
-  else if(fmt==="pdf"){setStatus("Preparando el PDF…");let J;try{J=await loadJsPDF()}catch(e){setStatus("");toast("No se pudo cargar la herramienta de PDF. Revisa tu internet.");return null}
+  const multi=d.pages.length>1,sufx=i=>multi?"-pagina-"+(i+1):"",out=[];
+  if(fmt==="pdf"){setStatus("Preparando el PDF…");let J;try{J=await loadJsPDF()}catch(e){setStatus("");toast("No se pudo cargar la herramienta de PDF. Revisa tu internet.");return null}
     const k=d.mm?Math.min(2,4000/Math.max(d.w,d.h)):1;const W=d.mm?d.mm[0]:d.w*.75,H=d.mm?d.mm[1]:d.h*.75,unit=d.mm?"mm":"pt";
     const pdf=new J({orientation:W>H?"landscape":"portrait",unit,format:[W,H],compress:true});
-    d.pages.forEach((P,i)=>{if(i)pdf.addPage([W,H],W>H?"landscape":"portrait");pdf.addImage(pageCanvas(d,P,k).toDataURL("image/jpeg",.92),"JPEG",0,0,W,H,undefined,"FAST")});
-    blob=pdf.output("blob");fname=base+".pdf";setStatus("")}
-  else if(fmt==="pptx"){setStatus("Preparando el PowerPoint…");try{blob=await toPPTX(d);fname=base+".pptx"}catch(e){console.error(e);setStatus("");toast("No se pudo preparar el PowerPoint. Revisa tu internet.");return null}setStatus("")}
-  else{const c=pageCanvas(d,d.pages[d.pi],1);const type=fmt==="jpg"?"image/jpeg":"image/png";
-    try{blob=await new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(),type,.92))}catch(e){toast("No se pudo preparar la imagen.");return null}
-    fname=base+(d.pages.length>1?"-pagina-"+(d.pi+1):"")+"."+fmt}
-  return blob?{blob,fname}:null}
+    pages.forEach((pi,n)=>{if(n)pdf.addPage([W,H],W>H?"landscape":"portrait");pdf.addImage(pageCanvas(d,d.pages[pi],k).toDataURL("image/jpeg",.92),"JPEG",0,0,W,H,undefined,"FAST")});
+    out.push({blob:pdf.output("blob"),fname:base+(multi&&pages.length<d.pages.length?(pages.length===1?sufx(pages[0]):"-paginas-"+pages.map(i=>i+1).join("-")):"")+".pdf"});setStatus("");return out}
+  if(fmt==="pptx"){setStatus("Preparando el PowerPoint…");try{const dd=Object.assign({},d,{pages:pages.map(i=>d.pages[i]),pi:0});out.push({blob:await toPPTX(dd),fname:base+".pptx"})}catch(e){console.error(e);setStatus("");toast("No se pudo preparar el PowerPoint. Revisa tu internet.");return null}setStatus("");return out}
+  for(const pi of pages){const P=d.pages[pi];
+    if(fmt==="svg"){setStatus("Preparando el SVG…");out.push({blob:new Blob([await toSVG(P.layers,{x:0,y:0,w:d.w,h:d.h},P.bg)],{type:"image/svg+xml"}),fname:base+sufx(pi)+".svg"});setStatus("")}
+    else if(fmt==="pngt"){const c=pageCanvas(d,P,1,true);out.push({blob:await new Promise(r=>c.toBlob(r,"image/png")),fname:base+sufx(pi)+"-sin-fondo.png"})}
+    else{const c=pageCanvas(d,P,1),type=fmt==="jpg"?"image/jpeg":"image/png";let b;try{b=await new Promise((res,rej)=>c.toBlob(x=>x?res(x):rej(),type,.92))}catch(e){toast("No se pudo preparar la imagen.");return null}out.push({blob:b,fname:base+sufx(pi)+"."+fmt})}}
+  return out}
+async function buildExport(d,fmt,pages){const files=await buildFiles(d,fmt,pages);if(!files||!files.length)return null;if(files.length===1)return files[0];
+  let Z;try{Z=await loadZip()}catch(e){toast("No se pudo cargar la herramienta para comprimir. Revisa tu internet.");return null}
+  const zip=new Z();files.forEach(f=>zip.file(f.fname,f.blob));setStatus("Comprimiendo…");const blob=await zip.generateAsync({type:"blob"});setStatus("");
+  return{blob,fname:files[0].fname.replace(/-pagina-\d+(-sin-fondo)?\.[a-z]+$/i,"")+"-"+files.length+"-paginas.zip"}}
+const PG_FMT_N={png:"PNG",jpg:"JPG",pngt:"PNG sin fondo",svg:"SVG",pdf:"PDF",pptx:"PowerPoint"};
+/* asks which pages to download (all or some); one page designs skip the question */
+function downloadDesign(d,o){o=o||{};const n=d.pages.length,fixed=!!o.fmt;
+  if(fixed&&n<=1)return(async()=>{const r=await buildExport(d,o.fmt,[0]);if(r)await saveBlob(r.blob,r.fname,o.fmt)})();
+  let fmt=o.fmt||"png";const sel=new Set(o.cur!=null&&!["pdf","pptx"].includes(fmt)?[o.cur]:d.pages.map((_,i)=>i));
+  const v=showDialog("Descargar «"+(d.name||"Diseño")+"»",`${fixed?"":`<div class="f"><span>Formato</span><div class="chips dlfmt">${["png","jpg","pdf","svg","pptx"].map(k=>`<button type="button" data-df="${k}" aria-pressed="${k===fmt}">${PG_FMT_N[k]}</button>`).join("")}</div></div>`}
+    ${n>1?`<div class="f" style="margin-top:12px"><span>Páginas · el diseño tiene ${n}</span><div class="chips"><button type="button" id="dp-all">Todas</button><button type="button" id="dp-none">Ninguna</button></div><div class="dpages" id="dp-grid">${d.pages.map((P,i)=>`<label class="dpg"><input type="checkbox" data-pg="${i}"${sel.has(i)?" checked":""}><span class="dpic" data-pc="${i}"></span><small>Página ${i+1}${P.name?" · "+esc(P.name):""}</small></label>`).join("")}</div></div>`:""}
+    <p class="hint" id="dp-note" style="min-height:1.2em"></p>
+    <div class="row-end"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="button" id="dp-go">Descargar</button></div>`);
+  v.querySelector(".dlg").style.width="min(640px,100%)";
+  const note=()=>{const k=sel.size,img=!["pdf","pptx"].includes(fmt);v.querySelector("#dp-note").textContent=!k?"Elige al menos una página.":n<=1?"":img?(k>1?`Se descargan ${k} imágenes juntas en un archivo ZIP.`:"Se descarga una imagen."):`Un solo ${PG_FMT_N[fmt]} con ${k===n?"todas las páginas":k+" página"+(k>1?"s":"")}.`;v.querySelector("#dp-go").disabled=!k};
+  v.querySelectorAll("[data-df]").forEach(b=>b.onclick=()=>{fmt=b.dataset.df;v.querySelectorAll("[data-df]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));note()});
+  v.querySelectorAll("[data-pg]").forEach(c=>c.onchange=()=>{c.checked?sel.add(+c.dataset.pg):sel.delete(+c.dataset.pg);note()});
+  const setAll=on=>{v.querySelectorAll("[data-pg]").forEach(c=>{c.checked=on;on?sel.add(+c.dataset.pg):sel.delete(+c.dataset.pg)});note()};
+  v.querySelector("#dp-all")?.addEventListener("click",()=>setAll(true));v.querySelector("#dp-none")?.addEventListener("click",()=>setAll(false));
+  (async()=>{await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.src).map(l=>ld(l.src)));v.querySelectorAll("[data-pc]").forEach(el=>{const i=+el.dataset.pc,k=140/Math.max(d.w,d.h),c=pageCanvas(d,d.pages[i],k);el.appendChild(c)})})();
+  note();
+  v.querySelector("#dp-go").onclick=async()=>{const b=v.querySelector("#dp-go");b.disabled=true;b.textContent="Preparando…";const pages=[...sel].sort((a,b)=>a-b);
+    const r=await buildExport(d,fmt,pages);v.remove();if(r)await saveBlob(r.blob,r.fname,r.fname.endsWith(".zip")?"zip":fmt)}}
 async function saveBlob(blob,fname,fmt){fmt=fmt||fname.split('.').pop();
   if(store.downloads){try{await store.downloads.save({filename:fname,data:blob});toast(fmt==="pdf"?"PDF descargado":"Archivo descargado");return}catch(e){if(e&&e.code==="declined")return;if(e&&e.code==="rate_limited"){toast("Ya hay una descarga esperando tu confirmación.");return}}}
   const url=URL.createObjectURL(blob);
@@ -2303,6 +2334,7 @@ async function saveBlob(blob,fname,fmt){fmt=fmt||fname.split('.').pop();
 }
 async function exportImg(fmt){
   if(S.editing)endEdit();
+  if(!fmt.startsWith("sel-")&&S.doc.pages.length>1){syncPage();downloadDesign(S.doc,{fmt,cur:S.doc.pi||0});return}
   const d=S.doc;syncPage();await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.t==="img").map(l=>ld(l.src)));await fontsReady;
   const base=(d.name||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
   let blob,fname;
@@ -2351,7 +2383,7 @@ function paintHomeList(list){const box=$("#h-list"),pp=$("#h-people");if(!box)re
     pp.innerHTML=`<button type="button" class="all" data-who="all" aria-pressed="${HOME.who==="all"}">Todos</button>`+emails.map(e=>`<button type="button" data-who="${esc(e)}" aria-pressed="${HOME.who===e}" title="${esc(e)}">${avatar(e)}${e===me?"Míos":esc(personName(e))}</button>`).join("");
     pp.querySelectorAll("[data-who]").forEach(x=>x.onclick=()=>{HOME.who=x.dataset.who;paintHomeList(list)})}
   const L=list.filter(d=>HOME.who==="all"||(d.by||"")===HOME.who).slice(0,12);
-  box.innerHTML=L.length?`<div class="dgrid">${L.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy">`:""}<span class="eye">${IC_EYE} Ver</span></button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${whoLine(d)}${editingBadge(d.id)}</div></div>`).join("")}</div>${list.length>12&&HOME.who==="all"?`<p class="hint" style="margin-top:12px">Mostrando los 12 más recientes. <a href="#" id="h-more">Ver todos</a></p>`:""}`
+  box.innerHTML=L.length?`<div class="dgrid">${L.map((d,i)=>`<div class="dcard"><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy">`:""}<span class="eye">${IC_EYE} Ver</span></button><div class="meta"><b>${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${pgN(d)} · ${agoTxt(d.updated)}</small>${whoLine(d)}${editingBadge(d.id)}</div></div>`).join("")}</div>${list.length>12&&HOME.who==="all"?`<p class="hint" style="margin-top:12px">Mostrando los 12 más recientes. <a href="#" id="h-more">Ver todos</a></p>`:""}`
     :`<div class="hempty">${HOME.who==="all"?"Todavía no hay diseños guardados. Abre una plantilla y cámbiale algo: se guarda sola.":"Esta persona todavía no tiene diseños."}</div>`;
   box.querySelectorAll("[data-open]").forEach(x=>x.onclick=async()=>{if(await openStored(x.dataset.open))toEditor()});
   box.querySelectorAll("[data-view]").forEach(x=>x.onclick=()=>previewStored(x.dataset.view));
@@ -2370,6 +2402,7 @@ const SEC_DEF=[
 const CX={secs:null,sel:"all",list:null,who:"all",picked:new Set()};
 const IC_SIZES='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="7" width="9" height="13" rx="1.5"/><rect x="14" y="4" width="7" height="9" rx="1.5"/><rect x="14" y="15" width="7" height="5" rx="1"/></svg>';
 const IC_DL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+const pgN=d=>{const n=d.np||(d.pages&&d.pages.length)||1;return n+(n===1?" página":" páginas")};
 const IC_EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const IC_SHARE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>';
 const IC_TRASH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
@@ -2429,7 +2462,7 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   const isSub=CX.sel.includes("/");
   const famN=f=>{const x=FAMS.find(x=>x.fam===f);return x?x.items.length:0},isFamView=CX.sel==="fams"||CX.sel.startsWith("fam:");
   const card=d=>{const fn=d.fam?famN(d.fam):0;return`<div class="dcard${CX.picked.has(d.id)?" picked":""}" draggable="true" data-id="${esc(d.id)}"><label class="ck" title="Seleccionar"><input type="checkbox" data-pick="${esc(d.id)}"${CX.picked.has(d.id)?" checked":""} aria-label="Seleccionar ${esc(d.name)}"></label><span class="size">${esc(isFamView?sizeName(d):`${d.w}×${d.h}`)}</span><button type="button" class="pic" data-view="${esc(d.id)}" aria-label="Ver ${esc(d.name)}" title="Ver sin abrir">${d.thumb?`<img src="${d.thumb}" alt="" loading="lazy" draggable="false">`:""}<span class="eye">${IC_EYE} Ver</span></button>
-      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}${editingBadge(d.id)}</div>
+      <div class="meta"><b title="${esc(d.name)}">${esc(d.name)}</b><small>${BR[d.brand]?BR[d.brand].name:""} · ${pgN(d)} · ${agoTxt(d.updated)}</small>${CX.sel==="all"||isFamView?`<span class="cx-tag">${esc(secLabel(secValid(d.sec||"")))}</span>`:""}${fn>1&&!isFamView?`<button type="button" class="famtag" data-fam="${esc(d.fam)}">${IC_SIZES.replace('<svg','<svg style="width:11px;height:11px;vertical-align:-1px"')} En ${fn} tamaños</button>`:""}${whoLine(d)}${editingBadge(d.id)}</div>
       <label class="mv st"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap"><i class="stdot st-${stOf(d)}"></i> Estado</span><select data-stsel="${esc(d.id)}" aria-label="Estado de ${esc(d.name)}">${ST_K.map(k=>`<option value="${k}"${stOf(d)===k?" selected":""}>${ST_N[k]}</option>`).join("")}</select></label>
       <label class="mv"><span class="hint" style="margin:0;font-size:11.5px;white-space:nowrap">Mover a</span><select data-mv="${esc(d.id)}" aria-label="Mover ${esc(d.name)} a otro apartado">${secOptions(secValid(d.sec||""))}</select></label>
       <div class="acts2"><button type="button" class="open" data-open="${esc(d.id)}" title="Abrir en el editor">Abrir</button><select data-dl="${esc(d.id)}" aria-label="Descargar ${esc(d.name)}"><option value="">Descargar…</option>${DL_FMT.map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select><button type="button" data-share="${esc(d.id)}" title="Compartir por WhatsApp o Telegram" aria-label="Compartir">${IC_SHARE}</button>${isFB?`<select data-more="${esc(d.id)}" aria-label="Más opciones" class="more"><option value="">⋯</option><option value="ver">Versiones anteriores</option><option value="tpl">Guardar como plantilla del equipo</option></select>`:""}<button type="button" class="del" data-del="${esc(d.id)}" title="Eliminar diseño" aria-label="Eliminar">${IC_TRASH}</button></div></div>`};
@@ -2447,7 +2480,7 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   main.querySelectorAll("[data-more]").forEach(x=>x.onchange=()=>{const v=x.value;x.value="";const d=L.find(d=>d.id===x.dataset.more);if(!d)return;if(v==="ver")versionsDialog(d);if(v==="tpl")saveAsTemplate(d.id)});
   main.querySelectorAll("[data-fam]").forEach(x=>x.onclick=()=>{CX.sel="fam:"+x.dataset.fam;paintCarpetas()});
   main.querySelectorAll("[data-pick]").forEach(x=>x.onchange=()=>{x.checked?CX.picked.add(x.dataset.pick):CX.picked.delete(x.dataset.pick);paintCarpetas()});
-  main.querySelectorAll("[data-dl]").forEach(x=>x.onchange=async()=>{const f=x.value;x.value="";if(!f)return;x.disabled=true;const r=await exportStored(x.dataset.dl,f);x.disabled=false;if(r)await saveBlob(r.blob,r.fname,f)});
+  main.querySelectorAll("[data-dl]").forEach(x=>x.onchange=async()=>{const f=x.value;x.value="";if(!f)return;x.disabled=true;if(S.doc&&S.doc.id===x.dataset.dl&&S.dirty)await saveNow();const d=await storedDoc(x.dataset.dl);x.disabled=false;if(!d){toast("No se pudo abrir ese diseño.");return}downloadDesign(d,{fmt:f})});
   main.querySelectorAll("[data-share]").forEach(x=>x.onclick=()=>{const d=L.find(d=>d.id===x.dataset.share);if(d)shareDialog(d.name,f=>exportStored(d.id,f))});
   main.querySelectorAll("[data-del]").forEach(x=>x.onclick=()=>deleteDesigns([x.dataset.del],paintCarpetas));
   if(np){const ids=()=>[...CX.picked];
@@ -2639,13 +2672,14 @@ const sizeName=d=>{const z=SIZES.find(z=>z[2]===d.w&&z[3]===d.h);return z?z[1]:`
 const fileBase=n=>(n||"diseno").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/gi,"-").replace(/^-|-$/g,"").toLowerCase()||"diseno";
 async function storedDoc(id){let x=null;try{x=await store.get(id)}catch(e){}if(!x)return null;const d=fromRecord(id,x);d.pi=0;normDoc(d);return d}
 async function exportStored(id,fmt){if(S.doc&&S.doc.id===id&&S.dirty)await saveNow();setStatus("Preparando la descarga…");const d=await storedDoc(id);if(!d){setStatus("");toast("No se pudo abrir ese diseño.");return null}
-  const r=await buildExport(d,fmt);setStatus("");return r}
+  const r=await buildExport(d,fmt,fmt==="pdf"||fmt==="pptx"?null:d.pages.map((_,i)=>i));setStatus("");return r}
 let JSZIPP=null;
 function loadZip(){return JSZIPP||(JSZIPP=new Promise((res,rej)=>{if(window.JSZip)return res(window.JSZip);const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";sc.onload=()=>res(window.JSZip);sc.onerror=()=>{JSZIPP=null;rej()};document.head.appendChild(sc)}))}
-async function downloadMany(ids,fmt){if(!ids.length)return;if(ids.length===1){const r=await exportStored(ids[0],fmt);if(r)await saveBlob(r.blob,r.fname,fmt);return}
+async function downloadMany(ids,fmt){if(!ids.length)return;if(ids.length===1){const d=await storedDoc(ids[0]);if(d)await downloadDesign(d,{fmt});return}
   let Z;try{Z=await loadZip()}catch(e){toast("No se pudo cargar la herramienta para comprimir. Revisa tu internet.");return}
   const zip=new Z(),used=new Set();let n=0;
-  for(const id of ids){setStatus(`Preparando ${n+1} de ${ids.length}…`);const r=await exportStored(id,fmt);if(!r)continue;let f=r.fname,i=2;while(used.has(f)){f=r.fname.replace(/(\.[a-z0-9]+)$/i,`-${i++}$1`)}used.add(f);zip.file(f,r.blob);n++}
+  for(const id of ids){setStatus(`Preparando ${n+1} de ${ids.length}…`);const d=await storedDoc(id);if(!d)continue;const fs=await buildFiles(d,fmt,fmt==="pdf"||fmt==="pptx"?null:d.pages.map((_,i)=>i));if(!fs)continue;
+    for(const r of fs){let f=r.fname,i=2;while(used.has(f)){f=r.fname.replace(/(\.[a-z0-9]+)$/i,`-${i++}$1`)}used.add(f);zip.file(f,r.blob)}n++}
   setStatus("Comprimiendo…");const blob=await zip.generateAsync({type:"blob"});setStatus("");
   await saveBlob(blob,`edithor-${n}-disenos-${fmt}.zip`,"zip")}
 function deleteDesigns(ids,after){const L=(CX.list||[]).filter(d=>ids.includes(d.id));if(!L.length)return;

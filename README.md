@@ -26,6 +26,7 @@
 - **Menús al pasar el cursor**: las pestañas de los lados, Descargar y el tema se muestran al pasar el cursor; un clic los deja fijos.
 - **Borde rojo**: una línea roja marca el borde del diseño por fuera, y lo que se sale del borde se ve apagado (no sale en las descargas; se apaga en las opciones de la cuadrícula).
 - **Seleccionar** (botón abajo): tocar y mover elementos sin que se abran la barra de opciones ni los paneles; al apagarlo, los menús vuelven.
+- **Páginas y descargas**: cada diseño muestra cuántas páginas tiene. Al descargar un diseño con varias páginas se eligen el formato y qué páginas bajar (todas o algunas); varias imágenes llegan juntas en un ZIP. La vista previa también tiene **Descargar** y **Compartir**.
 - **Cuadrícula** (botón abajo o ⌘ + '): fina, media o gruesa, con líneas del centro y opción de pegar los elementos a la cuadrícula. No sale en las descargas.
 - **Vista previa en pantalla completa**, con flechas para pasar las páginas.
 - El lienzo no se escapa de la pantalla: el diseño queda centrado y solo se desplaza cuando está ampliado.
