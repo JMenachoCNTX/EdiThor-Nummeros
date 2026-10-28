@@ -1,7 +1,12 @@
 {
- "v": 35,
+ "v": 36,
  "fecha": "2026-10-28",
  "notas": [
+  {
+   "v": 36,
+   "fecha": "2026-10-28",
+   "texto": "Listas en los textos: puntos, guiones, números, incisos y romanos"
+  },
   {
    "v": 35,
    "fecha": "2026-10-28",

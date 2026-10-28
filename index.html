@@ -775,20 +775,28 @@ const MC=document.createElement("canvas").getContext("2d");
 const HAS_LS="letterSpacing" in MC;
 function fontStr(L,s){const f=FONTS[L.font]||FONTS.Questrial;return `${L.weight||400} ${s??L.size}px ${f.css}`}
 function setFont(ctx,L){ctx.font=fontStr(L);if(HAS_LS)ctx.letterSpacing=((L.ls||0)*L.size)+"px"}
+const LISTS=[["","Sin lista"],["bullet","• Puntos"],["dash","– Guiones"],["num","1. Números"],["alpha","a) Incisos"],["roman","i. Romanos"]];
+function toRoman(n){const v=[[1000,"m"],[900,"cm"],[500,"d"],[400,"cd"],[100,"c"],[90,"xc"],[50,"l"],[40,"xl"],[10,"x"],[9,"ix"],[5,"v"],[4,"iv"],[1,"i"]];let s="";for(const [a,r] of v)while(n>=a){s+=r;n-=a}return s}
+function listMark(k,i){if(k==="bullet")return"•";if(k==="dash")return"–";if(k==="num")return(i+1)+".";if(k==="roman")return toRoman(i+1)+".";
+  if(k==="alpha"){let s="",n=i;do{s=String.fromCharCode(97+n%26)+s;n=Math.floor(n/26)-1}while(n>=0);return s+")"}return""}
 function layoutText(L){
   setFont(MC,L);
   const raw=L.upper?String(L.txt).toUpperCase():String(L.txt);
   const px=L.px||0,py=L.py||0;
-  const maxW=L.autoW?Infinity:Math.max(10,L.w-px*2);
-  const lines=[],ends=[];
-  for(const para of raw.split("\n")){
+  /* listas: puntos, números o incisos. Cada párrafo con texto lleva su marca y una sangría */
+  const paras=raw.split("\n");let n=0;const pm=paras.map(t=>t.trim()&&L.list?listMark(L.list,n++):"");
+  let ind=0;if(L.list){ind=Math.max(...pm.map(m=>m?MC.measureText(m).width:0))+L.size*.45}
+  const maxW=L.autoW?Infinity:Math.max(10,L.w-px*2-ind);
+  const lines=[],ends=[],marks=[];
+  paras.forEach((para,pi)=>{
     const words=para.split(/ +/);let line="";
-    if(!para){lines.push("");ends.push(true);continue}
-    for(const w of words){const test=line?line+" "+w:w;if(line&&MC.measureText(test).width>maxW){lines.push(line);ends.push(false);line=w}else line=test}
-    lines.push(line);ends.push(true);
-  }
+    if(!para){lines.push("");ends.push(true);marks.push("");return}
+    let first=true;for(const w of words){const test=line?line+" "+w:w;if(line&&MC.measureText(test).width>maxW){lines.push(line);ends.push(false);marks.push(first?pm[pi]:"");first=false;line=w}else line=test}
+    lines.push(line);ends.push(true);marks.push(first?pm[pi]:"");
+  });
   const widths=lines.map(l=>MC.measureText(l).width);
-  if(L.autoW)L.w=Math.ceil(Math.max(10,...widths)+px*2);
+  L._ind=ind;L._marks=marks;
+  if(L.autoW)L.w=Math.ceil(Math.max(10,...widths)+px*2+ind);
   L.h=Math.ceil(lines.length*L.size*(L.lh||1.2)+py*2);
   L._lines=lines;L._widths=widths;L._ends=ends;
 }
@@ -826,9 +834,10 @@ function drawLayer(ctx,L,editingId){
     if(L.bg){rr(ctx,x,y,L.w,L.h,L.rad);ctx.fillStyle=L.bg;ctx.fill()}
     if(L.id!==editingId){
       setFont(ctx,L);ctx.fillStyle=L.color;ctx.textBaseline="alphabetic";
-      const lh=L.size*(L.lh||1.2),px=L.px||0,py=L.py||0,inner=L.w-px*2;
-      L._lines.forEach((ln,i)=>{const lw=L._widths[i];let tx=x+px;if(L.align==="center")tx=x+px+(inner-lw)/2;else if(L.align==="right")tx=x+px+inner-lw;
-        const base=y+py+i*lh+(lh-L.size)/2+L.size*.8;const J=justWords(L,i,x+px,inner);if(J){setFont(ctx,L);J.forEach(([w,wx])=>ctx.fillText(w,wx,base))}else ctx.fillText(ln,tx,base)});
+      const lh=L.size*(L.lh||1.2),px=L.px||0,py=L.py||0,ind=L._ind||0,x0=x+px+ind,inner=L.w-px*2-ind;
+      L._lines.forEach((ln,i)=>{const lw=L._widths[i];let tx=x0;if(L.align==="center")tx=x0+(inner-lw)/2;else if(L.align==="right")tx=x0+inner-lw;
+        const base=y+py+i*lh+(lh-L.size)/2+L.size*.8;const J=justWords(L,i,x0,inner);if(J){setFont(ctx,L);J.forEach(([w,wx])=>ctx.fillText(w,wx,base))}else ctx.fillText(ln,tx,base);
+        const mk=L._marks&&L._marks[i];if(mk){const sx=(J?x0:tx)-L.size*.45;ctx.textAlign="right";ctx.fillText(mk,sx,base);ctx.textAlign="left"}});
     }
   }
   ctx.restore();
@@ -1286,7 +1295,7 @@ async function loadTeam(){if(store.kind!=="fb")return TEAM;try{const q=await FB.
 /* ===== versión de EdiThor =====
    Cada actualización sube APP_VER (con herramientas/nueva-version.py) y version.json.
    La app revisa version.json cada 5 minutos y al volver a la pestaña; si hay una más nueva, avisa. */
-const APP_VER=35;const VERI={remote:null,notas:null,shown:0};
+const APP_VER=36;const VERI={remote:null,notas:null,shown:0};
 function paintVer(){const b=$("#app-ver");if(!b)return;const nv=VERI.remote&&VERI.remote>APP_VER;b.textContent="v"+APP_VER+(nv?" · hay nueva":"");b.classList.toggle("new",!!nv);
   b.title=nv?`Estás en la versión ${APP_VER}. Ya existe la versión ${VERI.remote}: toca para actualizar.`:(VERI.remote?`Versión ${APP_VER} · es la última. Toca para ver las novedades.`:`Versión ${APP_VER} · toca para ver las novedades.`)}
 async function checkVersion(){try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;const j=await r.json();VERI.remote=+j.v||null;VERI.notas=j.notas||[];paintVer();
@@ -1601,7 +1610,7 @@ function startEdit(id){const L=S.doc.layers.find(l=>l.id===id);if(!L)return;sele
   ta.addEventListener("blur",()=>endEdit());
   placeEditor();ta.focus();ta.select();requestRender()}
 function placeEditor(){const L=S.doc.layers.find(l=>l.id===S.editing);if(!L||!ta)return;layoutText(L);const b=scr(L);const s=V.sc;
-  Object.assign(ta.style,{left:b.x+"px",top:b.y+"px",width:Math.max(b.w,40)+"px",height:(b.h+2)+"px",font:fontStr(L,L.size*s),lineHeight:String(L.lh||1.2),color:L.color,textAlign:L.align,letterSpacing:((L.ls||0)*L.size*s)+"px",textTransform:L.upper?"uppercase":"none",padding:`${(L.py||0)*s}px ${(L.px||0)*s}px`,borderRadius:(L.rad||0)*s+"px",whiteSpace:L.autoW?"pre":"pre-wrap",transformOrigin:"50% 50%",transform:L.rot?`rotate(${L.rot}deg)`:"none"})}
+  Object.assign(ta.style,{left:b.x+"px",top:b.y+"px",width:Math.max(b.w,40)+"px",height:(b.h+2)+"px",font:fontStr(L,L.size*s),lineHeight:String(L.lh||1.2),color:L.color,textAlign:L.align,letterSpacing:((L.ls||0)*L.size*s)+"px",textTransform:L.upper?"uppercase":"none",padding:`${(L.py||0)*s}px ${(L.px||0)*s}px ${(L.py||0)*s}px ${((L.px||0)+(L._ind||0))*s}px`,borderRadius:(L.rad||0)*s+"px",whiteSpace:L.autoW?"pre":"pre-wrap",transformOrigin:"50% 50%",transform:L.rot?`rotate(${L.rot}deg)`:"none"})}
 function endEdit(){if(!S.editing)return;const t=ta;ta=null;S.editing=null;if(t)t.remove();commit();renderProps();requestRender()}
 
 /* keyboard */
@@ -2139,7 +2148,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
     h=`<select id="cx-font" aria-label="Letra">${Object.entries(FONTS).map(([k,f])=>`<option value="${esc(k)}"${k===L.font?" selected":""}>${esc(k==="Adventor CX"?"Century Gothic":k)}</option>`).join("")}</select>`
       +tb("smaller","−","Achicar letra")+`<input class="num" id="cx-fsize" type="number" inputmode="decimal" min="4" max="3000" step="1" value="${round(L.size)}" title="Tamaño de la letra: escribe un número" aria-label="Tamaño de la letra">`+tb("bigger","+","Agrandar letra")+sep
       +tb("bold","<b>B</b>","Negrita","",` aria-pressed="${+L.weight>=600}"`)+tb("upper","AA","Mayúsculas","",` aria-pressed="${!!L.upper}"`)
-      +tb("align",ICON[L.align]||ICON.left,"Alineación del texto")+tb("color",chipC(L.color),"Color del texto",""," data-pop")+tb("tbg",chipC(L.bg),"Fondo del texto",""," data-pop")+sep+tb("edit","Escribir","Escribir sobre el texto")+common()}
+      +tb("align",ICON[L.align]||ICON.left,"Alineación del texto")+tb("list",ICON.list+(L.list?" "+esc(listMark(L.list,0)):""),"Lista: puntos, números o incisos",L.list?"on":""," data-pop")+tb("color",chipC(L.color),"Color del texto",""," data-pop")+tb("tbg",chipC(L.bg),"Fondo del texto",""," data-pop")+sep+tb("edit","Escribir","Escribir sobre el texto")+common()}
   else if(L&&L.t==="img"){
     h=tb("crop",TB.crop+"Recortar","Recortar (doble clic)")+tb("nobg",TB.nobg+"Quitar fondo","Quitar fondo (gratis)")+tb("replace","Cambiar","Cambiar imagen")
       +tb("fit",L.fit==="contain"?"Imagen completa":"Rellenar marco","Cambiar entre rellenar el marco y ver la imagen completa")+common()}
@@ -2154,6 +2163,7 @@ function renderCtx(){const bar=$("#ctxbar");if(!bar||!S.doc)return;closePop();if
   on("group",groupSel);on("ungroup",ungroupSel);on("flat",flattenSel);
   on("align",b=>{if(L&&L.t==="text"){L.align={left:"center",center:"right",right:"justify",justify:"left"}[L.align]||"left";upd();return}
     pop(b,`<div class="chips">${Object.keys(AL_ICON).map(k=>`<button type="button" data-al2="${k}" title="${AL_NAME[k]}" aria-label="Alinear ${AL_NAME[k]}">${AL_ICON[k]}</button>`).join("")}</div>`,d=>d.querySelectorAll("[data-al2]").forEach(x=>x.onclick=()=>{closePop();alignSel(x.dataset.al2)}))});
+  on("list",b=>pop(b,`<div style="display:grid;gap:6px;min-width:200px"><b style="font-size:13px">Lista</b>${LISTS.map(([k,n])=>`<button type="button" class="btn" data-ls2="${k}" aria-pressed="${(L.list||"")===k}" style="justify-content:flex-start${(L.list||"")===k?";border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)":""}">${esc(n)}</button>`).join("")}<p class="hint" style="margin:0">Cada renglón (Enter) es un punto.</p></div>`,d=>d.querySelectorAll("[data-ls2]").forEach(x=>x.onclick=()=>{closePop();setList(L,x.dataset.ls2);renderProps()})));
   on("cropdone",endCrop);on("cropreset",()=>{L.z=1;L.fx=.5;L.fy=.5;upd()});
   const fz=$("#cx-font");if(fz)fz.onchange=e=>{L.font=e.target.value;const F=FONTS[L.font];if(!F.w.includes(+L.weight))L.weight=F.w.includes(700)?700:F.w[0];upd()};
   const fsz=$("#cx-fsize");if(fsz){const ap=()=>{const v=+fsz.value;if(fsz.isConnected&&v>=1&&round(v)!==L.size){L.size=Math.min(3000,Math.max(4,round(v)));upd()}};fsz.onchange=ap;fsz.onkeydown=e=>{e.stopPropagation();if(e.key==="Enter"){e.preventDefault();ap();fsz.blur()}};fsz.onfocus=()=>fsz.select()}
@@ -2225,10 +2235,11 @@ async function toSVG(layers,box,bg){await fontsReady;const out=[],defs=[],fams=n
     else if(L.t==="dev"){await (L.src?ld(L.src):null);g.push(`<image href="${layerPNG(L,2)}" x="${num1(L.x)}" y="${num1(L.y)}" width="${num1(L.w)}" height="${num1(L.h)}"/>`)}
     else if(L.t==="text"){layoutText(L);const F=FONTS[L.font]||FONTS.Questrial;if(FONTFILES[L.font])(fams.get(L.font)||fams.set(L.font,new Set()).get(L.font)).add(+L.weight);
       if(L.bg)g.push(`<path d="${rrPath(L.x,L.y,L.w,L.h,L.rad)}" fill="${L.bg}"/>`);
-      const lh=L.size*(L.lh||1.2),px=L.px||0,py=L.py||0,inner=L.w-px*2;
-      L._lines.forEach((ln,i)=>{if(!ln)return;const lw=L._widths[i];let tx=L.x+px;if(L.align==="center")tx=L.x+px+(inner-lw)/2;else if(L.align==="right")tx=L.x+px+inner-lw;
-        const base=L.y+py+i*lh+(lh-L.size)/2+L.size*.8;const tt=(t,xx)=>`<text x="${num1(xx)}" y="${num1(base)}" font-family="${esc(F.css)}" font-size="${L.size}" font-weight="${L.weight||400}" fill="${L.color}"${L.ls?` letter-spacing="${num1(L.ls*L.size)}"`:""} xml:space="preserve">${esc(t)}</text>`;
-        const J=justWords(L,i,L.x+px,inner);if(J)J.forEach(([w,wx])=>g.push(tt(w,wx)));else g.push(tt(ln,tx))})}
+      const lh=L.size*(L.lh||1.2),px=L.px||0,py=L.py||0,ind=L._ind||0,x0=L.x+px+ind,inner=L.w-px*2-ind;
+      L._lines.forEach((ln,i)=>{if(!ln)return;const lw=L._widths[i];let tx=x0;if(L.align==="center")tx=x0+(inner-lw)/2;else if(L.align==="right")tx=x0+inner-lw;
+        const base=L.y+py+i*lh+(lh-L.size)/2+L.size*.8;const tt=(t,xx,anc)=>`<text x="${num1(xx)}" y="${num1(base)}"${anc?` text-anchor="end"`:""} font-family="${esc(F.css)}" font-size="${L.size}" font-weight="${L.weight||400}" fill="${L.color}"${L.ls&&!anc?` letter-spacing="${num1(L.ls*L.size)}"`:""} xml:space="preserve">${esc(t)}</text>`;
+        const J=justWords(L,i,x0,inner);if(J)J.forEach(([w,wx])=>g.push(tt(w,wx)));else g.push(tt(ln,tx));
+        const mk=L._marks&&L._marks[i];if(mk)g.push(tt(mk,(J?x0:tx)-L.size*.45,1))})}
     if(!g.length)continue;if(L.rot){const t=`<g transform="rotate(${L.rot} ${num1(L.x+L.w/2)} ${num1(L.y+L.h/2)})">${g.join("")}</g>`;g.length=0;g.push(t)}
     out.push((L.op??1)<1?`<g opacity="${L.op}">${g.join("")}</g>`:g.join(""))}
   let css="";for(const [fam,ws] of fams){for(const [w,path] of FONTFILES[fam]){if(![...ws].some(x=>Math.abs(x-w)<=100))continue;try{css+=`@font-face{font-family:"${fam}";font-weight:${w};src:url(data:font/woff2;base64,${await fontB64(path)}) format("woff2")}`}catch(e){}}}
@@ -2343,7 +2354,7 @@ async function removeBg(L,withAI){
   bgBusy=false;btns.forEach(b=>b.disabled=false)}
 
 /* ================== properties panel ================== */
-const ICON={left:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="9" height="2"/><rect x="1" y="12" width="12" height="2"/></svg>',center:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="3.5" y="7" width="9" height="2"/><rect x="2" y="12" width="12" height="2"/></svg>',right:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="6" y="7" width="9" height="2"/><rect x="3" y="12" width="12" height="2"/></svg>',justify:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="14" height="2"/><rect x="1" y="12" width="14" height="2"/></svg>',
+const ICON={list:'<svg viewBox="0 0 16 16" fill="currentColor"><circle cx="2.5" cy="3.5" r="1.4"/><circle cx="2.5" cy="8" r="1.4"/><circle cx="2.5" cy="12.5" r="1.4"/><rect x="6" y="2.7" width="9" height="1.6"/><rect x="6" y="7.2" width="9" height="1.6"/><rect x="6" y="11.7" width="9" height="1.6"/></svg>',left:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="9" height="2"/><rect x="1" y="12" width="12" height="2"/></svg>',center:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="3.5" y="7" width="9" height="2"/><rect x="2" y="12" width="12" height="2"/></svg>',right:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="6" y="7" width="9" height="2"/><rect x="3" y="12" width="12" height="2"/></svg>',justify:'<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="2" width="14" height="2"/><rect x="1" y="7" width="14" height="2"/><rect x="1" y="12" width="14" height="2"/></svg>',
   eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',eyeoff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/></svg>',
   lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',unlock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.6-1.7"/></svg>'};
 function swatches(id,val,allowNone){const pal=BR[S.brand].pal;const extra=val&&!pal.includes(val.toUpperCase())?[val.toUpperCase()]:[];
@@ -2397,6 +2408,7 @@ function renderPropsMain(){
       <div class="row">${num("p-size","Tamaño",L.size,1,4)}<label class="f"><span>Grosor</span><select id="p-weight">${[[400,"Normal"],[600,"Semi negrita"],[700,"Negrita"]].map(([w,n])=>`<option value="${w}"${+L.weight===w?" selected":""}${F.w.includes(w)?"":" disabled"}>${n}</option>`).join("")}</select></label></div>
       <div class="row"><div class="f"><span>Alineación</span><div class="chips">${["left","center","right","justify"].map(a=>`<button type="button" data-al="${a}" aria-pressed="${L.align===a}" aria-label="${{left:"Izquierda",center:"Centro",right:"Derecha",justify:"Justificado"}[a]}" title="${{left:"Izquierda",center:"Centro",right:"Derecha",justify:"Justificado"}[a]}">${ICON[a]}</button>`).join("")}</div></div>
         <div class="f"><span>Estilo</span><div class="chips"><button type="button" id="p-upper" aria-pressed="${!!L.upper}" title="Mayúsculas">AA</button></div></div></div>
+      <div class="row one"><div class="f"><span>Lista (cada renglón es un punto)</span><div class="chips">${LISTS.map(([k,n])=>`<button type="button" data-ls="${k}" aria-pressed="${(L.list||"")===k}">${esc(n)}</button>`).join("")}</div></div></div>
       <h3>Color del texto</h3>${swatches("color",L.color)}
       <h3>Espaciado</h3><div class="row">${rng("p-lh","Interlineado",L.lh||1.2,.8,2.2,.02)}${rng("p-ls","Entre letras",L.ls||0,-.05,.5,.01)}</div>
       <h3>Fondo del texto</h3>${swatches("tbg",L.bg,true)}
@@ -2443,6 +2455,7 @@ function renderPropsMain(){
   on("p-weight","change",e=>{L.weight=+e.target.value;commit();requestRender()});
   document.querySelectorAll("[data-al]").forEach(b=>b.onclick=()=>{L.align=b.dataset.al;commit();renderProps();requestRender()});
   on("p-upper","click",()=>{L.upper=!L.upper;commit();renderProps();requestRender()});
+  document.querySelectorAll("[data-ls]").forEach(b=>b.onclick=()=>{setList(L,b.dataset.ls);renderProps()});
   ["lh","ls","fx","fy","op","z","margin"].forEach(k=>{on("p-"+k,"input",e=>{live(()=>L[k]=+e.target.value);const o=$("#p-"+k+"-v");if(o)o.textContent=e.target.value});on("p-"+k,"change",commit)});
   ["px","py","rad","sw"].forEach(k=>{on("p-"+k,"input",e=>live(()=>L[k]=Math.max(0,+e.target.value||0)));on("p-"+k,"change",commit)});
   ["x","y","w","h"].forEach(k=>{on("p-"+k,"input",e=>live(()=>{L[k]=+e.target.value||0;if(k==="w"&&L.t==="text")L.autoW=false}));on("p-"+k,"change",()=>{commit();if(k==="w")renderProps()})});
@@ -2472,6 +2485,8 @@ function bindSw(id,fn,rerender){const box=document.querySelector(`[data-sw="${id
   box.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{fn(b.dataset.c);commit();renderProps();requestRender()});
   const cc=box.querySelector("[data-cc]");if(cc){cc.addEventListener("input",e=>{fn(e.target.value.toUpperCase());requestRender()});cc.addEventListener("change",()=>{commit();renderProps()})}}
 function setThick(L,v){v=Math.max(.5,Math.round((+v||1)*2)/2);if(L.w>=L.h){const cy=L.y+L.h/2;L.h=v;L.y=Math.round((cy-v/2)*2)/2}else{const cx=L.x+L.w/2;L.w=v;L.x=Math.round((cx-v/2)*2)/2}}
+function setList(L,k){L.list=k||"";if(L.list&&L.align==="center")L.align="left";layoutText(L);commit();requestRender();if(S.editing===L.id)placeEditor();
+  if(L.list&&!String(L.txt).includes("\n"))toast("Escribe cada punto en un renglón nuevo (Enter)",3200)}
 function syncGeom(){const L=selL();if(!L)return;["x","y","w"].forEach(k=>{const i=$("#p-"+k);if(i&&document.activeElement!==i)i.value=round(L[k])});const hI=$("#p-h");if(hI&&document.activeElement!==hI)hI.value=round(L.h)}
 const KIND={text:"Texto",img:"Imagen",rect:"Forma",ellipse:"Círculo",n:"La N",iso:"Isotipo",qr:"QR",dev:"Mockup"};
 const fullPanels=()=>!isCompact();
@@ -2908,7 +2923,8 @@ async function toPPTX(d){const Pptx=await loadPptx(),P=new Pptx(),k=1/144;
     else if(Pg.bg){const c=document.createElement("canvas");c.width=Math.round(d.w/2);c.height=Math.round(d.h/2);const x=c.getContext("2d");x.scale(.5,.5);drawDesign(x,{w:d.w,h:d.h,bg:Pg.bg,layers:[]});sl.background={data:c.toDataURL("image/png")}}
     for(const L of Pg.layers){if(L.hide)continue;const box={x:L.x*k,y:L.y*k,w:Math.max(.01,L.w*k),h:Math.max(.01,L.h*k)};if(L.rot)box.rotate=L.rot;const tr=Math.round((1-(L.op??1))*100);
       if(L.t==="text"){layoutText(L);box.h=Math.max(.01,L.h*k);const col=hex6(L.color)||"000000",fb=hex6(L.bg);
-        sl.addText(L.upper?String(L.txt).toUpperCase():String(L.txt),Object.assign({},box,{fontFace:PPT_FONT[L.font]||L.font,fontSize:Math.max(1,L.size/2),color:col,bold:(+L.weight||400)>=600,
+        let tx0=L.upper?String(L.txt).toUpperCase():String(L.txt);if(L.list){let n=0;tx0=tx0.split("\n").map(t=>t.trim()?listMark(L.list,n++)+" "+t:t).join("\n")}
+        sl.addText(tx0,Object.assign({},box,{fontFace:PPT_FONT[L.font]||L.font,fontSize:Math.max(1,L.size/2),color:col,bold:(+L.weight||400)>=600,
           align:L.align==="justify"?"justify":(L.align||"left"),valign:"top",lineSpacingMultiple:L.lh||1.2,charSpacing:L.ls?L.ls*L.size/2:0,margin:[(L.px||0)/2,(L.px||0)/2,(L.py||0)/2,(L.py||0)/2].map(v=>Math.max(0,v)),
           fit:"none",wrap:true,isTextBox:true},fb?{fill:{color:fb}}:{}));continue}
       const fill=hex6(L.fill);

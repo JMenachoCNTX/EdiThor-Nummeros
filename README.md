@@ -128,3 +128,9 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 
 - Las partes transparentes de una imagen PNG (logos, ilustraciones) y el centro vacío de un marco ya no tapan lo que está debajo: si tocas un texto que tiene encima un logo transparente, se elige el texto y se abre su menú.
 - Si un elemento tapa a otro, tocar otra vez el mismo lugar (sin arrastrar) elige el de abajo.
+
+## Listas en los textos
+
+- Botón de lista en la barra del texto (y «Lista» en el panel): Sin lista · Puntos (•) · Guiones (–) · Números (1. 2. 3.) · Incisos (a) b) c)) · Romanos (i. ii. iii.).
+- Cada renglón (Enter) es un punto; los renglones vacíos no llevan marca. La marca queda colgando a la izquierda y el texto se alinea con sangría.
+- Se exporta igual en PNG, JPG, PDF y SVG; en PowerPoint la marca va al inicio de cada renglón.
