@@ -108,3 +108,12 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 - Al descargar, primero se eligen los tamaños (uno, varios o todos; varios llegan en un ZIP).
 - Las copias sueltas de antes («En varios tamaños») se pueden **Juntar en un solo diseño**.
 - Datos: `fmts` (cada tamaño con sus páginas; el abierto va en `pages`), `fi` (tamaño abierto) y `fz` (resumen para la lista: tamaño, apartado y miniatura).
+
+## Plantillas nuevas (las dos marcas, claro y oscuro)
+
+- Fondo de pantalla de celular (1170 × 2532) y de computadora (2560 × 1440).
+- Tarjeta de presentación 9 × 5 cm (frente y reverso, con QR de WhatsApp).
+- Tarjeta de cumpleaños (1080 × 1350).
+- Reconocimiento A4 horizontal (con dos firmas).
+- Gift card 8,5 × 5,5 cm (frente con el valor y reverso con Para/De, código, vigencia y QR).
+- Se guardan solas en las secciones nuevas «Fondos de pantalla» y «Tarjetas y reconocimientos».
