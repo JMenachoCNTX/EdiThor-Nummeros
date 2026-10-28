@@ -92,3 +92,10 @@ Con la nube activa, las claves se guardan en Firestore (`secrets/ia`): aparecen 
 | `lib/qrcode.js` | Librería para generar los códigos QR (qrcode-generator, licencia MIT) |
 
 Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), `trash` (papelera), `vers` y `vmeta` (versiones), `tpls` (plantillas del equipo), `editing` (quién edita), `usage` (uso de IA por mes), `users`, `secrets/ia` (claves de IA) y `meta` (carpetas, datos de marcas, tope de IA).
+
+## Versiones
+
+- Arriba, junto a «EdiThor», se ve la versión que estás usando (por ejemplo **v30**). Al tocarla se abren las **Novedades** de cada versión.
+- EdiThor revisa cada 5 minutos (y al volver a la pestaña) si hay una versión más nueva. Si la hay, la etiqueta se pone amarilla («hay nueva») y aparece un aviso con el botón **Actualizar** (guarda tu diseño y recarga).
+- **Para cada actualización** hay que subir la versión antes de hacer el commit:
+  `python3 herramientas/nueva-version.py "Qué cambió"` — cambia `APP_VER` en `index.html` y agrega la nota en `version.json`.

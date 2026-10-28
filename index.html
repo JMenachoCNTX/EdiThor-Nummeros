@@ -285,6 +285,13 @@ body{font:13.5px/1.45 var(--ui)}
 :root[data-theme="dark"] .lg-l{display:none}:root[data-theme="dark"] .lg-d{display:block}
 .brandmark{gap:10px;padding-right:4px}
 .brandmark .bm-sep{width:1px;height:22px;background:var(--line)}
+.bm-ver{flex:none;border:1px solid var(--line);background:var(--field);color:var(--muted);font:600 11.5px/1 var(--body,inherit);padding:5px 8px;border-radius:999px;cursor:pointer;white-space:nowrap;margin-left:-4px}
+.bm-ver:hover{color:var(--ink)}.bm-ver.new{background:#FFF4D6;border-color:#E9B949;color:#7A4D00}
+.bm-ver.new::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#E8A317;margin-right:6px;vertical-align:1px}
+.verbar{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:58;display:flex;gap:10px;align-items:center;background:#163832;color:#fff;padding:9px 10px 9px 16px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:13.5px;max-width:calc(100vw - 32px)}
+.verbar button{border:0;border-radius:10px;padding:8px 12px;font:600 13px/1 inherit;cursor:pointer;background:#DAF1DE;color:#163832;white-space:nowrap}.verbar button.x{background:transparent;color:#DAF1DE;padding:8px}
+.vnotes{display:grid;gap:0;max-height:56vh;overflow:auto}.vnotes .vn{display:grid;grid-template-columns:52px 1fr;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.vnotes .vn b{font-variant-numeric:tabular-nums}.vnotes .vn small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}.vnotes .vn.cur{background:var(--field);border-radius:8px}
 .brandmark .bm-app{font:700 20px/1 var(--head);letter-spacing:.01em;color:var(--ink)}
 .top{gap:10px;padding-block:9px}
 .btn{border-color:var(--line);border-radius:var(--r);padding:7px 12px}
@@ -560,6 +567,7 @@ body.on-home .lockpill,body.on-home #btn-lock{display:none!important}
       <img class="lg lg-d" src="marca/nummeros-logotipo-horizontal-claro.svg" alt="NUMMEROS" width="128" height="20">
       <span class="bm-sep" aria-hidden="true"></span><span class="bm-app">EdiThor</span>
     </div>
+    <button type="button" class="bm-ver" id="app-ver" data-lockok title="Versión de EdiThor · toca para ver las novedades">v</button>
     <div class="seg" role="group" aria-label="Marca">
       <button type="button" id="m-nummeros" data-marca="nummeros">NUMMEROS</button>
       <button type="button" id="m-contax" data-marca="contax">CONTAX</button>
@@ -1172,6 +1180,26 @@ function fbMe(){const u=FB.user||{};const email=(u.email||"").toLowerCase();retu
 const firstName=n=>{const t=String(n||"").trim();if(!t)return"";const w=t.includes("@")?t.split("@")[0]:t.split(/\s+/)[0];return w.charAt(0).toUpperCase()+w.slice(1)};
 let TEAM={};/* email → {name, photo, last} */
 async function loadTeam(){if(store.kind!=="fb")return TEAM;try{const q=await FB.m.getDocs(FB.m.collection(FB.db,"users"));const t={};q.docs.forEach(x=>{t[x.id]=x.data()});TEAM=t}catch(e){}return TEAM}
+/* ===== versión de EdiThor =====
+   Cada actualización sube APP_VER (con herramientas/nueva-version.py) y version.json.
+   La app revisa version.json cada 5 minutos y al volver a la pestaña; si hay una más nueva, avisa. */
+const APP_VER=30;const VERI={remote:null,notas:null,shown:0};
+function paintVer(){const b=$("#app-ver");if(!b)return;const nv=VERI.remote&&VERI.remote>APP_VER;b.textContent="v"+APP_VER+(nv?" · hay nueva":"");b.classList.toggle("new",!!nv);
+  b.title=nv?`Estás en la versión ${APP_VER}. Ya existe la versión ${VERI.remote}: toca para actualizar.`:(VERI.remote?`Versión ${APP_VER} · es la última. Toca para ver las novedades.`:`Versión ${APP_VER} · toca para ver las novedades.`)}
+async function checkVersion(){try{const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)return;const j=await r.json();VERI.remote=+j.v||null;VERI.notas=j.notas||[];paintVer();
+  if(VERI.remote>APP_VER&&VERI.shown!==VERI.remote){VERI.shown=VERI.remote;verBar()}}catch(e){}}
+async function updateNow(){try{if(S.dirty&&typeof saveNow==="function")await saveNow()}catch(e){}location.replace(location.pathname+"?v="+(VERI.remote||Date.now())+location.hash)}
+function verBar(){let v=$(".verbar");if(v)v.remove();v=document.createElement("div");v.className="verbar";v.setAttribute("role","status");
+  v.innerHTML=`<span>Hay una versión nueva de EdiThor (v${VERI.remote}). Tú estás en la v${APP_VER}.</span><button type="button" data-u>Actualizar</button><button type="button" class="x" aria-label="Cerrar" data-x>✕</button>`;
+  document.body.appendChild(v);v.querySelector("[data-u]").onclick=updateNow;v.querySelector("[data-x]").onclick=()=>v.remove()}
+async function versionDialog(){if(!VERI.notas)await checkVersion();const nv=VERI.remote&&VERI.remote>APP_VER;
+  const fmt=f=>{try{return new Date(f+"T12:00:00").toLocaleDateString("es-BO",{day:"numeric",month:"short",year:"numeric"})}catch(e){return f}};
+  const d=showDialog("Versión de EdiThor",`<p style="margin-top:0">Estás usando la <b>versión ${APP_VER}</b>. ${nv?`<b style="color:#B26A00">Ya existe la versión ${VERI.remote}.</b>`:VERI.remote?"Es la última versión.":"No se pudo revisar si hay una más nueva (sin internet)."}</p>
+    ${nv?`<button class="btn pri" type="button" id="ver-up" style="width:100%;margin-bottom:12px">Actualizar a la versión ${VERI.remote}</button>`:""}
+    <h3 style="margin:6px 0 4px">Novedades</h3><div class="vnotes">${(VERI.notas||[]).map(n=>`<div class="vn${n.v===APP_VER?" cur":""}"><b>v${n.v}</b><div>${esc(n.texto)}<small>${fmt(n.fecha)}${n.v===APP_VER?" · la que usas ahora":""}</small></div></div>`).join("")||'<div class="empty">Sin datos.</div>'}</div>`);
+  d.querySelector(".dlg").style.width="min(560px,100%)";const u=d.querySelector("#ver-up");if(u)u.onclick=updateNow}
+{const b=$("#app-ver");if(b)b.onclick=versionDialog;paintVer();setTimeout(checkVersion,4000);setInterval(checkVersion,5*60*1000);
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkVersion()})}
 async function registerMe(){const me=fbMe();if(!me.email)return;TEAM[me.email]={name:me.name,photo:me.photo,last:Date.now()};try{await FB.m.setDoc(fbDoc("users",me.email),TEAM[me.email])}catch(e){}}
 function personName(email,fallback){const t=TEAM[email];return firstName((t&&t.name)||fallback||email)}
 function avatar(email,fallback){const t=TEAM[email],n=personName(email,fallback);return t&&t.photo?`<span class="av"><img src="${esc(t.photo)}" alt="" referrerpolicy="no-referrer"></span>`:`<span class="av">${esc((n||"?").charAt(0))}</span>`}
@@ -1183,7 +1211,7 @@ function fbLoginUI(msg,isErr){splash(false,true);let v=$("#fblogin");if(!v){v=do
     ${msg?`<p class="${isErr?"login-err":""}">${msg}</p>`:""}
     <button class="gbtn" type="button" id="fb-in">${GICON}Entrar con Google</button>
     ${FB.user?`<button class="lsec" type="button" id="fb-out">Entrar con otra cuenta</button>`:""}
-    <span class="foot">NUMMEROS by CONTAX</span></div>`}
+    <span class="foot">NUMMEROS by CONTAX · versión ${APP_VER}</span></div>`}
 /* NUMMEROS waiting screen n.º 6 «los clásicos trabajando»: shown when someone signs in */
 const NM_CLASICOS=[{foto:"clasicos/pitagoras-tablet.jpg",nombre:"Pitágoras",frase:"Pitágoras está ordenando tus diseños…"},{foto:"clasicos/euclides-compas.jpg",nombre:"Euclides",frase:"Euclides está midiendo tus plantillas…"},{foto:"clasicos/arquimedes-balanza.jpg",nombre:"Arquímedes",frase:"Arquímedes está cuadrando tus colores…"}];
 let SPLASH_AT=0;

@@ -1,0 +1,156 @@
+{
+ "v": 30,
+ "fecha": "2026-10-28",
+ "notas": [
+  {
+   "v": 30,
+   "fecha": "2026-10-28",
+   "texto": "Número de versión visible y aviso cuando hay una versión nueva"
+  },
+  {
+   "v": 29,
+   "fecha": "2026-10-28",
+   "texto": "Formas: girar, grosor de línea libre y tamaño de letra escribiendo el número"
+  },
+  {
+   "v": 28,
+   "fecha": "2026-10-28",
+   "texto": "Diseños: número de páginas, elegir páginas al descargar y Descargar/Compartir en la vista previa"
+  },
+  {
+   "v": 27,
+   "fecha": "2026-10-28",
+   "texto": "Borde rojo por fuera del diseño y partes que se salen del borde visibles apagadas"
+  },
+  {
+   "v": 26,
+   "fecha": "2026-10-28",
+   "texto": "Borde rojo del diseño y herramienta Seleccionar sin menús"
+  },
+  {
+   "v": 25,
+   "fecha": "2026-10-28",
+   "texto": "Papelera y medidor de espacio arriba en Diseños"
+  },
+  {
+   "v": 24,
+   "fecha": "2026-10-27",
+   "texto": "Equipo: quién edita, versiones, papelera, estados, plantillas del equipo, datos de marcas, gasto de IA y espacio"
+  },
+  {
+   "v": 23,
+   "fecha": "2026-10-27",
+   "texto": "Quita Wikimedia de Buscar imágenes"
+  },
+  {
+   "v": 22,
+   "fecha": "2026-10-27",
+   "texto": "Ver diseños sin abrirlos y candado más amable en iPad"
+  },
+  {
+   "v": 21,
+   "fecha": "2026-10-27",
+   "texto": "Candado, acciones en Diseños, varios tamaños, compartir, buscar imágenes y PowerPoint"
+  },
+  {
+   "v": 20,
+   "fecha": "2026-10-27",
+   "texto": "Texto justificado y copiar un diseño a otros tamaños"
+  },
+  {
+   "v": 19,
+   "fecha": "2026-10-27",
+   "texto": "Pestaña Diseños: secciones y apartados para clasificar los diseños"
+  },
+  {
+   "v": 18,
+   "fecha": "2026-10-27",
+   "texto": "Claves de IA guardadas en la nube (Firestore) para usarlas en cualquier navegador"
+  },
+  {
+   "v": 17,
+   "fecha": "2026-10-27",
+   "texto": "Enlace correcto a la versión en línea en la pestaña IA del artifact"
+  },
+  {
+   "v": 16,
+   "fecha": "2026-10-27",
+   "texto": "Acceso para contaxcontabilidad5@gmail.com"
+  },
+  {
+   "v": 15,
+   "fecha": "2026-10-27",
+   "texto": "Logos en negro de CONTAX y NUMMEROS, y logo Consultora de CONTAX"
+  },
+  {
+   "v": 14,
+   "fecha": "2026-10-26",
+   "texto": "Miniaturas de CONTAX en graficos-contax/mini para no pisar las de NUMMEROS"
+  },
+  {
+   "v": 13,
+   "fecha": "2026-10-26",
+   "texto": "EdiThor con el look de NUMMEROS: Inicio, pantalla de espera, diseños del equipo y gráficos de CONTAX"
+  },
+  {
+   "v": 12,
+   "fecha": "2026-10-26",
+   "texto": "Conecta EdiThor al proyecto de Firebase edithor-nummeros"
+  },
+  {
+   "v": 11,
+   "fecha": "2026-10-26",
+   "texto": "Dominio propio: edithornummeros.contaxbolivia.com"
+  },
+  {
+   "v": 10,
+   "fecha": "2026-10-26",
+   "texto": "EdiThor Nummeros: nube con Firebase"
+  },
+  {
+   "v": 9,
+   "fecha": "2026-10-26",
+   "texto": "Menús al pasar el cursor y cuadrícula"
+  },
+  {
+   "v": 8,
+   "fecha": "2026-10-26",
+   "texto": "QR, mockups de sistemas y descargas SVG / PNG sin fondo"
+  },
+  {
+   "v": 7,
+   "fecha": "2026-10-26",
+   "texto": "Vista previa, paneles automáticos, barras arriba/abajo y lienzo limitado"
+  },
+  {
+   "v": 6,
+   "fecha": "2026-10-26",
+   "texto": "Páginas, modo claro/oscuro y nuevas plantillas"
+  },
+  {
+   "v": 5,
+   "fecha": "2026-10-26",
+   "texto": "Recortar, quitar fondo, selección múltiple, agrupar y unir"
+  },
+  {
+   "v": 4,
+   "fecha": "2026-10-26",
+   "texto": "Copiar, cortar y pegar elementos del diseño"
+  },
+  {
+   "v": 3,
+   "fecha": "2026-10-26",
+   "texto": "IA: Gemini como alternativa, elegir IA y mejorar imágenes"
+  },
+  {
+   "v": 2,
+   "fecha": "2026-10-26",
+   "texto": "Agrega IA: Claude escribe prompts y textos, OpenAI genera imágenes"
+  },
+  {
+   "v": 1,
+   "fecha": "2026-10-26",
+   "texto": "Editor de Marca: primera versión"
+  }
+ ]
+}
