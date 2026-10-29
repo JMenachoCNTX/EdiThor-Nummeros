@@ -215,6 +215,10 @@ button{cursor:pointer}
 .pagebar .sizetag{position:static;border:0;background:transparent;padding:0 6px}
 .pages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:8px}
 .pg{border:1px solid var(--line);background:var(--stage);border-radius:6px;padding:4px;display:grid;gap:3px;justify-items:center;font-size:11px;color:var(--muted);min-width:0}
+.nszgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.nsz{display:grid;justify-items:center;gap:4px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:12px;padding:10px 8px;cursor:pointer;font:inherit;text-align:center}
+.nsz:hover{border-color:var(--acc);background:var(--hover)}.nsz b{font-size:12.5px;line-height:1.2}.nsz small{font-size:11px;color:var(--muted)}
+.nsz-sh{display:block;border:2px solid var(--acc);border-radius:3px;background:var(--field);margin:4px 0 2px}
 .pgw{position:relative;min-width:0;display:grid}
 .pgck{position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:5px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15)}
 .pgck input{width:14px;height:14px;margin:0;accent-color:#B3261E;cursor:pointer}
@@ -723,7 +727,7 @@ const CGRA=[["Ilustraciones",["ilu-chat-recepcion","Chat de recepción"],["ilu-d
 const CFOT=[["retrato","Retrato"],["completo","Cuerpo completo"],["brazos","Brazos cruzados"],["perfil","De perfil"],["sofa","En el sofá"],["sillon","En el sillón"],["casco","Detalle del casco"],["celular","Con el celular"],["ventana","Café en la ventana"],["ventana2","Café en la ventana (2)"],["auto","En el auto"],["escritorio","En el escritorio"],["hamaca2","En la hamaca"],["piso","Con la tablet"],["listo","Todo listo"],["reloj","Siempre a tiempo"],["caminando","Caminando"],["puf","En el puf"],["escalones","Pausa con café"],["colgante","Silla colgante"],["taburete","En el taburete"]];
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
-const APP_VER=44;
+const APP_VER=45;
 /* las imágenes de la marca llevan ?v=versión: así, al actualizar EdiThor, el navegador baja las fotos nuevas en vez de usar las viejas guardadas */
 const bust=s=>{s=String(s||"");if(!s||/^(data:|blob:|https?:|fb:|idb:)/.test(s)||s.includes("?"))return s;return s+"?v="+APP_VER};
 const BR={
@@ -1746,7 +1750,7 @@ function refreshThumbs(){clearTimeout(refreshThumbs.t);refreshThumbs.t=setTimeou
 function renderLib(){
   const el=$("#lib"),b=S.brand,BN=BR[b].name;thumbJobs=[];
   if(S.tab==="plantillas"){
-    el.innerHTML=`<div class="pane"><h2>Plantillas ${BN}</h2><p class="hint">Elige una pieza para empezar. Todo se puede mover y cambiar.</p>
+    el.innerHTML=`<div class="pane"><h2>Plantillas ${BN}</h2><button class="btn pri" type="button" id="tpl-newblank" style="width:100%;margin:2px 0 8px">+ Nuevo diseño en blanco…</button><p class="hint">O elige una pieza para empezar. Todo se puede mover y cambiar.</p>
       <div id="tpls-team"></div>
       <div class="toggle2" role="group" aria-label="Estilo"><button type="button" data-st="claro" aria-pressed="${S.style==="claro"}">Claro</button><button type="button" data-st="oscuro" aria-pressed="${S.style==="oscuro"}">Oscuro</button></div>
       <div class="thumbs" id="tpls"></div>
@@ -1759,6 +1763,7 @@ function renderLib(){
       const paint=()=>{if(!built)return;const s=300/Math.max(built.w,built.h);c.width=Math.round(built.w*s);c.height=Math.round(built.h*s);const x=c.getContext("2d");x.scale(s,s);drawDesign(x,built)};
       t.build(st).then(d=>{built=normDoc(d);applyBrandInfo(built);built.layers=built.pages[0].layers;built.bg=built.pages[0].bg;paint()});thumbJobs.push(paint);
       btn.onclick=async()=>{await openTemplate(t,S.style)};});
+    {const nb=el.querySelector("#tpl-newblank");if(nb)nb.onclick=()=>newDesignDialog(CX.newSec||"")}
     el.querySelectorAll("#blank button").forEach(x=>x.onclick=()=>{const s=SIZES.find(s=>s[0]===x.dataset.k);{const d=newDoc(s[2],s[3],BR[b].st[S.style].bg,b,s[1]+" en blanco");if(s[4])d.mm=s[4];if(s[0]==="triptico")d.folds=[1/3,2/3];openDoc(d,true)}});
     paintTeamTpls();
   }
@@ -2695,7 +2700,7 @@ async function renderHome(){const el=$("#home");if(!el)return;const b=S.brand,is
       <div class="quick">${Q.map(([id,n,sub,img])=>`<button type="button" class="qk" data-tpl="${id}"><img src="${img}" alt="" loading="lazy"><span><b>${n}</b><small>${sub}</small></span></button>`).join("")}</div></section>
     <section class="hsec"><div class="hsec-head"><div><h2>${isFB?"Diseños del equipo":"Tus diseños"}</h2><p>${isFB?"Todos ven y pueden cambiar los diseños de todos. Se guardan solos en la nube.":store.kind==="db"?"Se guardan solos mientras trabajas.":"Guardados en este navegador."}</p></div><div class="people" id="h-people"></div></div>
       <div id="h-list"><div class="hempty">Cargando diseños…</div></div></section></div>`;
-  el.querySelector('[data-h="nuevo"]').onclick=()=>toEditor("plantillas");
+  el.querySelector('[data-h="nuevo"]').onclick=()=>newDesignDialog("");
   el.querySelector('[data-h="seguir"]')?.addEventListener("click",()=>toEditor());
   el.querySelector('[data-h="todos"]').onclick=()=>$("#btn-disenos").click();
   el.querySelector('[data-h="binfo"]').onclick=()=>brandInfoDialog();
@@ -2837,13 +2842,13 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
   main.querySelector("#cx-mergeall")?.addEventListener("click",()=>mergeFam(null));main.querySelector("[data-sel2]")?.addEventListener("click",e=>{CX.sel=e.currentTarget.dataset.sel2;paintCarpetas()});
   main.querySelectorAll("[data-mv]").forEach(x=>x.onchange=()=>moveDesign(x.dataset.mv,x.value));
   main.querySelectorAll("[data-stsel]").forEach(x=>x.onchange=()=>setStatusOf(x.dataset.stsel,x.value));
-  main.querySelectorAll("[data-more]").forEach(x=>x.onchange=()=>{const v=x.value;x.value="";const d=L.find(d=>d.id===x.dataset.more);if(!d)return;if(v==="dup")duplicateDesigns([d.id]);if(v==="ver")versionsDialog(d);if(v==="tpl")saveAsTemplate(d.id)});
+  main.querySelectorAll("[data-more]").forEach(x=>x.onchange=()=>{const v=x.value;x.value="";const d=L.find(d=>d.id===x.dataset.more);if(!d)return;if(v==="dup")duplicateDesigns([d.id],{[d.id]:kOf(x)});if(v==="ver")versionsDialog(d);if(v==="tpl")saveAsTemplate(d.id)});
   main.querySelectorAll("[data-fam]").forEach(x=>x.onclick=()=>{CX.sel="fam:"+x.dataset.fam;paintCarpetas()});
   main.querySelectorAll("[data-pick]").forEach(x=>x.onchange=()=>{x.checked?CX.picked.add(x.dataset.pick):CX.picked.delete(x.dataset.pick);paintCarpetas()});
   main.querySelectorAll("[data-dl]").forEach(x=>x.onchange=async()=>{const f=x.value;x.value="";if(!f)return;x.disabled=true;if(S.doc&&S.doc.id===x.dataset.dl&&S.dirty)await saveNow();const d=await storedDoc(x.dataset.dl,kOf(x));x.disabled=false;if(!d){toast("No se pudo abrir ese diseño.");return}downloadDesign(d,{fmt:f})});
   main.querySelectorAll("[data-share]").forEach(x=>x.onclick=()=>{const d=L.find(d=>d.id===x.dataset.share);const k=kOf(x);if(d)shareDialog(d.name,f=>exportStored(d.id,f,k))});
   main.querySelectorAll("[data-del]").forEach(x=>x.onclick=()=>deleteDesigns([x.dataset.del],paintCarpetas));
-  main.querySelectorAll("[data-dup]").forEach(x=>x.onclick=()=>duplicateDesigns([x.dataset.dup]));
+  main.querySelectorAll("[data-dup]").forEach(x=>x.onclick=()=>duplicateDesigns([x.dataset.dup],{[x.dataset.dup]:kOf(x)}));
   if(np){const ids=()=>[...CX.picked];
     main.querySelector("#cxb-dl").onchange=async e=>{const f=e.target.value;e.target.value="";if(!f)return;e.target.disabled=true;await downloadMany(ids(),f);e.target.disabled=false};
     main.querySelector("#cxb-mv").onchange=async e=>{const v=e.target.value;if(v==="-")return;for(const id of ids()){const d=L.find(x=>x.id===id);if(!d||(d.sec||"")===v)continue;try{await store.move(id,v);d.sec=v;if(S.doc&&S.doc.id===id)S.doc.sec=v}catch(err){}}toast(`Movidos a ${secLabel(v)}`);CX.picked.clear();paintCarpetas()};
@@ -2853,7 +2858,7 @@ function paintCarpetas(){const side=$("#cx-side"),main=$("#cx-main");if(!side||!
     main.querySelector("#cxb-none").onclick=()=>{CX.picked.clear();paintCarpetas()}}
   main.querySelectorAll(".dcard[draggable]").forEach(c=>{c.addEventListener("dragstart",e=>{CX.drag=c.dataset.id;c.classList.add("dragging");try{e.dataTransfer.setData("text/plain",c.dataset.id);e.dataTransfer.effectAllowed="move"}catch(err){}});c.addEventListener("dragend",()=>{c.classList.remove("dragging");setTimeout(()=>{CX.drag=null},50)})});
   main.querySelectorAll(".hempty[data-drop]").forEach(b=>{b.addEventListener("dragover",e=>{if(CX.drag){e.preventDefault();b.classList.add("drop")}});b.addEventListener("dragleave",()=>b.classList.remove("drop"));b.addEventListener("drop",e=>{e.preventDefault();b.classList.remove("drop");const id=CX.drag;CX.drag=null;if(id)moveDesign(id,b.dataset.drop)})});
-  main.querySelector("#cx-new").onclick=()=>{CX.newSec=isSub?CX.sel:"";toEditor("plantillas");if(isSub)toast("Elige una plantilla: el diseño se guardará en "+secLabel(CX.sel))};
+  main.querySelector("#cx-new").onclick=()=>newDesignDialog(isSub?CX.sel:"");
   if(S1){main.querySelector("#cx-addsub").onclick=()=>subDialog(S1);
     main.querySelector("#cx-ren").onclick=()=>{if(isSub){const S2=S1.subs.find(x=>S1.id+"/"+x.id===CX.sel);subDialog(S1,S2)}else secDialog(S1)};
     main.querySelector("#cx-delsec").onclick=()=>delSecDialog(S1,isSub?S1.subs.find(x=>S1.id+"/"+x.id===CX.sel):null)}}
@@ -3055,16 +3060,33 @@ async function downloadMany(ids,fmt){if(!ids.length)return;if(ids.length===1){co
   setStatus("Comprimiendo…");const blob=await zip.generateAsync({type:"blob"});setStatus("");
   await saveBlob(blob,`edithor-${n}-disenos-${fmt}.zip`,"zip")}
 /* Duplicar: copia completa (todas las páginas y tamaños), en el mismo apartado, como borrador */
-async function duplicateDesigns(ids){if(!ids.length)return;if(S.doc&&ids.includes(S.doc.id)&&S.dirty)await saveNow();const me=store.kind==="fb"&&FB.user?fbMe():null;let n=0,last=null;
+async function duplicateDesigns(ids,kmap){kmap=kmap||{};if(!ids.length)return;if(S.doc&&ids.includes(S.doc.id)&&S.dirty)await saveNow();const me=store.kind==="fb"&&FB.user?fbMe():null;let n=0,last=null;
   setStatus(ids.length>1?"Duplicando…":"Duplicando el diseño…");
   for(const id of ids){try{const r=await store.get(id);if(!r)continue;const src=(CX.list||[]).find(x=>x.id===id)||{};
-      const d=fromRecord(newDoc(1,1).id,r);d.name="Copia de "+(r.name||"Diseño");await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.src).map(l=>ld(l.src)));d.by=me?me.email:"";d.byName=me?me.name:"";
-      const rec=await recOf(d);rec.sec=r.sec||src.sec||"";rec.fam="";await store.put(rec);n++;last=rec.id}catch(e){console.error(e)}}
+      const d=pickFmt(fromRecord(newDoc(1,1).id,r),kmap[id]||(CX.cardK&&CX.cardK[id]));
+      /* la copia lleva solo el tamaño elegido; los otros tamaños se agregan después, cuando el diseño esté listo */
+      const multi=!!(d.fmts&&d.fmts.length>1);if(d.fmts){fmtSync(d);d.fmts=null;d.fi=0}
+      d.name="Copia de "+(r.name||"Diseño");await Promise.all(d.pages.flatMap(P=>P.layers).filter(l=>l.src).map(l=>ld(l.src)));d.by=me?me.email:"";d.byName=me?me.name:"";
+      const rec=await recOf(d);rec.sec=(multi&&SIZE_SEC[fmtKey(d.w,d.h)])||r.sec||src.sec||"";rec.fam="";await store.put(rec);n++;last=rec.id;if(multi)S.dupOne=fmtName({k:fmtKey(d.w,d.h),w:d.w,h:d.h})}catch(e){console.error(e)}}
   setStatus("");CX.list=null;HOME.list=null;
   if(!n){toast("No se pudo duplicar. Revisa tu conexión.");return}
   toast(n>1?`${n} diseños duplicados`:"Diseño duplicado: «Copia de…»");if(S.tab==="disenos")renderCarpetas();else if(S.tab==="inicio")renderHome();
-  if(n===1&&last){const v=showDialog("Copia lista",`<p style="margin-top:0">Se creó la copia en el mismo apartado. ¿Quieres abrirla para editarla?</p><div class="row-end"><button class="btn" type="button" data-close>Ahora no</button><button class="btn pri" type="button" id="dup-open">Abrir la copia</button></div>`);
+  if(n===1&&last){const one=S.dupOne;S.dupOne=null;const v=showDialog("Copia lista",`<p style="margin-top:0">Se creó la copia${one?` solo con el tamaño <b>${esc(one)}</b>`:""}. ¿Quieres abrirla para editarla?</p>${one?`<p class="hint">Cuando termines el diseño, agrega los otros tamaños con el botón de tamaños de abajo → «+ Agregar otro tamaño».</p>`:""}<div class="row-end"><button class="btn" type="button" data-close>Ahora no</button><button class="btn pri" type="button" id="dup-open">Abrir la copia</button></div>`);
     v.querySelector("#dup-open").onclick=async()=>{v.remove();if(await openStored(last)){toEditor();tryUnlock()}}}}
+/* Nuevo diseño: siempre crea uno nuevo (en blanco) y pregunta el tamaño */
+function newDesignDialog(sec){const b=S.brand;let st=S.style||"claro";const G=[["Redes sociales",["estado","post45","post11","perfil","portada"]],["Web y presentaciones",["bannerweb","slide"]],["Impresos",["a4","triptico","rollup","tarjeta","diploma","giftcard"]],["Fondos de pantalla",["fondocel","fondopc"]]];
+  const shape=z=>{const m=46/Math.max(z[2],z[3]);return`<span class="nsz-sh" style="width:${Math.max(8,Math.round(z[2]*m))}px;height:${Math.max(8,Math.round(z[3]*m))}px"></span>`};
+  const v=showDialog("Nuevo diseño",`<p class="hint" style="margin-top:0">Elige el tamaño para empezar. Se crea un diseño nuevo en blanco de ${esc(BR[b].name)}${sec?` y se guarda en «${esc(secLabel(sec))}»`:""}. Después puedes agregarle otros tamaños.</p>
+    <div class="toggle2" role="group" aria-label="Fondo" style="margin-bottom:10px"><button type="button" data-nst="claro" aria-pressed="${st==="claro"}">Fondo claro</button><button type="button" data-nst="oscuro" aria-pressed="${st==="oscuro"}">Fondo oscuro</button></div>
+    ${G.map(([t,ks])=>`<h3 style="margin:10px 0 6px">${t}</h3><div class="nszgrid">${ks.map(k=>SIZES.find(z=>z[0]===k)).filter(Boolean).map(z=>`<button type="button" class="nsz" data-nk="${z[0]}">${shape(z)}<b>${esc(z[1])}</b><small>${z[4]?`${z[4][0]/10} × ${z[4][1]/10} cm`:`${z[2]} × ${z[3]} px`}</small></button>`).join("")}</div>`).join("")}
+    <div class="row-end" style="margin-top:14px"><button class="btn" type="button" id="nd-tpl">Mejor usar una plantilla</button><button class="btn" type="button" data-close>Cancelar</button></div>`);
+  v.querySelector(".dlg").style.width="min(720px,100%)";
+  v.querySelectorAll("[data-nst]").forEach(x=>x.onclick=()=>{st=x.dataset.nst;v.querySelectorAll("[data-nst]").forEach(y=>y.setAttribute("aria-pressed",String(y===x)))});
+  v.querySelector("#nd-tpl").onclick=()=>{v.remove();if(sec)CX.newSec=sec;toEditor("plantillas");toast("Elige una plantilla para empezar")};
+  v.querySelectorAll("[data-nk]").forEach(x=>x.onclick=async()=>{const z=SIZES.find(z=>z[0]===x.dataset.nk);v.remove();if(S.dirty)await saveNow();
+    const d=newDoc(z[2],z[3],BR[b].st[st].bg,b,"Diseño sin nombre · "+z[1]);if(z[4])d.mm=z[4];if(z[0]==="triptico")d.folds=[1/3,2/3];
+    const s2=sec||SIZE_SEC[z[0]]||"";if(s2){d.sec=s2;d.secNew=true}CX.newSec="";
+    openDoc(d,true);S.dirty=true;await saveNow();HOME.list=null;CX.list=null;toEditor("texto");toast("Diseño nuevo creado · ponle nombre arriba");setTimeout(()=>{const n=$("#nombre");if(n){n.focus();n.select()}},300)})}
 function deleteDesigns(ids,after){const L=(CX.list||[]).filter(d=>ids.includes(d.id));if(!L.length)return;
   const v=showDialog(L.length>1?"Eliminar diseños":"Eliminar diseño",`<p style="margin-top:0">${L.length>1?`¿Eliminar estos <b>${L.length} diseños</b>?`:`¿Eliminar <b>${esc(L[0].name)}</b>?`}</p><p class="hint">${store.kind==="fb"?`Se va${L.length>1?"n":""} a la <b>Papelera</b>: durante 30 días se puede${L.length>1?"n":""} recuperar desde Diseños → Papelera.`:`Se borra${L.length>1?"n":""} y no se puede${L.length>1?"n":""} recuperar.`}</p>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="button" id="del-yes">Sí, eliminar</button></div>`);

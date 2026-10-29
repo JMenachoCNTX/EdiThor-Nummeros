@@ -1,7 +1,12 @@
 {
- "v": 44,
- "fecha": "2026-10-28",
+ "v": 45,
+ "fecha": "2026-10-29",
  "notas": [
+  {
+   "v": 45,
+   "fecha": "2026-10-29",
+   "texto": "Nuevo diseño crea uno en blanco y pregunta el tamaño; duplicar copia solo el tamaño elegido"
+  },
   {
    "v": 44,
    "fecha": "2026-10-28",

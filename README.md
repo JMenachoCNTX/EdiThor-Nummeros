@@ -151,3 +151,8 @@ Colecciones de Firestore: `designs` (diseños), `images` (imágenes en partes), 
 
 - «Eliminar esta página» borra la página que estás viendo (antes el contenido de la borrada se copiaba sobre la siguiente).
 - Cada página tiene una casilla: marca una o varias y usa «Eliminar las elegidas». Se recuperan con ⌘ + Z.
+
+## Nuevo diseño
+
+- «Nuevo diseño» (Inicio, Diseños y arriba en Plantillas) siempre crea un diseño nuevo en blanco y pregunta el tamaño (y fondo claro u oscuro). Se guarda solo en el apartado de ese tamaño (o en el apartado donde estás en Diseños). También se puede elegir «Mejor usar una plantilla».
+- «Duplicar» un diseño con varios tamaños copia solo el tamaño elegido en la tarjeta; los otros tamaños se agregan después con «+ Agregar otro tamaño».
