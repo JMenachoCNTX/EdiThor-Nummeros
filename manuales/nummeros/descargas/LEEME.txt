@@ -1,0 +1,30 @@
+KIT DE MARCA NUMMEROS
+Sistemas a la medida de tu empresa.  ·  NUMMEROS by CONTAX
+
+svg/      Logos en vector (usa estos siempre que puedas: se ven perfectos a cualquier tamaño)
+png/      Los mismos logos en PNG con fondo transparente (2000 px)
+iconos/   Íconos de app y redes, en SVG y PNG, más favicon.ico
+plantillas/  Hoja membretada y comunicado formal en Word (se abren en Word o Google Docs)
+codigo/   nummeros-tokens.css: colores, tipografía y espacios listos para tus sistemas
+
+REGLA PRINCIPAL
+El logo va en verde principal (#235347) sobre fondo claro (blanco, #F4FAF5 o #DAF1DE).
+El verde oscuro de fondo (#051F20) solo se usa en modo oscuro o en piezas pensadas oscuras.
+
+Colores de cada logo:
+principal = #235347 (el de siempre, sobre fondo claro)
+oscuro = #051F20 · negro = para impresión a una tinta
+claro = #DAF1DE · blanco = solo sobre fondos oscuros (sobre blanco no se ven)
+
+Íconos:
+icono-app-principal ........ N verde #235347 sobre verde claro #DAF1DE (el de uso normal)
+icono-app-oscuro ........... N clara sobre #051F20 (para modo oscuro)
+icono-app-verde ............ N blanca sobre #235347 (alternativa)
+icono-cuadrado-redes ....... foto de perfil para WhatsApp, Facebook, TikTok (claro)
+icono-cuadrado-redes-oscuro  foto de perfil versión oscura
+favicon.ico ................ ícono de la pestaña del navegador
+
+Reglas completas: NUMMEROS_Manual_de_Marca.pdf
+
+Plantillas de estados, publicaciones, comunicados, foto de perfil, portada de Facebook
+y tarjeta de presentación: en la sección «Plantillas» del link de la marca.

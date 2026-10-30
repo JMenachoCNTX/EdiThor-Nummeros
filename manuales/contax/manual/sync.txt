@@ -1,0 +1,66 @@
+# Convierte el JSON del Google Doc "Manual CONTAX" en manual.json (solo contenido apto para clientes) y manual.md (para IA)
+import json,sys,re,datetime
+src,outdir=sys.argv[1],sys.argv[2]
+d=json.load(open(src));c=d.get("content",d)
+def tabs(ts):
+  for t in ts: yield t; yield from tabs(t.get("childTabs",[]))
+QRT={"Bienvenida al servicio","Recordatorio de pago de suscripción","Aviso sin habilitación esta semana","Servicio reactivado","Quiero mi factura (clientes)","Factura no reflejada en el portal SIN de MTG","Oficinas Yango","Devolución de saldos","Líneas de atención","Portal CONTAX actualizado","Saludo de Soledad (tarde)","Saludo de Sebastián","Publicidad del servicio (FACSERV)","Garantía CONTAX – Activación","Mensajes de facturación automática (20 Bs al mes)","Soporte y pagos MTG","Saludos y mensajes cortos"}
+QRG={"Mensajes de facturación automática (20 Bs al mes)","Soporte y pagos MTG","Saludos y mensajes cortos"}
+SKIP_TABS=("Políticas internas","Preguntas frecuentes")
+def clean(s): return s.replace("\\","")
+out=[]
+for t in tabs(c["tabs"]):
+  title=re.sub(r"^[^\wÁÉÍÓÚÑ¿¡]+","",t["tabProperties"]["title"]).strip()
+  if any(title.startswith(s) for s in SKIP_TABS): continue
+  blocks=[];skip=False;keep_from=None
+  if title.startswith("Respuestas rápidas"): keep_from="PARTE 2"
+  for b in t["documentTab"]["body"]["content"]:
+    if "paragraph" not in b: continue
+    p=b["paragraph"];st=p.get("paragraphStyle",{}).get("namedStyleType","NORMAL_TEXT")
+    runs=[]
+    for e in p["elements"]:
+      tr=e.get("textRun")
+      if not tr: continue
+      ts=tr.get("textStyle",{});runs.append([clean(tr["content"]),bool(ts.get("bold")),ts.get("link",{}).get("url")])
+    # partir por saltos de línea suaves
+    lines=[[]]
+    for txt,bo,ln in runs:
+      parts=re.split(r"[\u000b\n]",txt)
+      for i,pt in enumerate(parts):
+        if i>0: lines.append([])
+        if pt: lines[-1].append([pt,bo,ln] if ln else [pt,bo])
+    bullet="bullet" in p
+    for L in lines:
+      text="".join(r[0] for r in L).strip()
+      if not text or text in("---",): continue
+      if keep_from:
+        if text.startswith(keep_from): keep_from=None
+        continue
+      if text.startswith("INFORMACIÓN INTERNA"): skip=True
+      if skip: continue
+      if st in("TITLE","HEADING_1") and (not blocks and len(text)<60): continue  # título repetido de la pestaña
+      qr=title.startswith("Respuestas rápidas")
+      if qr and text.startswith("(") and text.endswith(")"): continue
+      base=re.sub(r"\(.*?\)","",text).strip()
+      if qr and text in QRG: kind="h"
+      elif qr and (re.search(r"\(\d+(, número repetido)?\)$",text) or (re.match(r"^[A-ZÁÉÍÓÚÑ ]{5,}( \(.*\))?$",text) and text!="CONTAX") or text in QRT): kind="h3"
+      elif qr and text in QRG: kind="h"
+      elif qr: kind="p"
+      elif st in("TITLE","HEADING_1","HEADING_2"): kind="h"
+      elif re.match(r"^\d+\\?\. ",text) and len(text)<70 and not text.endswith("."): kind="h3"
+      elif base and base.upper()==base and any(ch.isalpha() for ch in base) and len(text)<80: kind="sub"
+      else: kind="li" if (bullet or re.match(r"^[*•\-] ",text)) else "p"
+      if False: kind="h" if st in("TITLE","HEADING_1","HEADING_2") else "h3" if st.startswith("HEADING") else "li" if (bullet or re.match(r"^[*•\-] ",text)) else "sub" if (text.isupper() and len(text)<70) or re.match(r"^[A-ZÁÉÍÓÚÑ0-9 ()/,—\-]{6,}$",text) else "p"
+      if kind=="li": L=[[re.sub(r"^[*•\-] ","",L[0][0])]+L[0][1:]]+L[1:] if L else L
+      blocks.append({"k":kind,"r":L})
+  if blocks: out.append({"id":re.sub(r"[^a-z0-9]+","-",title.lower().translate(str.maketrans("áéíóúñ","aeioun"))).strip("-"),"t":title,"b":blocks})
+now=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=-4))).strftime("%Y-%m-%d %H:%M")
+json.dump({"title":c["title"],"rev":c.get("revisionId","")[:12],"synced":now,"tabs":out},open(f"{outdir}/manual.json","w"),ensure_ascii=False)
+md=[f"# {c['title']}",f"Actualizado: {now} (copia apta para clientes; no incluye información interna)",""]
+for t in out:
+  md+=["",f"## {t['t']}",""]
+  for b in t["b"]:
+    s="".join(f"**{r[0].strip()}**" if r[1] and r[0].strip() else r[0] for r in b["r"]).strip()
+    md.append({"h":"### ","h3":"#### ","sub":"### ","li":"- ","p":""}[b["k"]]+s)
+open(f"{outdir}/manual.md","w").write("\n".join(md)+"\n")
+print(len(out),"pestañas",sum(len(t["b"]) for t in out),"bloques")

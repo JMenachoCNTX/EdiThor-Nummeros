@@ -1,0 +1,31 @@
+CONTAX · Kit de marca (versión 2.0, octubre 2026)
+
+svg/         Logos en vector. Úsalos siempre que puedas: no se pixelan a ningún tamaño.
+png/         Los mismos logos en PNG con fondo transparente (2400 px). Para WhatsApp, Word y Canva.
+iconos/      Ícono de app (1024 a 16 px), fotos de perfil para redes y favicon.ico para sitios web.
+tipografia/  TeX Gyre Adventor Regular y Bold: equivalente gratuito de Century Gothic. Instálala con doble clic.
+codigo/      contax-tokens.css: colores y letra para los sistemas web.
+plantillas/  Hoja membretada y comunicado formal en Word.
+CONTAX_Manual_de_Marca.pdf
+
+Logos:
+  horizontal   uso principal (hoja membretada, web, correo, sistemas)
+  vertical     portadas, publicaciones cuadradas, carpetas
+  descriptor   con «Contabilidad e impuestos»: letreros y banners
+  consultora   con «Consultora»: tarjetas, redes y presentaciones
+  isotipo      solo el símbolo: perfil, ícono, sellos, tramas
+
+Versiones de color:
+  color      sobre blanco o gris claro (versión principal)
+  azul       una sola tinta: sellos, bordados, impresión de un color
+  negativo   sobre azul CONTAX, azul noche o fotos oscuras
+  negro      fotocopias y documentos en blanco y negro
+  blanco     sobre gris pizarra o fondos de color de la marca
+
+Colores:
+  Azul CONTAX   #152644   (principal)
+  Azul noche    #011230
+  Gris pizarra  #7E9197
+  Negro         #000000
+  Blanco        #FFFFFF
+  Gris claro    #EEF1F2

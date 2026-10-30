@@ -1,0 +1,38 @@
+/* CONTAX · colores y letra para sistemas web (NUMMEROS los usa en los sistemas de CONTAX)
+   Uso: copia este archivo junto a tu HTML y agrega <link rel="stylesheet" href="contax-tokens.css">
+   Luego usa los colores así: background: var(--fondo); color: var(--texto);                       */
+
+:root{
+  /* paleta de marca */
+  --contax-azul:#152644;        /* Azul CONTAX · color principal */
+  --contax-azul-noche:#011230;  /* Azul noche · la palabra CONTAX y fondos oscuros */
+  --contax-gris:#7E9197;        /* Gris pizarra */
+  --contax-negro:#000000;
+  --contax-blanco:#FFFFFF;
+  --contax-gris-claro:#EEF1F2;
+  --contax-cobalto:#0537A0;     /* Azul cobalto · solo acento de fotografía */
+  /* tintes para fondos */
+  --contax-azul-agua:#ACB4C0;   /* azul al 34 % · marca de agua */
+  --contax-gris-agua:#D5DBDD;   /* gris al 34 % · marca de agua */
+  --contax-azul-suave:#7E8898;  /* azul al 55 % · trama suave */
+  --contax-gris-suave:#B8C2C6;  /* gris al 55 % · trama suave */
+
+  /* colores por función · modo claro */
+  --fondo:#F5F7F8; --superficie:#FFFFFF; --campo:#EEF1F2; --borde:#DCE2E4; --borde-control:#7E9197;
+  --texto:#011230; --texto-suave:#536369; --menu-fondo:#152644; --menu-texto:#FFFFFF; --acento:#152644;
+  --correcto:#067647; --aviso:#93370D; --error:#B42318;
+
+  /* letra */
+  --letra:"Century Gothic","TeX Gyre Adventor","URW Gothic",Futura,sans-serif;
+}
+/* modo oscuro automático */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --fondo:#011230; --superficie:#0B1C3E; --campo:#14284D; --borde:#22355A; --borde-control:#7E9197;
+  --texto:#FFFFFF; --texto-suave:#A9B6BA; --menu-fondo:#011230; --menu-texto:#FFFFFF; --acento:#C9D2D5;
+  --correcto:#47CD89; --aviso:#FDB022; --error:#F97066; color-scheme:dark}}
+/* modo oscuro elegido a mano: <html data-theme="dark"> */
+:root[data-theme="dark"]{
+  --fondo:#011230; --superficie:#0B1C3E; --campo:#14284D; --borde:#22355A; --borde-control:#7E9197;
+  --texto:#FFFFFF; --texto-suave:#A9B6BA; --menu-fondo:#011230; --menu-texto:#FFFFFF; --acento:#C9D2D5;
+  --correcto:#47CD89; --aviso:#FDB022; --error:#F97066; color-scheme:dark}
+body{font-family:var(--letra);background:var(--fondo);color:var(--texto)}
