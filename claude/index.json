@@ -1,0 +1,39 @@
+{
+ "actualizado": "2026-10-30",
+ "disenos": [
+  {
+   "id": "c-pasarela-estado-1",
+   "name": "Pasarela · Paga desde tu celular (estado)",
+   "brand": "nummeros",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Estado de WhatsApp para invitar a usar la pasarela de pagos.",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-pasarela-estado-1.jpg",
+   "file": "claude/disenos/c-pasarela-estado-1.json"
+  },
+  {
+   "id": "c-pasarela-4pasos",
+   "name": "Pasarela · 4 pasos para pagar (estado)",
+   "brand": "nummeros",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Los 4 pasos de la pasarela con una captura real.",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-pasarela-4pasos.jpg",
+   "file": "claude/disenos/c-pasarela-4pasos.json"
+  },
+  {
+   "id": "c-balance-independiente-post",
+   "name": "Balance Independiente · ¿No tienes contador? (4:5)",
+   "brand": "nummeros",
+   "w": 1080,
+   "h": 1350,
+   "nota": "Para publicar antes del 5 de noviembre. Bs 350, sin multa del Form-500 ni del 605.",
+   "fecha": "2026-11-01",
+   "sec": "facebook",
+   "thumb": "claude/disenos/c-balance-independiente-post.jpg",
+   "file": "claude/disenos/c-balance-independiente-post.json"
+  }
+ ]
+}

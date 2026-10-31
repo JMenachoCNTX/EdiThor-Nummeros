@@ -1,7 +1,12 @@
 {
- "v": 46,
+ "v": 47,
  "fecha": "2026-10-30",
  "notas": [
+  {
+   "v": 47,
+   "fecha": "2026-10-30",
+   "texto": "Pestaña Claude (diseños editables y videos tutoriales del repositorio), pestaña Calendario de contenido (feriados, fechas comerciales, impuestos y fechas del equipo) y fecha de publicación en cada diseño"
+  },
   {
    "v": 46,
    "fecha": "2026-10-30",

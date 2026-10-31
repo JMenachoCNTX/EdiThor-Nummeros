@@ -1,0 +1,28 @@
+{
+ "actualizado": "2026-10-30",
+ "nota": "Videos tutoriales de CONTAX y NUMMEROS. Cada video se puede poner en la pasarela, los portales y los sistemas con su enlace: https://edithornummeros.contaxbolivia.com/<file>",
+ "videos": [
+  {
+   "id": "pasarela-general-estado-subtitulos",
+   "name": "Pasarela de pagos · cómo pagar (general)",
+   "file": "tutoriales/pasarela-general-estado-subtitulos.mp4",
+   "poster": "tutoriales/pasarela-general-estado.jpg",
+   "formato": "Vertical (estado de WhatsApp)",
+   "duracion": "40 s",
+   "estado": "Prueba · solo subtítulos",
+   "sistemas": ["pasarela"],
+   "nota": "Versión de prueba sin voz. La versión final llevará la voz elegida en ElevenLabs."
+  },
+  {
+   "id": "pasarela-general-estado-voz",
+   "name": "Pasarela de pagos · cómo pagar (general, con voz de prueba)",
+   "file": "tutoriales/pasarela-general-estado-voz.mp4",
+   "poster": "tutoriales/pasarela-general-estado.jpg",
+   "formato": "Vertical (estado de WhatsApp)",
+   "duracion": "40 s",
+   "estado": "Prueba · voz de prueba",
+   "sistemas": ["pasarela"],
+   "nota": "Voz de prueba generada con IA; se reemplazará por la voz definitiva."
+  }
+ ]
+}
