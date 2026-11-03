@@ -1,6 +1,18 @@
 {
- "actualizado": "2026-10-30",
+ "actualizado": "2026-11-03",
  "disenos": [
+  {
+   "id": "c-balance-esencial-11-cupos",
+   "name": "Balance Esencial · Quedan 11 cupos (estado)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Últimos cupos del Balance Esencial a Bs 250. Cambia el número si bajan los cupos.",
+   "fecha": "2026-11-03",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-balance-esencial-11-cupos.jpg",
+   "file": "claude/disenos/c-balance-esencial-11-cupos.json"
+  },
   {
    "id": "c-pasarela-estado-1",
    "name": "Pasarela · Paga desde tu celular (estado)",
