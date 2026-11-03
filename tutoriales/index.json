@@ -13,7 +13,22 @@
    "sistemas": [
     "crm"
    ],
-   "nota": "Para el equipo: instalar la extensión del CRM desde la tienda de Edge, vincular WhatsApp Web e iniciar sesión."
+   "nota": "Para el equipo: instalar la extensión del CRM desde la tienda de Edge, vincular WhatsApp Web e iniciar sesión.",
+   "carpeta": "TUTORIALES"
+  },
+  {
+   "id": "panel-declaraciones",
+   "name": "Panel · pestaña Declaraciones",
+   "file": "tutoriales/panel-declaraciones.mp4",
+   "poster": "tutoriales/panel-declaraciones.jpg",
+   "formato": "Horizontal 16:9",
+   "duracion": "1 min 38 s",
+   "estado": "Solo subtítulos",
+   "carpeta": "TUTORIALES",
+   "sistemas": [
+    "panel"
+   ],
+   "nota": "Para el equipo: llevar una declaración de principio a fin (RCV, calculadora, fecha, seguimiento, entrega con IA y Resumen). Datos de ejemplo."
   },
   {
    "id": "pasarela-general-estado-subtitulos",

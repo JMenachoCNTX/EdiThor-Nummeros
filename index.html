@@ -414,6 +414,7 @@ body.on-home .top .spacer{flex:1}
 @media (max-width:900px){.cal-day{min-height:74px;padding:4px}.cal-ev{font-size:10px;padding:2px 4px}.cal-ds img{width:20px;height:20px}.cal-nav b{min-width:140px;font-size:18px}}
 /* pestaña Claude */
 .cl-vid{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--field);margin-bottom:10px}.cl-vid video{width:100%;display:block;background:#000;max-height:360px}
+.cl-fold{margin-bottom:12px}.cl-fold>summary{cursor:pointer;font-weight:700;font-size:14px;padding:6px 2px 8px;list-style:none}.cl-fold>summary::-webkit-details-marker{display:none}.cl-fold>summary span{font-weight:400;font-size:12px;color:var(--muted);margin-left:6px}
 .cl-vid .m{padding:8px 10px;font-size:12.5px}.cl-vid .m b{display:block;font-size:13.5px}.cl-vid .row{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
 .thumb .cl-nota{display:block;color:var(--muted);font-size:11px;line-height:14px;margin-top:2px}
 .hempty{border:1.5px dashed var(--line);border-radius:16px;padding:28px;text-align:center;color:var(--muted)}
@@ -750,7 +751,7 @@ const CGRA=[["Ilustraciones",["ilu-chat-recepcion","Chat de recepción"],["ilu-d
 const CFOT=[["retrato","Retrato"],["completo","Cuerpo completo"],["brazos","Brazos cruzados"],["perfil","De perfil"],["sofa","En el sofá"],["sillon","En el sillón"],["casco","Detalle del casco"],["celular","Con el celular"],["ventana","Café en la ventana"],["ventana2","Café en la ventana (2)"],["auto","En el auto"],["escritorio","En el escritorio"],["hamaca2","En la hamaca"],["piso","Con la tablet"],["listo","Todo listo"],["reloj","Siempre a tiempo"],["caminando","Caminando"],["puf","En el puf"],["escalones","Pausa con café"],["colgante","Silla colgante"],["taburete","En el taburete"]];
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
 
-const APP_VER=48;
+const APP_VER=49;
 /* las imágenes de la marca llevan ?v=versión: así, al actualizar EdiThor, el navegador baja las fotos nuevas en vez de usar las viejas guardadas */
 const bust=s=>{s=String(s||"");if(!s||/^(data:|blob:|https?:|fb:|idb:)/.test(s)||s.includes("?"))return s;return s+"?v="+APP_VER};
 const BR={
@@ -3141,7 +3142,11 @@ async function paintClaude(){await clLoad();const box=$("#cl-dis"),vb=$("#cl-vid
     :`<div class="empty">Todavía no hay diseños de Claude${CL.todas?"":" para "+esc(BR[S.brand].name)}.</div>`;
   box.querySelectorAll("[data-cl]").forEach(x=>x.onclick=()=>openClaude(L[+x.dataset.cl]));
   const V=CL.vid.videos||[];
-  vb.innerHTML=V.length?V.map((v,i)=>{const url=new URL(v.file,location.href).href;return`<div class="cl-vid"><video controls preload="none"${v.poster?` poster="${esc(v.poster)}"`:""} src="${esc(v.file)}"></video><div class="m"><b>${esc(v.name)}</b>${esc([v.formato,v.duracion,v.estado].filter(Boolean).join(" · "))}${v.nota?`<br><span style="color:var(--muted)">${esc(v.nota)}</span>`:""}<div class="row"><button class="btn" type="button" data-vcp="${i}">Copiar enlace</button><a class="btn" href="${esc(v.file)}" download>Descargar</a></div></div></div>`}).join("")
+  const vidHTML=(v,i)=>`<div class="cl-vid"><video controls preload="none"${v.poster?` poster="${esc(v.poster)}"`:""} src="${esc(v.file)}"></video><div class="m"><b>${esc(v.name)}</b>${esc([v.formato,v.duracion,v.estado].filter(Boolean).join(" · "))}${v.nota?`<br><span style="color:var(--muted)">${esc(v.nota)}</span>`:""}<div class="row"><button class="btn" type="button" data-vcp="${i}">Copiar enlace</button><a class="btn" href="${esc(v.file)}" download>Descargar</a></div></div></div>`;
+  /* Carpetas de videos (campo "carpeta" en tutoriales/index.json); los que no tienen carpeta van en «Otros videos» */
+  const grupos=[];V.forEach((v,i)=>{const c=(v.carpeta||"").trim()||"Otros videos";let g=grupos.find(x=>x.c===c);if(!g){g={c,l:[]};grupos.push(g)}g.l.push([v,i])});
+  grupos.sort((a,b)=>(a.c==="Otros videos")-(b.c==="Otros videos"));
+  vb.innerHTML=V.length?grupos.map(g=>`<details class="cl-fold" open><summary>📁 ${esc(g.c)} <span>${g.l.length} video${g.l.length===1?"":"s"}</span></summary>${g.l.map(([v,i])=>vidHTML(v,i)).join("")}</details>`).join("")
     :`<div class="empty">Todavía no hay videos.</div>`;
   vb.querySelectorAll("[data-vcp]").forEach(x=>x.onclick=async()=>{const v=V[+x.dataset.vcp];const u=new URL(v.file,location.href).href;try{await navigator.clipboard.writeText(u);toast("Enlace copiado")}catch(e){prompt("Copia el enlace:",u)}})}
 async function openClaude(it){if(!it)return;setStatus("Abriendo el diseño de Claude…");let more=null;
