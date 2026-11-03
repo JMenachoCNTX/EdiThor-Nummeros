@@ -1,7 +1,20 @@
 {
- "actualizado": "2026-10-30",
+ "actualizado": "2026-11-02",
  "nota": "Videos tutoriales de CONTAX y NUMMEROS. Cada video se puede poner en la pasarela, los portales y los sistemas con su enlace: https://edithornummeros.contaxbolivia.com/<file>",
  "videos": [
+  {
+   "id": "crm-instalar-edge",
+   "name": "CRM · cómo instalarlo en Microsoft Edge",
+   "file": "tutoriales/crm-instalar-edge.mp4",
+   "poster": "tutoriales/crm-instalar-edge.jpg",
+   "formato": "Horizontal 16:9",
+   "duracion": "1 min 16 s",
+   "estado": "Solo subtítulos",
+   "sistemas": [
+    "crm"
+   ],
+   "nota": "Para el equipo: instalar la extensión del CRM desde la tienda de Edge, vincular WhatsApp Web e iniciar sesión."
+  },
   {
    "id": "pasarela-general-estado-subtitulos",
    "name": "Pasarela de pagos · cómo pagar (general)",
@@ -10,7 +23,9 @@
    "formato": "Vertical (estado de WhatsApp)",
    "duracion": "40 s",
    "estado": "Prueba · solo subtítulos",
-   "sistemas": ["pasarela"],
+   "sistemas": [
+    "pasarela"
+   ],
    "nota": "Versión de prueba sin voz. La versión final llevará la voz elegida en ElevenLabs."
   },
   {
@@ -21,7 +36,9 @@
    "formato": "Vertical (estado de WhatsApp)",
    "duracion": "40 s",
    "estado": "Prueba · voz de prueba",
-   "sistemas": ["pasarela"],
+   "sistemas": [
+    "pasarela"
+   ],
    "nota": "Voz de prueba generada con IA; se reemplazará por la voz definitiva."
   }
  ]
