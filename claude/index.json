@@ -2,6 +2,50 @@
  "actualizado": "2026-11-03",
  "disenos": [
   {
+   "id": "c-baja-declaracion-claro",
+   "name": "Baja de servicios · Ahora Bs 60 (claro)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Para quienes no pagaron la suscripción de declaración: baja de todos los servicios; pasado el 25 al 30 pagan Bs 60.",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-baja-declaracion-claro.jpg",
+   "file": "claude/disenos/c-baja-declaracion-claro.json"
+  },
+  {
+   "id": "c-baja-declaracion-oscuro",
+   "name": "Baja de servicios · Ahora Bs 60 (oscuro)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Para quienes no pagaron la suscripción de declaración: baja de todos los servicios; pasado el 25 al 30 pagan Bs 60.",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-baja-declaracion-oscuro.jpg",
+   "file": "claude/disenos/c-baja-declaracion-oscuro.json"
+  },
+  {
+   "id": "c-baja-facturacion-claro",
+   "name": "Baja de facturación · No pagó Bs 20 (claro)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Para quienes no pagaron la tarifa de facturación de Bs 20: se dio de baja la facturación.",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-baja-facturacion-claro.jpg",
+   "file": "claude/disenos/c-baja-facturacion-claro.json"
+  },
+  {
+   "id": "c-baja-facturacion-oscuro",
+   "name": "Baja de facturación · No pagó Bs 20 (oscuro)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Para quienes no pagaron la tarifa de facturación de Bs 20: se dio de baja la facturación.",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-baja-facturacion-oscuro.jpg",
+   "file": "claude/disenos/c-baja-facturacion-oscuro.json"
+  },
+  {
    "id": "c-balance-esencial-cupos-claro",
    "name": "Balance Esencial · Quedan 11 cupos a Bs 250 (claro)",
    "brand": "contax",
