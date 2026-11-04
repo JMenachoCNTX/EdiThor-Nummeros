@@ -2,16 +2,28 @@
  "actualizado": "2026-11-03",
  "disenos": [
   {
-   "id": "c-balance-esencial-11-cupos",
-   "name": "Balance Esencial · Quedan 11 cupos (estado)",
+   "id": "c-balance-esencial-cupos-claro",
+   "name": "Balance Esencial · Quedan 11 cupos a Bs 250 (claro)",
    "brand": "contax",
    "w": 1080,
    "h": 1920,
-   "nota": "Últimos cupos del Balance Esencial a Bs 250. Cambia el número si bajan los cupos.",
+   "nota": "Estado de WhatsApp. Cambia el número de cupos cuando bajen.",
    "fecha": "2026-11-03",
    "sec": "whatsapp/estados",
-   "thumb": "claude/disenos/c-balance-esencial-11-cupos.jpg",
-   "file": "claude/disenos/c-balance-esencial-11-cupos.json"
+   "thumb": "claude/disenos/c-balance-esencial-cupos-claro.jpg",
+   "file": "claude/disenos/c-balance-esencial-cupos-claro.json"
+  },
+  {
+   "id": "c-balance-esencial-cupos-oscuro",
+   "name": "Balance Esencial · Quedan 11 cupos a Bs 250 (oscuro)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Estado de WhatsApp. Cambia el número de cupos cuando bajen.",
+   "fecha": "2026-11-03",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-balance-esencial-cupos-oscuro.jpg",
+   "file": "claude/disenos/c-balance-esencial-cupos-oscuro.json"
   },
   {
    "id": "c-pasarela-estado-1",
