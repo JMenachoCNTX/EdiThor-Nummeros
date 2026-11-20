@@ -1,6 +1,30 @@
 {
- "actualizado": "2026-11-03",
+ "actualizado": "2026-11-20",
  "disenos": [
+  {
+   "id": "c-bal-plus-300-10cupos-claro",
+   "name": "Balance Plus · Últimos 10 cupos a Bs 300 (claro)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Después sube a Bs 380. Cambia el número si bajan los cupos.",
+   "fecha": "2026-11-20",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-bal-plus-300-10cupos-claro.jpg",
+   "file": "claude/disenos/c-bal-plus-300-10cupos-claro.json"
+  },
+  {
+   "id": "c-bal-plus-300-10cupos-oscuro",
+   "name": "Balance Plus · Últimos 10 cupos a Bs 300 (oscuro)",
+   "brand": "contax",
+   "w": 1080,
+   "h": 1920,
+   "nota": "Después sube a Bs 380. Cambia el número si bajan los cupos.",
+   "fecha": "2026-11-20",
+   "sec": "whatsapp/estados",
+   "thumb": "claude/disenos/c-bal-plus-300-10cupos-oscuro.jpg",
+   "file": "claude/disenos/c-bal-plus-300-10cupos-oscuro.json"
+  },
   {
    "id": "c-bal-nuevos-240-claro",
    "name": "Balance ¡Nuevos! · Bs 240 (claro)",
